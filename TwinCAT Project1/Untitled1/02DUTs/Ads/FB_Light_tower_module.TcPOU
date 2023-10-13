@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Light_tower_module" Id="{76a2423a-0702-4258-b0ae-9c01d7e6ca39}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Light_tower_module
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	lightTower	: ST_LightTower;
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="_lightTower" Id="{f7d870eb-4a94-4b4b-89e4-8119c420cb86}">
+      <Declaration><![CDATA[PROPERTY _lightTower : ST_LightTower]]></Declaration>
+      <Get Name="Get" Id="{7a0b5e46-296b-49e7-a384-a4950a54ec22}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_lightTower	:= lightTower;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{e6302abf-2dcb-4ed7-8096-c07360c2466b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[lightTower	:= _lightTower;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="update_light_tower" Id="{972896c5-5b3b-459f-a81c-d8dd8173ee54}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD update_light_tower : BOOL
+VAR_INPUT
+	iLightTowerStatus	: UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[update_light_tower	:= FALSE;
+lightTower.GREEN	:= iLightTowerStatus.0;
+lightTower.RED		:= iLightTowerStatus.1;
+lightTower.WHITE	:= iLightTowerStatus.2;
+lightTower.BLUE		:= iLightTowerStatus.3;
+lightTower.YELLOW	:= iLightTowerStatus.4;
+lightTower.BUZZER	:= iLightTowerStatus.5;
+update_light_tower	:= TRUE;
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_Light_tower_module">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Light_tower_module._lightTower.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Light_tower_module._lightTower.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Light_tower_module.update_light_tower">
+      <LineId Id="17" Count="5" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="16" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

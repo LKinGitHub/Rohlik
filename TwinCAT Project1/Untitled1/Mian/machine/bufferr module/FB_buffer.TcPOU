@@ -1,0 +1,233 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_buffer" Id="{df2ad2d1-8c07-4422-b79c-40aa917c064c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_buffer
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+
+	fb_rollers		: ARRAY[0..iHas_rollers] OF FB_roller;
+	sensor_start	: BOOL;//sensor at the beginning of roller[0]
+	EDM_24v	: BOOL;//edm_24v
+	EDM_sto	: BOOL;//edm_sto
+	xError	: BOOL;
+	
+	i	: INT;
+	event				: ST_EVENT;
+	rt_error			: R_TRIG;
+END_VAR
+VAR CONSTANT
+	iHas_rollers	: INT:=3;
+	sComponent_name			: STRING := 'fb_buffer';
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[M_mapping();
+event.sTime	:= MAIN.Temp_str;
+event.sComponent_name	:= sComponent_name;
+xError	:= fb_rollers[0].xError OR fb_rollers[1].xError OR fb_rollers[2].xError  OR fb_rollers[3].xError;
+			
+				
+				
+]]></ST>
+    </Implementation>
+    <Method Name="M_agingTest" Id="{1df7ec77-4153-4cd2-b633-bc1e438b8593}">
+      <Declaration><![CDATA[METHOD M_agingTest : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i:=0 TO iHas_rollers DO
+	fb_rollers[i].M_agingTest();
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_init" Id="{32549cd6-4604-40a8-a88c-7b7c334ab582}">
+      <Declaration><![CDATA[METHOD M_init : BOOL
+VAR_INPUT
+END_VAR
+VAR
+	i: INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_init	:= FALSE;
+
+FOR i:=0 TO iHas_rollers DO
+	fb_rollers[i].M_init();
+END_FOR
+xError	:= FALSE;
+M_init	:= TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_mapping" Id="{1a6da0bb-d604-4476-be71-0afdb8d7c5db}">
+      <Declaration><![CDATA[METHOD M_mapping : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+//todo:reconfig dios
+/////////////////////////////////////digital input////////////////////////////////////////
+
+fb_rollers[0].roller.err			:= G_IO.arDI[1].Ch[0];
+fb_rollers[1].roller.err			:= G_IO.arDI[1].Ch[1];
+fb_rollers[1].roller.sensor			:= G_IO.arDI[1].Ch[2];
+fb_rollers[2].roller.sensor			:= G_IO.arDI[1].Ch[3];
+fb_rollers[2].roller.err			:= G_IO.arDI[1].Ch[4];
+fb_rollers[3].roller.err			:= G_IO.arDI[1].Ch[5];
+fb_rollers[3].roller.sensor			:= G_IO.arDI[1].Ch[6];
+fb_rollers[3].sensor_mute			:= G_IO.arDI[1].Ch[7];
+EDM_24v								:= G_IO.arDI[1].Ch[11];
+EDM_sto								:= G_IO.arDI[1].Ch[12];
+sensor_start						:= G_IO.arDI[1].Ch[13];
+fb_rollers[0].roller.sensor			:= G_IO.arDI[1].Ch[14];
+
+/////////////////////////////////////digital output////////////////////////////////////////
+G_IO.arDO[1].Ch[0]	:= fb_rollers[2].roller.forward;
+G_IO.arDO[1].Ch[1]	:= fb_rollers[2].roller.backward;
+G_IO.arDO[1].Ch[2]	:= fb_rollers[0].roller.forward;
+G_IO.arDO[1].Ch[3]	:= fb_rollers[0].roller.backward;
+G_IO.arDO[1].Ch[4]	:= fb_rollers[1].roller.forward;
+G_IO.arDO[1].Ch[5]	:= fb_rollers[1].roller.backward;
+G_IO.arDO[1].Ch[6]	:= fb_rollers[3].roller.forward;
+G_IO.arDO[1].Ch[7]	:= fb_rollers[3].roller.backward;
+
+
+
+/////////////////////////////////////fb rollers////////////////////////////////////////
+
+FOR i:=0 TO iHas_rollers DO
+	fb_rollers[i].M_mapping();
+END_FOR
+
+
+
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_reset" Id="{0155cc58-4f6d-443b-9601-ef576d9314eb}">
+      <Declaration><![CDATA[METHOD M_reset : BOOL
+VAR_INPUT
+END_VAR
+
+VAR
+	i: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_reset	:= FALSE;
+
+FOR i:=0 TO iHas_rollers DO
+	fb_rollers[i].M_reset();
+END_FOR
+
+M_reset	:= TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_run" Id="{2da5b0e5-7de5-409a-8737-9e1baf67abf8}">
+      <Declaration><![CDATA[METHOD M_run : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_run	:= FALSE;
+IF sensor_start THEN
+	fb_rollers[0].pre_tote_status := ToteStatus.READY;
+ELSE
+	fb_rollers[0].pre_tote_status := ToteStatus.EMPTY;
+END_IF
+fb_rollers[0](	
+				id_roller := 0,
+				next_tote_status := fb_rollers[1].current_tote_status);
+fb_rollers[1](	pre_tote_status := fb_rollers[0].current_tote_status,
+				id_roller := 1,
+				next_tote_status := fb_rollers[2].current_tote_status);
+fb_rollers[2](	pre_tote_status := fb_rollers[1].current_tote_status,
+				id_roller := 2,
+				next_tote_status := fb_rollers[3].current_tote_status);
+fb_rollers[3](	pre_tote_status := fb_rollers[2].current_tote_status,
+				id_roller := 3,
+				next_tote_status := GVL.fb_loading.current_tote_status);	]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_safetyEvent" Id="{672a5a87-b7ca-4286-9a78-13df69728b10}">
+      <Declaration><![CDATA[METHOD M_safetyEvent : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i:=0 TO iHas_rollers DO
+	fb_rollers[i].M_safetyEvent();
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_buffer">
+      <LineId Id="9" Count="0" />
+      <LineId Id="134" Count="0" />
+      <LineId Id="114" Count="0" />
+      <LineId Id="155" Count="0" />
+      <LineId Id="79" Count="2" />
+      <LineId Id="97" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_buffer.M_agingTest">
+      <LineId Id="6" Count="1" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_buffer.M_init">
+      <LineId Id="6" Count="4" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_buffer.M_mapping">
+      <LineId Id="145" Count="1" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="123" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="125" Count="0" />
+      <LineId Id="159" Count="0" />
+      <LineId Id="158" Count="0" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="129" Count="0" />
+      <LineId Id="155" Count="1" />
+      <LineId Id="160" Count="0" />
+      <LineId Id="162" Count="0" />
+      <LineId Id="81" Count="0" />
+      <LineId Id="150" Count="0" />
+      <LineId Id="152" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="92" Count="1" />
+      <LineId Id="133" Count="0" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="138" Count="0" />
+      <LineId Id="135" Count="0" />
+      <LineId Id="141" Count="0" />
+      <LineId Id="139" Count="0" />
+      <LineId Id="142" Count="0" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="134" Count="0" />
+      <LineId Id="115" Count="0" />
+      <LineId Id="117" Count="1" />
+      <LineId Id="166" Count="1" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="120" Count="2" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_buffer.M_reset">
+      <LineId Id="5" Count="0" />
+      <LineId Id="10" Count="3" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="21" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_buffer.M_run">
+      <LineId Id="7" Count="0" />
+      <LineId Id="9" Count="15" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_buffer.M_safetyEvent">
+      <LineId Id="5" Count="2" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

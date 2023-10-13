@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_LightTower" Id="{b7d456ca-295c-4f24-93f8-088f27a12216}">
+    <Declaration><![CDATA[TYPE ST_LightTower :
+STRUCT
+	GREEN	: BOOL;
+	RED		: BOOL;
+	YELLOW	: BOOL;
+	BLUE	: BOOL;
+	WHITE	: BOOL;
+	BUZZER	: BOOL;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

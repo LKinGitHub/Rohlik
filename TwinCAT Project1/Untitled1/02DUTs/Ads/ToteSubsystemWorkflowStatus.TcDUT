@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ToteSubsystemWorkflowStatus" Id="{73f73244-b14e-4ceb-8a05-120969c6551d}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE ToteSubsystemWorkflowStatus:
+(
+	UNKNOWN					:=0,
+  	IDLE					:=1,
+ 	WAITING_FOR_NEW_TOTE	:=2,
+ 	INBOUNDING				:=3,
+  	BAG_OPENING				:=4,
+   	WAITING_FOR_UNLOADING	:=5,
+  	OUTBOUNDING				:=6
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

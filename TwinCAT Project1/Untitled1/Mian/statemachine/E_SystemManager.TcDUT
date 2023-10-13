@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_SystemManager" Id="{1d402335-ebd0-4be2-be31-3af0d459e92a}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE E_SystemManager :
+(
+	START 					:= 0		,	// Solid YELLOW
+	ON_POWER 				:= 10		,	// Solid YELLOW
+	
+	RESET_SAFETY,
+	RESET_FB_LOADING,
+	RESET_FB_BUFFER,
+	RESET_FB_WORKING,
+	
+	INIT_SAFETY,
+	INIT_FB_LOADING,
+	INIT_FB_BUFFER,
+	INIT_FB_WORKING,
+	AGAING_TEST,
+	
+	READY					:= 	20		,	// Blinking Green
+	READY_TO_JOB			:= 	50		,	// Blinking Green
+	INITIALIZATION			:= 	100		,	// Blinking YELLOW
+	BUSY					:= 	200		,	// Blinking YELLOW
+
+	IN_PROGRESS				:= 	300		, 	// Solid Green
+	IN_PROGRESS_WAITING		:= 	360		,	// blinking Green/Yellow
+					
+	
+	REJECT					:= 	700		,
+	RECOVERY				:= 	880 	,
+	ERROR					:= 	900		,	// Solid Red
+	ERROR_SAFETY			:=	950		,	// Blinking Red
+	ERROR_SAFETY_EX			:=	955		,	// Blinking Red
+
+	RESET					:=	990		,	// Blinking Red/Yellow
+	RESET_EX				:=	995			// Blinking Red/Yellow
+
+
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

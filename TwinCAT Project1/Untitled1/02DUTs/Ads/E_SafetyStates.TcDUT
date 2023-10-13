@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_SafetyStates" Id="{19627ce2-aab1-4347-990c-5641411672d1}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE E_SafetyStates :
+(
+	IDLE := 0,
+	CHECK_ESTOP,
+	CHECK_DOOR_CLOSED,
+	CHECK_DOOR_OSSD,
+	CHECK_SAFETY_OUTPUT,
+	REMIND_RESET,
+	DOOR_LOCK,
+	TRIG_RESET,
+	DONE,
+	ERROR
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

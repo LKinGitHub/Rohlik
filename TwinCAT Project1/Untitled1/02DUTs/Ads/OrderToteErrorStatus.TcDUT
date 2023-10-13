@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="OrderToteErrorStatus" Id="{91b4f0cf-44a7-448b-adb3-171992671f23}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE OrderToteErrorStatus:
+(
+	UNKNOWN					:=0,
+  	NONE					:=1,
+	MACHINE_NOT_RUNNING		:=2,
+ 	ELECTRICAL_ERROR		:=3,
+ 	MECHANICAL_ERROR		:=4
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

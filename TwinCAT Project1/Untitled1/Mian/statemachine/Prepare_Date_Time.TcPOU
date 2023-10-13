@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Prepare_Date_Time" Id="{a05ba712-ab28-4751-afe3-5501d19dd475}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION Prepare_Date_Time : STRING(255)
+VAR_INPUT
+	str_DT									: Tc2_Utilities.TIMESTRUCT;
+END_VAR
+VAR
+	tmp_str									: STRING(255);
+	tmp_result								: STRING(255);
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//fb_Time();
+
+	tmp_result := Tc2_Standard.CONCAT('DATE ', WORD_TO_STRING(str_DT.wYear MOD 100));
+	tmp_result := Tc2_Standard.CONCAT(tmp_result, '-');
+	tmp_str    := WORD_TO_STRING(str_DT.wMonth);
+	IF Tc2_Standard.LEN(tmp_str) < 2 THEN
+		tmp_str := Tc2_Standard.CONCAT('0', tmp_str);
+	END_IF;
+	tmp_result := Tc2_Standard.CONCAT(tmp_result, tmp_str);
+	
+	tmp_result := Tc2_Standard.CONCAT(tmp_result, '-');
+	tmp_str    := WORD_TO_STRING(str_DT.wDay);
+	IF Tc2_Standard.LEN(tmp_str) < 2 THEN
+		tmp_str := Tc2_Standard.CONCAT('0', tmp_str);
+	END_IF;
+	tmp_result := Tc2_Standard.CONCAT(tmp_result, tmp_str);
+
+	tmp_result := Tc2_Standard.CONCAT(tmp_result, '  TIME ');
+	tmp_str    := WORD_TO_STRING(str_DT.wHour);
+	IF Tc2_Standard.LEN(tmp_str) < 2 THEN
+		tmp_str := Tc2_Standard.CONCAT('0', tmp_str);
+	END_IF;
+	tmp_result := Tc2_Standard.CONCAT(tmp_result, tmp_str);
+
+	tmp_result := Tc2_Standard.CONCAT(tmp_result, ':');
+	tmp_str    := WORD_TO_STRING(str_DT.wMinute);
+	IF Tc2_Standard.LEN(tmp_str) < 2 THEN
+		tmp_str := Tc2_Standard.CONCAT('0', tmp_str);
+	END_IF;
+	tmp_result := Tc2_Standard.CONCAT(tmp_result, tmp_str);
+
+	tmp_result := Tc2_Standard.CONCAT(tmp_result, ':');
+	tmp_str    := WORD_TO_STRING(str_DT.wSecond);
+	IF Tc2_Standard.LEN(tmp_str) < 2 THEN
+		tmp_str := Tc2_Standard.CONCAT('0', tmp_str);
+	END_IF;
+	tmp_result := Tc2_Standard.CONCAT(tmp_result, tmp_str);
+	
+	tmp_result := Tc2_Standard.CONCAT(tmp_result, ':');
+	tmp_str    := WORD_TO_STRING(str_DT.wMilliseconds);
+	IF Tc2_Standard.LEN(tmp_str) = 1 THEN
+		tmp_str := Tc2_Standard.CONCAT('00', tmp_str);
+	END_IF;
+	IF Tc2_Standard.LEN(tmp_str) = 2 THEN
+		tmp_str := Tc2_Standard.CONCAT('0', tmp_str);
+	END_IF;
+	tmp_result := Tc2_Standard.CONCAT(tmp_result, tmp_str);	
+	Prepare_Date_Time := tmp_result;]]></ST>
+    </Implementation>
+    <LineIds Name="Prepare_Date_Time">
+      <LineId Id="74" Count="36" />
+      <LineId Id="117" Count="0" />
+      <LineId Id="112" Count="4" />
+      <LineId Id="119" Count="1" />
+      <LineId Id="118" Count="0" />
+      <LineId Id="111" Count="0" />
+      <LineId Id="57" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

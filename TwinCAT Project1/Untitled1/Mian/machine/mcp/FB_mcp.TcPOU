@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_mcp" Id="{95855287-162e-42db-95f8-8863eff62dc1}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_mcp
+VAR_INPUT
+	lightTower			: ST_LightTower;
+END_VAR
+VAR_OUTPUT
+	
+END_VAR
+VAR_IN_OUT
+	
+END_VAR
+VAR
+
+	
+	EDM_EES				: BOOL;
+	EDM_EAS				: BOOL;
+	st_safety_door		: ST_safetyDoor;
+	st_control_pannel	: ST_control_pannel;
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[M_mapping();
+]]></ST>
+    </Implementation>
+    <Method Name="M_mapping" Id="{423f0c1d-f3db-4277-97c4-4cce9183826e}">
+      <Declaration><![CDATA[METHOD M_mapping : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[/////////////////////////////////////digital input////////////////////////////////////////
+st_control_pannel.button_start		:= G_IO.arDI[0].Ch[0];
+st_control_pannel.button_stop		:= G_IO.arDI[0].Ch[1];
+st_control_pannel.button_reset		:= G_IO.arDI[0].Ch[2];
+st_control_pannel.button_power		:= G_IO.arDI[0].Ch[3];
+EDM_EES								:= G_IO.arDI[0].Ch[4];
+EDM_EAS								:= G_IO.arDI[0].Ch[5];
+st_safety_door.button_reset			:= G_IO.arDI[0].Ch[6];
+st_safety_door.button_unlock		:= G_IO.arDI[0].Ch[7];
+st_safety_door.door_closed			:= G_IO.arDI[0].Ch[8];
+
+/////////////////////////////////////digital output////////////////////////////////////////
+G_IO.arDO[0].Ch[0]	:= st_control_pannel.lamp_start;
+G_IO.arDO[0].Ch[1]	:= st_control_pannel.lamp_stop;
+G_IO.arDO[0].Ch[2]	:= st_control_pannel.lamp_reset;
+G_IO.arDO[0].Ch[3]	:= lightTower.RED;
+G_IO.arDO[0].Ch[4]	:= lightTower.YELLOW;
+G_IO.arDO[0].Ch[5]	:= lightTower.GREEN;
+G_IO.arDO[0].Ch[6]	:= lightTower.BLUE;
+G_IO.arDO[0].Ch[7]	:= lightTower.WHITE;
+G_IO.arDO[0].Ch[8]	:= lightTower.BUZZER;
+G_IO.arDO[0].Ch[9]	:= st_safety_door.lamp_reset;
+G_IO.arDO[0].Ch[10]	:= st_safety_door.lamp_unlock;
+G_IO.arDO[0].Ch[11]	:= st_safety_door.door_lock;]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_mcp">
+      <LineId Id="9" Count="0" />
+      <LineId Id="36" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_mcp.M_mapping">
+      <LineId Id="16" Count="0" />
+      <LineId Id="5" Count="8" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="17" Count="2" />
+      <LineId Id="23" Count="4" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="28" Count="2" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

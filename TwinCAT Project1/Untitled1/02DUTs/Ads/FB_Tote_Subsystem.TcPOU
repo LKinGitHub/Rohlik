@@ -1,0 +1,305 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Tote_Subsystem" Id="{18f3e813-8d9e-4f02-997f-31b8e26895c7}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Tote_Subsystem
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	status	: MachineStatus := MachineStatus.STOPPED;
+	workflow_status	: ToteSubsystemWorkflowStatus := ToteSubsystemWorkflowStatus.UNKNOWN;
+	error_status	: OrderToteErrorStatus := OrderToteErrorStatus.UNKNOWN;
+	loading_tote	: FB_ToteData;
+	buffer_tote		: FB_ToteData;
+	working_tote	: FB_ToteData;
+	machine_control_cmd	: MachineControlCommand;
+
+	cmd	: OrderToteCommand;
+	iLoad	: INT;
+	iUnload	: INT;
+	ton1	: TON;
+	working_tote_status	: ToteStatus;
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+//status					:= GVL.machine_status;
+workflow_status			:= GVL.fb_working.workflow_status;
+error_status			:= GVL.fb_working.error_status;
+working_tote._status	:= GVL.fb_working.tote_status;
+
+
+CASE cmd OF
+	OrderToteCommand.DO_NOTHING:
+	;
+	OrderToteCommand.LOAD:
+		IF GVL.fb_working.M_load() THEN
+			cmd	:= OrderToteCommand.DO_NOTHING;
+		END_IF
+	OrderToteCommand.OPEN_BAG:
+		workflow_status := ToteSubsystemWorkflowStatus.BAG_OPENING;
+		working_tote._status	:= ToteStatus.READY;
+		workflow_status := ToteSubsystemWorkflowStatus.IDLE;
+		IF GVL.fb_working.M_bag_open() THEN
+			cmd	:= OrderToteCommand.DO_NOTHING;
+		END_IF
+		
+	;
+	OrderToteCommand.STOP:
+		working_tote._status	:= ToteStatus.EMPTY;
+		workflow_status := ToteSubsystemWorkflowStatus.IDLE;
+		cmd	:= OrderToteCommand.DO_NOTHING;
+		;
+	OrderToteCommand.SWAP:
+		IF M_Unload() THEN
+			IF M_Load() THEN
+				cmd	:= OrderToteCommand.DO_NOTHING;
+			END_IF
+		END_IF
+	;
+	OrderToteCommand.UNLOAD:
+		IF GVL.fb_working.M_unload() THEN
+			cmd	:= OrderToteCommand.DO_NOTHING;
+		END_IF
+	;	
+END_CASE
+ton1(PT:=T#1S);
+
+]]></ST>
+    </Implementation>
+    <Method Name="M_Load" Id="{f3d31d0d-ba45-4048-bf50-b51644cf2466}">
+      <Declaration><![CDATA[METHOD M_Load : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_Load	:=FALSE;
+CASE iLoad OF
+	0:	
+		working_tote._status	:= ToteStatus.EMPTY;
+		workflow_status := ToteSubsystemWorkflowStatus.WAITING_FOR_NEW_TOTE;
+		ton1.IN	:= FALSE;
+		//GVL.iLoad	:= 1;
+	1:
+		ton1.IN	:= TRUE;
+		IF ton1.Q THEN
+			ton1.IN	:= FALSE;
+			iLoad	:= 2;
+		END_IF
+	2:	
+		workflow_status := ToteSubsystemWorkflowStatus.INBOUNDING;
+		working_tote._status	:= ToteStatus.LOADED;
+		iLoad	:= 3;
+	3:
+		ton1.IN	:= TRUE;
+		IF ton1.Q THEN
+			ton1.IN	:= FALSE;
+			iLoad	:= 4;
+		END_IF
+	4:	
+		workflow_status := ToteSubsystemWorkflowStatus.BAG_OPENING;
+		working_tote._status	:= ToteStatus.READY;
+		iLoad	:= 5;
+	5:
+		ton1.IN	:= TRUE;
+		IF ton1.Q THEN
+			ton1.IN	:= FALSE;
+			iLoad	:= 6;
+		END_IF		
+	6:	
+		workflow_status := ToteSubsystemWorkflowStatus.IDLE;
+		iLoad	:= 0;
+		M_Load	:= TRUE;
+		GVL.fb_working.M_load();
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Swap" Id="{20428881-b3c0-40e9-9ad8-a4eb281ff8b2}">
+      <Declaration><![CDATA[METHOD M_Swap : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Unload" Id="{3b2ff3c1-e38e-4c29-abd4-860eb0b1090d}">
+      <Declaration><![CDATA[METHOD M_Unload : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_Unload	:=FALSE;
+CASE iUnload OF	
+	0:	
+		workflow_status := ToteSubsystemWorkflowStatus.WAITING_FOR_UNLOADING;
+		ton1.IN	:= FALSE;
+		iUnload	:= 1;
+	1:
+		ton1.IN	:= TRUE;
+		IF ton1.Q THEN
+			ton1.IN	:= FALSE;
+			iUnload	:= 2;
+		END_IF
+	2:	
+		workflow_status := ToteSubsystemWorkflowStatus.OUTBOUNDING;
+		working_tote._status	:= ToteStatus.EMPTY;
+		iUnload	:= 3;
+	3:
+		ton1.IN	:= TRUE;
+		IF ton1.Q THEN
+			ton1.IN	:= FALSE;
+			iUnload	:= 4;
+		END_IF	
+	4:	
+		workflow_status := ToteSubsystemWorkflowStatus.IDLE;
+		iUnload	:= 0;
+		M_Unload	:=TRUE;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="machine_control_command" Id="{e35d6b29-fce8-4046-8fa5-9d1764fae381}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD machine_control_command : BOOL
+VAR_INPUT
+	Command	: MachineControlCommand;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[machine_control_command	:= FALSE; 
+
+machine_control_cmd	:= Command;
+
+machine_control_command	:= TRUE; ]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="order_tote_action_request" Id="{070e3305-f432-4c7a-8094-5803fe668fc5}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD order_tote_action_request : BOOL
+VAR_INPUT
+	Command	: OrderToteCommand;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[order_tote_action_request	:= FALSE; 
+IF MAIN.eState=E_SystemManager.IN_PROGRESS THEN
+	cmd	:= Command;
+ELSE
+	error_status	:= OrderToteErrorStatus.MACHINE_NOT_RUNNING;
+END_IF
+
+//Command	:= OrderToteCommand.DO_NOTHING;
+order_tote_action_request	:= TRUE; ]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_Tote_Subsystem">
+      <LineId Id="187" Count="0" />
+      <LineId Id="113" Count="1" />
+      <LineId Id="117" Count="1" />
+      <LineId Id="162" Count="0" />
+      <LineId Id="141" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="70" Count="2" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="59" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="91" Count="2" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="24" Count="1" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="26" Count="1" />
+      <LineId Id="66" Count="3" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="28" Count="1" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="58" Count="0" />
+      <LineId Id="65" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="61" Count="0" />
+      <LineId Id="60" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Tote_Subsystem.M_Load">
+      <LineId Id="25" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="22" Count="1" />
+      <LineId Id="8" Count="2" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="32" Count="1" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="11" Count="2" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="38" Count="1" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="17" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Tote_Subsystem.M_Swap">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Tote_Subsystem.M_Unload">
+      <LineId Id="12" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="17" Count="6" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="9" Count="1" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="25" Count="3" />
+      <LineId Id="15" Count="1" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="24" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Tote_Subsystem.machine_control_command">
+      <LineId Id="5" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="23" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Tote_Subsystem.order_tote_action_request">
+      <LineId Id="5" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="23" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

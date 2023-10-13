@@ -1,0 +1,400 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_roller" Id="{6282d1bb-35f5-4dfd-82a7-1c9890b4c88c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_roller
+VAR_INPUT
+	pre_tote_status			: ToteStatus;//roller -1 totestatus=ready
+	next_tote_status		: ToteStatus;//roller +1 totestatus=empty
+	roller					: Roller;
+	id_roller				: INT;
+	sensor_mute				: BOOL;
+END_VAR
+VAR_OUTPUT
+	
+END_VAR
+VAR_IN_OUT
+	
+END_VAR
+	
+VAR
+	mcAxis			: FB_MotionAxis_MC;
+	st_mcAxis 		: ST_MotionAxis_MC;
+	AxisRef			: AXIS_REF;
+	current_tote_status		: ToteStatus;//state of current roller tote
+	ton_timeout	: TON;	
+	eStates					: E_RollerStates :=	E_RollerStates.IDLE;
+	eStateTemp				: E_RollerStates :=	E_RollerStates.IDLE;
+	iStateTemp				: INT;
+	sStateTemp				: STRING;
+	errorMessage			: STRING;
+	xError	: BOOL;
+	event				: ST_EVENT;
+	rt_error			: R_TRIG;
+END_VAR
+VAR CONSTANT
+	rPos_up			: REAL	:=90;
+	rPos_down			: REAL	:=-6;
+	sComponent_name			: STRING := 'fb_roller';
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[M_mapping();
+rt_error(CLK:=roller.err OR st_mcAxis.mcReadStatus.Error);
+
+IF rt_error.Q THEN
+	xError	:= TRUE;
+	eStates	:= E_RollerStates.ERROR;
+END_IF
+
+
+//////////////////////////////////////////////////////////timeout//////////////////////////////////////////
+iStateTemp	:= eStateTemp;
+sStateTemp	:= INT_TO_STRING(iStateTemp);
+ton_timeout();
+IF eStates<>E_RollerStates.IDLE AND eStates<>E_RollerStates.ERROR THEN
+	IF eStateTemp=eStates THEN
+		ton_timeout.IN	:=TRUE;
+	ELSE
+		IF GVL.bAck_stop THEN
+			RETURN;		
+		END_IF		
+		ton_timeout.IN	:=FALSE;
+		eStateTemp	:= eStates;
+	END_IF
+ELSE
+	ton_timeout.IN	:=FALSE;
+END_IF
+IF ton_timeout.Q THEN	
+	ton_timeout.IN	:=FALSE;
+	CASE eStates OF
+		E_RollerStates.LOADING:		
+			event.sEventType	:= 'error';
+			event.sEvent_MSG	:=  CONCAT('LOADING','timeout');
+			event.sStepID		:=	sStateTemp;
+		E_RollerStates.UNLOADING:		
+			event.sEventType	:= 'error';
+			event.sEvent_MSG	:=  CONCAT('UNLOADING','timeout');
+			event.sStepID		:=  sStateTemp;
+	END_CASE
+	IF eStates<>E_RollerStates.DETECTION THEN
+		eStates	:= E_RollerStates.ERROR;
+		Event_add(event);
+	END_IF
+END_IF
+
+CASE eStates OF 
+		E_RollerStates.IDLE:
+			eStates	:= E_RollerStates.DETECTION;
+		E_RollerStates.DETECTION:
+			IF roller.sensor THEN
+				current_tote_status	:= ToteStatus.READY;
+			ELSE
+				current_tote_status	:= ToteStatus.EMPTY;
+			END_IF		
+			st_mcAxis.mcMoveAbsolute.Execute	:= FALSE;
+			roller.forward	:= FALSE;
+			ton_timeout.PT	:= T#600S;
+			IF pre_tote_status=ToteStatus.READY AND current_tote_status=ToteStatus.EMPTY THEN
+				eStates	:= E_RollerStates.LOADING;
+			END_IF
+			IF next_tote_status=ToteStatus.EMPTY AND current_tote_status=ToteStatus.READY THEN
+				eStates	:= E_RollerStates.UNLOADING;
+			END_IF				
+		E_RollerStates.LOADING:		
+			IF roller.sensor THEN
+				eStates	:= E_RollerStates.DETECTION;
+				roller.forward	:= FALSE;
+			ELSE
+				roller.forward	:= TRUE;
+			END_IF
+		E_RollerStates.UNLOADING:	
+			IF id_roller=3 THEN
+				eStates	:= E_RollerStates.STOPPER_DOWN;
+			ELSE	
+				IF roller.sensor THEN			
+					roller.forward	:= TRUE;
+				ELSE
+					eStates	:= E_RollerStates.DETECTION;
+					roller.forward	:= FALSE;
+				END_IF	
+			END_IF	
+		E_RollerStates.STOPPER_DOWN:
+			st_mcAxis.mcMoveAbsolute.Execute	:= TRUE;						
+			st_mcAxis.rActualPosSet	:= rPos_down;
+			st_mcAxis.rVelocitySet	:= 50;
+			IF st_mcAxis.mcMoveAbsolute.Done THEN
+				st_mcAxis.mcMoveAbsolute.Execute	:= FALSE;
+				eStates	:= E_RollerStates.ROLLER_FORWARD;
+			END_IF					
+		E_RollerStates.ROLLER_FORWARD:
+			roller.forward	:= TRUE;
+			IF sensor_mute THEN
+				eStates	:= E_RollerStates.WAIT_MUTE_OFF;
+			END_IF
+		E_RollerStates.WAIT_MUTE_OFF:
+			IF NOT sensor_mute THEN
+				roller.forward	:= FALSE;
+				eStates	:= E_RollerStates.STOPPER_UP;
+			END_IF
+		E_RollerStates.STOPPER_UP:
+			st_mcAxis.mcMoveAbsolute.Execute	:= TRUE;						
+			st_mcAxis.rActualPosSet	:= rPos_up;
+			st_mcAxis.rVelocitySet	:= 50;
+			IF st_mcAxis.mcMoveAbsolute.Done THEN
+				st_mcAxis.mcMoveAbsolute.Execute	:= FALSE;
+				eStates	:= E_RollerStates.DETECTION;
+			END_IF			
+		E_RollerStates.DONE:			
+			eStates	:= E_RollerStates.IDLE;
+		E_RollerStates.ERROR:
+			st_mcAxis.mcMoveAbsolute.Execute	:= FALSE;
+			roller.forward	:= FALSE;
+			xError	:=	TRUE;	
+END_CASE
+
+
+
+
+]]></ST>
+    </Implementation>
+    <Method Name="M_agingTest" Id="{6ab60c5c-f036-48dd-a94b-6ba4f861538e}">
+      <Declaration><![CDATA[METHOD M_agingTest : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_AgingTest	:= FALSE;
+//////////////////////////////////////////////////////////timeout//////////////////////////////////////////
+iStateTemp	:= eStateTemp;
+ton_timeout();
+IF eStates<>E_RollerStates.IDLE AND eStates<>E_RollerStates.ERROR THEN
+	IF eStateTemp=eStates THEN
+		ton_timeout.IN	:=TRUE;
+	ELSE
+		ton_timeout.IN	:=FALSE;
+		eStateTemp	:= eStates;
+	END_IF
+ELSE
+	ton_timeout.IN	:=FALSE;
+END_IF
+IF ton_timeout.Q THEN	
+	ton_timeout.IN	:=FALSE;
+	CASE eStates OF
+		E_RollerStates.AGING_STATE_0:		
+			errorMessage	:= CONCAT('wait loading timeout.->fb_loading ',INT_TO_STRING(iStateTemp));
+		E_RollerStates.AGING_STATE_1:		
+			errorMessage	:= CONCAT('wait unloading timeout.->fb_loading ',INT_TO_STRING(iStateTemp));
+	END_CASE
+	IF eStates<>E_RollerStates.WAIT AND eStates<>E_RollerStates.WAIT_1 THEN
+		//eStates	:= E_RollerStates.ERROR;
+		;
+	END_IF
+END_IF
+CASE eStates OF
+	E_RollerStates.IDLE:
+		eStates	:= E_RollerStates.AGING_STATE_0;
+	E_RollerStates.AGING_STATE_0:
+		ton_timeout.PT	:= T#5S;
+		roller.forward	:= TRUE;
+		roller.backward	:= FALSE;
+		st_mcAxis.mcMoveAbsolute.Execute	:= TRUE;						
+		st_mcAxis.rActualPosSet	:= rPos_up;
+		st_mcAxis.rVelocitySet	:= 100;
+		//IF st_mcAxis.mcMoveAbsolute.Done AND ton_timeout.Q THEN
+		IF ton_timeout.Q THEN	
+			eStates	:= E_RollerStates.WAIT;
+		END_IF			
+	E_RollerStates.WAIT:
+		roller.forward			:= FALSE;
+		roller.backward			:= FALSE;	
+		st_mcAxis.mcMoveAbsolute.Execute	:= FALSE;	
+		ton_timeout.PT	:= T#2S;
+		IF ton_timeout.Q THEN
+			eStates	:= E_RollerStates.AGING_STATE_1;
+		END_IF
+	E_RollerStates.AGING_STATE_1:
+		ton_timeout.PT	:= T#5S;
+		roller.forward	:= TRUE;
+		roller.backward	:= TRUE;
+		st_mcAxis.mcMoveAbsolute.Execute	:= TRUE;						
+		st_mcAxis.rActualPosSet	:= rPos_down;
+		st_mcAxis.rVelocitySet	:= 100;
+		//IF st_mcAxis.mcMoveAbsolute.Done AND ton_timeout.Q THEN
+		IF ton_timeout.Q THEN	
+			eStates	:= E_RollerStates.WAIT_1;
+		END_IF	
+	E_RollerStates.WAIT_1:
+		roller.forward			:= FALSE;
+		roller.backward			:= FALSE;	
+		st_mcAxis.mcMoveAbsolute.Execute	:= FALSE;	
+		ton_timeout.PT	:= T#2S;
+		IF ton_timeout.Q THEN
+			eStates	:= E_RollerStates.IDLE;
+		END_IF	
+	E_RollerStates.DONE:
+		;
+	E_RollerStates.ERROR:
+		;
+	
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_init" Id="{15513abd-7ceb-4328-a56d-651c02652bc1}">
+      <Declaration><![CDATA[METHOD M_init : BOOL
+VAR_INPUT
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_init	:= FALSE;
+eStates	:=E_RollerStates.IDLE;
+xError	:= FALSE;
+st_mcAxis.mcStop.Execute	:= FALSE;
+st_mcAxis.mcReset.Execute	:= TRUE;
+
+
+M_init	:= TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_mapping" Id="{fca68c40-fcd8-4f9d-8f04-eec9f2c328cf}">
+      <Declaration><![CDATA[METHOD M_mapping : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[event.sTime	:= MAIN.Temp_str;
+event.sComponent_name	:= sComponent_name;
+event.sComponentID	:= INT_TO_STRING(id_roller);
+/////////////////////
+mcAxis
+(
+	ZSN		:=  TRUE OR st_mcAxis.xHoming, //TODO link to digital input
+	ZSP		:=  TRUE OR st_mcAxis.xHoming, //TODO link to digital input
+	IN_OUT	:= 	st_mcAxis, 
+	AXIS	:= 	AxisRef	, 
+);
+st_mcAxis.bPosSensorShow	:= TRUE;
+st_mcAxis.bNegSensorShow	:= TRUE;
+st_mcAxis.rMaxAcceleration	:= 50000;
+st_mcAxis.rMaxDeceleration	:= 50000;
+st_mcAxis.rMaxJerk			:= 500000;
+st_mcAxis.rAcceleration	:= 2500;
+st_mcAxis.rDeceleration	:= 2500;
+st_mcAxis.rJerk			:= 12500;
+st_mcAxis.rMaxVelocity		:= 100;
+st_mcAxis.rMaxDistance		:= 50;
+st_mcAxis.bPosSen	:= TRUE ;//TODO link to digital input
+st_mcAxis.bNegSen	:= TRUE ;//TODO link to digital input
+st_mcAxis.mcHome.bCalibrationCam	:= TRUE;//TODO link to digital input origin
+st_mcAxis.bPositionSensor	:= TRUE;//TODO link to digital input origin
+st_mcAxis.bdirFW	:= TRUE;
+st_mcAxis.sNetID := '192.168.11.159.5.1';
+IF id_roller=3 THEN
+	st_mcAxis.nSlaveAddr	:= 1009;
+END_IF
+
+IF MAIN.firstCycle THEN
+	st_mcAxis.mcPower.Enable	:= TRUE;
+END_IF;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_reset" Id="{b5c89a7e-3800-405c-966f-e833f9a306b7}">
+      <Declaration><![CDATA[METHOD M_reset : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_reset	:= FALSE;
+
+
+eStates	:=E_RollerStates.IDLE;
+xError	:= FALSE;
+st_mcAxis.mcStop.Execute	:= FALSE;
+st_mcAxis.mcReset.Execute	:= TRUE;
+IF roller.err AND st_mcAxis.mcReadStatus.StandStill THEN
+	M_reset	:= TRUE;
+END_IF
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_safetyEvent" Id="{14afbf41-141e-4955-9161-f1c89bc4093d}">
+      <Declaration><![CDATA[METHOD M_safetyEvent : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_safetyEvent	:= FALSE;
+
+roller.forward	:= FALSE;	
+roller.backward	:= FALSE;
+st_mcAxis.mcMoveAbsolute.Execute	:= FALSE;
+st_mcAxis.mcStop.Execute	:= TRUE;
+
+M_safetyEvent	:= TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_roller">
+      <LineId Id="666" Count="16" />
+      <LineId Id="781" Count="1" />
+      <LineId Id="780" Count="0" />
+      <LineId Id="683" Count="96" />
+      <LineId Id="263" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_roller.M_agingTest">
+      <LineId Id="6" Count="23" />
+      <LineId Id="87" Count="0" />
+      <LineId Id="30" Count="6" />
+      <LineId Id="114" Count="1" />
+      <LineId Id="37" Count="2" />
+      <LineId Id="102" Count="0" />
+      <LineId Id="133" Count="0" />
+      <LineId Id="42" Count="2" />
+      <LineId Id="97" Count="1" />
+      <LineId Id="105" Count="0" />
+      <LineId Id="45" Count="4" />
+      <LineId Id="116" Count="6" />
+      <LineId Id="134" Count="0" />
+      <LineId Id="123" Count="0" />
+      <LineId Id="57" Count="1" />
+      <LineId Id="124" Count="5" />
+      <LineId Id="62" Count="5" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_roller.M_init">
+      <LineId Id="6" Count="0" />
+      <LineId Id="24" Count="4" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_roller.M_mapping">
+      <LineId Id="43" Count="0" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="6" Count="21" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="31" Count="3" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="38" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_roller.M_reset">
+      <LineId Id="9" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="22" Count="2" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="30" Count="2" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="10" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_roller.M_safetyEvent">
+      <LineId Id="6" Count="2" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="9" Count="2" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

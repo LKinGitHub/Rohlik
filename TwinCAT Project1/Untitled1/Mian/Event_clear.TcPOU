@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Event_clear" Id="{72667ebe-a60a-4bd2-a00a-ed9dca273bf2}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION Event_clear : BOOL
+VAR_INPUT
+END_VAR
+VAR
+	i: INT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[FOR i:=0 TO GVL.iAlarm_max DO
+	GVL.events_alarm[i]	:= GVL.event_for_clear;
+END_FOR]]></ST>
+    </Implementation>
+    <LineIds Name="Event_clear">
+      <LineId Id="8" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

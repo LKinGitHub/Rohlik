@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="GVL_IOLink" Id="{56d7f6c6-7561-45b1-8a93-b9ed961517d9}">
+    <Declaration><![CDATA[//{attribute 'qualified_only'}
+VAR_GLOBAL
+	 
+SI0_0              AT%I*  :BOOL           ;   //eStop1/2_NC1	急停1/2_NC1          
+SI0_1              AT%I*  :BOOL           ;   //eStop1/2_NC2	急停1/2_NC2          
+SI0_2              AT%I*  :BOOL           ;   //safetyDoor_NC1	门锁_NC1           
+SI0_3              AT%I*  :BOOL           ;   //safetyDoor_NC2	门锁_NC2           
+SI1_0              AT%I*  :BOOL           ;   //eStop3_NC1	急停3_NC1              
+SI1_1              AT%I*  :BOOL           ;   //eStop3_NC2	急停3_NC2              
+SI1_2              AT%I*  :BOOL           ;   //	                               
+SI1_3              AT%I*  :BOOL           ;   //	                               
+SI2_0              AT%I*  :BOOL           ;   //light_curtain_left[0]	安全光栅1-ON1 
+SI2_1              AT%I*  :BOOL           ;   //light_curtain_left[1]	安全光栅1-ON2 
+SI2_2              AT%I*  :BOOL           ;   //eStop4_NC1	急停按钮4-NC1            
+SI2_3              AT%I*  :BOOL           ;   //eStop4_NC2	急停按钮4-NC2            
+SI3_0              AT%I*  :BOOL           ;   //light_curtain_right[0]	安全光栅2-ON1
+SI3_1              AT%I*  :BOOL           ;   //light_curtain_right[1]	安全光栅2-ON2
+SI3_2              AT%I*  :BOOL           ;   //station_detection_NC1	升降推到位检测ON1
+SI3_3              AT%I*  :BOOL           ;   //station_detection_NC2	升降推到位检测ON2
+SI4_0              AT%I*  :BOOL           ;   //light_curtain_right[0]	安全光栅2-ON1
+SI4_1              AT%I*  :BOOL           ;   //light_curtain_right[1]	安全光栅2-ON2	                                         
+	                                         
+SO0_0              AT%I*  :BOOL           ;   //EES	机器人EES急停         
+SO0_1              AT%I*  :BOOL           ;   //EAS	机器人EAS安全门        
+SO0_2              AT%I*  :BOOL           ;   //	                    
+SO0_3              AT%I*  :BOOL           ;   //	                    
+SO1_0              AT%I*  :BOOL           ;   //24v_sto	滚筒电机急停（24V急停）
+SO1_1              AT%I*  :BOOL           ;   //A/B_sto	阻挡步进电机（A/B急停）
+SO1_2              AT%I*  :BOOL           ;   //	                    
+SO1_3              AT%I*  :BOOL           ;   //	                    
+SO2_0              AT%I*  :BOOL           ;   //STO1	伺服STO1          
+SO2_1              AT%I*  :BOOL           ;   //STO2	伺服STO2          
+SO2_2              AT%I*  :BOOL           ;   //24v_sto	滚筒电机急停（24V急停）
+SO2_3              AT%I*  :BOOL           ;   //	                    
+SO3_0              AT%I*  :BOOL           ;   //STO1	伺服STO1          
+SO3_1              AT%I*  :BOOL           ;   //STO2	伺服STO2          
+SO3_2              AT%I*  :BOOL           ;   //24v_sto	滚筒电机急停（24V急停）
+SO3_3              AT%I*  :BOOL           ;   //	                                                           
+	                                        	 
+
+b_FBerror	AT %I*		:	BOOL;//安全功能块错误
+b_CoMerror	AT %I*		:	BOOL;//安全端口错误
+	 
+b_GroupRun	AT %Q*  	:  BOOL:=1;//安全模块运行
+b_ErrorAck	AT %Q*  	:  BOOL;//安全模块错误确认
+b_EStopRestart AT %Q* 	:  BOOL;	//安全模块复位 	 
+	
+bMultingEnable AT %Q* 	:  BOOL;
+bShield_light_curtain_Left  	AT %Q*  	:  BOOL ;//屏蔽光栅1
+bShield_light_curtain_Right  	AT %Q*  	:  BOOL ;//屏蔽光栅2
+
+SPtop_EDM  	AT %Q*  	:  BOOL ;//急停反馈
+
+robot_eas_edm  	AT %Q*  	:  BOOL ;//机械人门安全反馈
+
+light_STO_EDM              AT %Q*  	:  BOOL ; //升降STO反馈
+PickModule_STO_EDM         AT %Q*  	:  BOOL ; //分拣STO反馈
+Rolller_belt_STO_EDM       AT %Q*  	:  BOOL ; //滚筒STO反馈
+
+               
+ END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_ToteData" Id="{b550ec73-9a62-494f-ac6c-bd7075901bc6}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_ToteData
+VAR_INPUT
+	
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR_IN_OUT
+	
+END_VAR
+VAR
+	status	: ToteStatus:= ToteStatus.UNKNOWN;
+	barcode	: STRING	:= '';
+	barcode_validation	: BarcodeVerificationResult	:= BarcodeVerificationResult.UNVERIFIED;
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="_status" Id="{a57875de-fbad-45fa-9732-3f1850ab8f1a}">
+      <Declaration><![CDATA[PROPERTY _status : ToteStatus]]></Declaration>
+      <Get Name="Get" Id="{5ed087a4-c79a-4633-8bac-b61050a0ebbb}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_status	:= status;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{dfb0724d-ae07-4d16-9c44-89200ed3f899}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[
+status	:= _status;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <LineIds Name="FB_ToteData">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ToteData._status.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ToteData._status.Set">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

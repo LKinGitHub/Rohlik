@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="Event_add" Id="{bb8ccdbc-e3ad-4581-b2be-7d849efd6d91}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION Event_add : BOOL
+VAR_INPUT
+	event	: ST_EVENT;
+END_VAR
+VAR
+	i :INT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//write event
+FOR i:=0 TO GVL.iAlarm_max DO
+	IF GVL.events_alarm[i].sEvent_MSG='' THEN
+		GVL.events_alarm[i]	:= event;
+		EXIT;
+	END_IF
+END_FOR
+//check full
+IF GVL.events_alarm[GVL.iAlarm_max].sEvent_MSG<>'' THEN
+	FOR i:=0 TO GVL.iAlarm_max-1 DO
+		GVL.events_alarm[i]	:= GVL.events_alarm[i+1];
+	END_FOR
+	GVL.events_alarm[GVL.iAlarm_max]	:= GVL.event_for_clear;
+END_IF
+]]></ST>
+    </Implementation>
+    <LineIds Name="Event_add">
+      <LineId Id="30" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="27" Count="1" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="14" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

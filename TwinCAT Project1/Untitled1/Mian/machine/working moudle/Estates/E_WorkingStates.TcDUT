@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_WorkingStates" Id="{6f75a5c4-44ff-4fb1-9d15-0d913b000b2e}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE E_WorkingStates :
+(
+	IDLE 				:= 0,
+	INIT,
+	CHECK,
+	WAIT_NEW_TOTE,
+	LOADING,
+	WAIT_FINISHED,
+	TOTE_LOAD,
+	TOTE_UNLOAD,
+	BAG_OPEN,
+	BAG_CLOSE,
+	TOTE_LIFT_UP,
+	TOTE_LIFT_DOWN,
+	BAG_OPEN_UP,
+	BAG_OPEN_DOWN,
+	TOTE_OUT,
+	
+	AGING_STATE_0,
+	AGING_STATE_1,
+	
+	
+	WAIT,
+	WAIT_1,
+	WAIT_UNLOADING,
+	WAIT_SENSOR_ON,
+	WAIT_SENSOR_OFF,	
+	DONE				:= 100,
+	ERROR				:= 200
+	
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

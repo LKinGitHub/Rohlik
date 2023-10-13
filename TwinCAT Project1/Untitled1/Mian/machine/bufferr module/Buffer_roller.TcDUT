@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="Buffer_roller" Id="{8bb90e3b-394b-4148-8526-f79e6453cd91}">
+    <Declaration><![CDATA[TYPE Buffer_roller :
+STRUCT
+	roller			: ARRAY[0..1] OF Roller;
+	photo_sensor	: ARRAY[0..1] OF BOOL;
+	mcAxis			: FB_MotionAxis_MC;
+	st_mcAxis 		: ST_MotionAxis_MC;
+	AxisRef			: AXIS_REF;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

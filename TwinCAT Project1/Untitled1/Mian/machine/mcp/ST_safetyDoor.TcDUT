@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_safetyDoor" Id="{35b1bffa-3fd7-4efb-8bb2-e8e5f76ef9f1}">
+    <Declaration><![CDATA[TYPE ST_safetyDoor :
+STRUCT
+	button_reset		: BOOL;
+	button_unlock		: BOOL;
+	door_closed	: BOOL;
+	
+	lamp_reset			: BOOL;
+	lamp_unlock			: BOOL;
+	door_lock			: BOOL;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

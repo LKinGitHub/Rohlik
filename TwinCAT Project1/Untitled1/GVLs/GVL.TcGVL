@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="GVL" Id="{467ff484-abc3-43b3-a376-da9ea4486a4c}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+VAR_GLOBAL
+	
+	devState AT%I*	: UINT;
+	arrPD_IN	 AT%I*	: ARRAY[0..31] OF BYTE;
+	arrPD_OUT	 AT%Q*	: ARRAY[0..31] OF BYTE;
+	fb_working	: FB_working;
+	fb_loading	: FB_loading;
+	fb_buffer	: FB_buffer;
+	fb_mcp		: FB_mcp;
+	working_tote_status	: ToteStatus;
+	buffer_tote_status	: ToteStatus;
+	loading_tote_status	: ToteStatus;
+	
+	
+	
+	status	: MachineStatus := MachineStatus.STOPPED;
+	workflow_status	: ToteSubsystemWorkflowStatus := ToteSubsystemWorkflowStatus.UNKNOWN;
+	error_status	: OrderToteErrorStatus := OrderToteErrorStatus.UNKNOWN;	
+	tote_status	: ToteStatus;
+	
+	events_alarm	: ARRAY[0..iAlarm_max]OF ST_EVENT;
+	event_for_clear	: ST_EVENT;
+	
+
+
+	bAck_stop	: BOOL;//avalible while statemachie is IN_PROGRESS
+	//bAck_run	: BOOL;
+	//bAck_reset	: BOOL;
+END_VAR
+VAR_GLOBAL CONSTANT
+	iAlarm_max	:INT	:=19;
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

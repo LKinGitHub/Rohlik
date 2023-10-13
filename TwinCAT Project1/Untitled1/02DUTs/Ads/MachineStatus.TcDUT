@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="MachineStatus" Id="{3998cd04-c7d5-4ec3-a18a-2e56a1060e8b}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE MachineStatus:
+(
+  	STOPPED			:= 0,
+   	RESETTING		:= 1,
+   	READY			:= 2,
+   	INITIALIZING	:= 3,
+ 	RUNNING			:= 4,
+    STOPPING		:= 5,
+   	ERROR			:= 6
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

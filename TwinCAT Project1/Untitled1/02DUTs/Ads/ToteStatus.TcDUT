@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ToteStatus" Id="{59d2e8b6-1a92-4a18-8811-9aaf280a7bf4}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE ToteStatus:
+(
+	UNKNOWN 	:= 0,
+	EMPTY 		:= 1,
+	LOADED		:= 2,
+    READY		:= 3
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>
