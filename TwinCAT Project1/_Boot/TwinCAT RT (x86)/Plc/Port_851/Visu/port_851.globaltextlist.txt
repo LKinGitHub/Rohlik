@@ -1,0 +1,108 @@
+Id;Default
+206;%.2f mm
+740;%.3f mm
+201;%s
+209;+
+210;-
+602;Acc
+843;Actual Position
+773;Aging test
+5;Alarm
+203;Axis Error 
+179;BagOpen
+81;BELT ESTOP
+808;Breaker OFF
+486;Breaker ON
+1159;buffer
+327;BUFFER SAFETY
+732;Buffer Stopper
+349;Dec
+216;deg/s
+217;deg/s2
+180;DIO
+662;DOG
+673;error
+924;Extend
+614;extended
+841;HOME
+248;HomeDone
+136;inbound
+44;INIT
+102;sStepID
+99;Jerk
+839;JOG BW
+840;JOG FW
+1374;lift
+795;LIFT
+178;Lift
+926;LIFT ESTOP
+519;LIFT STATION DETECTION
+495;LIGHT CURTAIN LEFT
+39;LIGHT CURTAIN RIGHT
+413;LOAD
+897;LOADING SAFETY
+351;Main
+386;MCP ESTOP
+215;mm/s
+214;mm/s2
+207;MOVE ABS
+569;Move relative
+205;Neg LS
+677;outbound
+842;photosensor[0]
+79;photosensor[1]
+70;photo_sensor[0]
+919;photo_sensor[1]
+800;photo_sensor_mute
+925;photo_sensor_mute_l
+891;photo_sensor_start
+1003;place
+204;Pos LS
+844;Power $R$NOn
+359;Power On
+342;ReM
+1185;ReM3
+904;ReM4
+274;ReM5
+199;Reset
+10;RESET
+1651;retract
+934;retracted
+71;ROBOT EAS
+312;ROBOT EES
+72;roller
+1437;Roller In
+189;roller[0]
+709;roller[1]
+633;roller[2]
+687;roller[3]
+522;roller_x
+792;roller_y
+845;RUN
+634;SAFETY DOOR
+202;SAFETY INPUT
+617;SAFETY OUTPUT
+641;sComponentID
+438;sComponent_ID
+358;sComponent_name
+874;sensor_mute
+143;sensor_mute_left
+487;sensor_mute_right
+622;Set absolute$R$Nencoder as linear
+454;Set absolute$R$Nencoder as rotation
+208;Set Point
+14;Set Pos to 0
+332;sEventType
+714;sEvent_MSG
+245;sID
+220;sMethod
+986;sTime
+198;Stop
+784;tote_detection
+780;UNLOAD
+863;valve_clamp[0]
+396;valve_lift
+464;valve_lift[0]
+227;valve_stopper
+200;Velocity
+193;WORKING SAFETY
