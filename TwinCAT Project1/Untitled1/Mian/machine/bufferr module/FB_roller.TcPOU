@@ -87,7 +87,7 @@ CASE eStates OF
 			roller.forward	:= FALSE;
 			eStates	:= E_RollerStates.INIT;
 		E_RollerStates.INIT:
-				eStates	:= E_RollerStates.DETECTION;
+				eStates	:= E_RollerStates.STOPPER_UP;
 		E_RollerStates.DETECTION:
 			IF roller.sensor.Q THEN
 				current_tote_status	:= ToteStatus.READY;
@@ -147,7 +147,7 @@ CASE eStates OF
 				eStates	:= E_RollerStates.DETECTION;
 			END_IF			
 		E_RollerStates.DONE:			
-			eStates	:= E_RollerStates.IDLE;
+			eStates	:= E_RollerStates.DETECTION;
 		E_RollerStates.ERROR:
 			st_mcAxis.mcMoveAbsolute.Execute	:= FALSE;
 			roller.forward	:= FALSE;
