@@ -24,7 +24,9 @@ TYPE E_SystemManager :
 	INITIALIZATION			:= 	100		,	// Blinking YELLOW
 	BUSY					:= 	200		,	// Blinking YELLOW
 
+	RUN_START,
 	IN_PROGRESS				:= 	300		, 	// Solid Green
+	
 	IN_PROGRESS_WAITING		:= 	360		,	// blinking Green/Yellow
 					
 	

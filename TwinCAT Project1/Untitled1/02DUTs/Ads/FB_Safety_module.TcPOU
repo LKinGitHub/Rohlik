@@ -46,7 +46,7 @@ VAR
 	robot_EES				: BOOL;
 	robot_EAS				: BOOL;
 	buffer_safety			: BOOL;
-	loding_safety			: BOOL;
+	loading_safety			: BOOL;
 	working_safety			: BOOL;
 //	buffer_safety_24v		: BOOL;
 //	buffer_safety_stepmotor	: BOOL;
@@ -61,8 +61,8 @@ END_VAR
     <Implementation>
       <ST><![CDATA[M_mapping();
 M_safetyDoor();
-xError	:=NOT(robot_EES AND robot_EAS); 
-
+xError	:=NOT(robot_EES AND buffer_safety AND loading_safety AND working_safety); //if only open the door,machine will just stop,so can control the machine munually
+//to do:as below commit and reprogram safety project and test
 
 CASE iState	 OF
 	0:
@@ -140,7 +140,7 @@ robot_EES				:= SO0_0;
 robot_EAS				:= SO0_1;
 buffer_safety			:= SO1_0;
 
-loding_safety			:= SO2_0;
+loading_safety			:= SO2_0;
 
 working_safety			:= SO3_0;
 
@@ -204,6 +204,7 @@ IF ton_timeout.Q THEN
 END_IF
 CASE eStates OF
 	E_SafetyStates.IDLE:
+		xError	:= FALSE;
 		eStates	:= E_SafetyStates.CHECK_ESTOP;
 	E_SafetyStates.CHECK_ESTOP:
 		IF mcp_estop AND belt_estop AND lift_estop THEN
@@ -230,7 +231,7 @@ CASE eStates OF
 			eStates	:= E_SafetyStates.CHECK_SAFETY_OUTPUT;
 		END_IF
 	E_SafetyStates.CHECK_SAFETY_OUTPUT:	
-		IF robot_EES AND robot_EAS AND buffer_safety AND loding_safety AND working_safety THEN
+		IF robot_EES AND robot_EAS AND buffer_safety AND loading_safety AND working_safety THEN
 			eStates	:= E_SafetyStates.DONE;
 		ELSE
 			eStates	:= E_SafetyStates.ERROR;
@@ -373,6 +374,7 @@ update_station_mode	:= TRUE;]]></ST>
       <LineId Id="62" Count="4" />
       <LineId Id="41" Count="0" />
       <LineId Id="14" Count="1" />
+      <LineId Id="97" Count="0" />
       <LineId Id="19" Count="0" />
       <LineId Id="17" Count="1" />
       <LineId Id="20" Count="0" />

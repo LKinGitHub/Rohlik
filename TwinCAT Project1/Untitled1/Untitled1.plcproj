@@ -149,6 +149,9 @@
     <Compile Include="Mian\machine\bufferr module\Inbound_roller.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Mian\machine\FB_DigitalInput.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Mian\machine\FB_GPWM.TcPOU">
       <SubType>Code</SubType>
     </Compile>

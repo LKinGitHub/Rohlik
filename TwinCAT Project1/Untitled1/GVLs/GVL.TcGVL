@@ -30,6 +30,8 @@ VAR_GLOBAL
 	bAck_stop	: BOOL;//avalible while statemachie is IN_PROGRESS
 	//bAck_run	: BOOL;
 	//bAck_reset	: BOOL;
+	bRunning	: BOOL;
+
 END_VAR
 VAR_GLOBAL CONSTANT
 	iAlarm_max	:INT	:=19;

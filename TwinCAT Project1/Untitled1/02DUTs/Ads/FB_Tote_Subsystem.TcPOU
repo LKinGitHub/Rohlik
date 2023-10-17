@@ -184,13 +184,13 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[order_tote_action_request	:= FALSE; 
-IF MAIN.eState=E_SystemManager.IN_PROGRESS THEN
+IF MAIN.eState=E_SystemManager.IN_PROGRESS AND cmd=OrderToteCommand.DO_NOTHING THEN
 	cmd	:= Command;
 ELSE
 	error_status	:= OrderToteErrorStatus.MACHINE_NOT_RUNNING;
+	cmd	:= OrderToteCommand.DO_NOTHING;
 END_IF
 
-//Command	:= OrderToteCommand.DO_NOTHING;
 order_tote_action_request	:= TRUE; ]]></ST>
       </Implementation>
     </Method>
@@ -199,7 +199,7 @@ order_tote_action_request	:= TRUE; ]]></ST>
       <LineId Id="113" Count="1" />
       <LineId Id="117" Count="1" />
       <LineId Id="162" Count="0" />
-      <LineId Id="141" Count="0" />
+      <LineId Id="210" Count="0" />
       <LineId Id="9" Count="0" />
       <LineId Id="17" Count="0" />
       <LineId Id="21" Count="0" />
@@ -296,8 +296,8 @@ order_tote_action_request	:= TRUE; ]]></ST>
       <LineId Id="34" Count="0" />
       <LineId Id="31" Count="0" />
       <LineId Id="33" Count="0" />
+      <LineId Id="40" Count="0" />
       <LineId Id="32" Count="0" />
-      <LineId Id="10" Count="0" />
       <LineId Id="24" Count="0" />
       <LineId Id="23" Count="0" />
     </LineIds>

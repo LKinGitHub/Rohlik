@@ -35,6 +35,7 @@ VAR
 	roller_outbound_end	: Outbound;
 	sensor_openbag_detection	: ARRAY[0..7] OF BOOL;
 	sensor_cover				: ARRAY[0..1] OF BOOL;
+	EDM_KA10			: BOOL;
 	mcAxis_lift 		: FB_MotionAxis_MC;
 	st_mcAxis_lift 		: ST_MotionAxis_MC;
 	AxisRef_lift		: AXIS_REF;
@@ -43,25 +44,28 @@ VAR
 	AxisRef_bag			: AXIS_REF;	
 	event				: ST_EVENT;
 	rt_error			: R_TRIG;
+	
+
 END_VAR
 VAR CONSTANT
-	rPos_lift_up			: REAL	:=-20;
-	rPos_lift_down			: REAL	:= 85;
-	rPos_bag_opened			: REAL	:= 0;
-	rPos_bag_closed			: REAL	:= -49;
+	rPos_lift_up			: REAL	:= 120;
+	rPos_lift_down			: REAL	:= 0;
+	rPos_bag_opened			: REAL	:= 45;
+	rPos_bag_closed			: REAL	:= 0;
 	sComponent_name			: STRING := 'fb_working';
 END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[M_mapping();
-rt_error(CLK:=roller_inbound.roller.err OR roller_outbound.roller.err OR roller_outbound_end.roller.err 
-		OR st_mcAxis_lift.mcReadStatus.Error OR st_mcAxis_bag.mcReadStatus.Error);
+
+rt_error(CLK:=(roller_inbound.roller.err OR roller_outbound.roller.err OR roller_outbound_end.roller.err OR st_mcAxis_lift.mcReadStatus.Error 
+				OR st_mcAxis_bag.mcReadStatus.Error) AND MAIN.eState<>E_SystemManager.RESET_SAFETY);//roller will trig error while power on
 IF rt_error.Q THEN
 	xError	:= TRUE;
 	eStates	:= E_WorkingStates.ERROR;
 END_IF
 
-IF NOT(roller_inbound.photo_sensor_mute OR roller_inbound.photo_sensor OR roller_outbound.photo_sensor)  THEN
+IF NOT(roller_inbound.photo_sensor_mute OR roller_inbound.photo_sensor OR roller_outbound.photo_sensor) THEN
 	current_tote_status	:= ToteStatus.EMPTY;
 END_IF
 IF NOT roller_inbound.photo_sensor_mute AND roller_inbound.photo_sensor AND NOT roller_outbound.photo_sensor THEN
@@ -88,6 +92,7 @@ END_CASE]]></ST>
     <Method Name="M_agingTest" Id="{c302c8df-88d7-4884-b79e-724a2f679edf}">
       <Declaration><![CDATA[METHOD M_agingTest : BOOL
 VAR_INPUT
+	
 END_VAR
 ]]></Declaration>
       <Implementation>
@@ -122,7 +127,7 @@ CASE eStates OF
 	E_WorkingStates.IDLE:
 		eStates	:= E_WorkingStates.AGING_STATE_0;
 	E_WorkingStates.AGING_STATE_0:
-		ton_timeout.PT	:= T#3S;
+		ton_timeout.PT	:= T#2S;
 		st_mcAxis_bag.mcMoveAbsolute.Execute	:= TRUE;						
 		st_mcAxis_bag.rActualPosSet	:= rPos_bag_closed;
 		st_mcAxis_bag.rVelocitySet	:= 100;
@@ -146,12 +151,12 @@ CASE eStates OF
 		roller_outbound_end.roller.backward		:= FALSE;	
 		st_mcAxis_bag.mcMoveAbsolute.Execute	:= FALSE;
 		st_mcAxis_lift.mcMoveAbsolute.Execute	:= FALSE;		
-		ton_timeout.PT	:= T#2S;
+		ton_timeout.PT	:= T#1S;
 		IF ton_timeout.Q THEN
 			eStates	:= E_WorkingStates.AGING_STATE_1;
 		END_IF
 	E_WorkingStates.AGING_STATE_1:
-		ton_timeout.PT	:= T#3S;
+		ton_timeout.PT	:= T#2S;
 		st_mcAxis_bag.mcMoveAbsolute.Execute	:= TRUE;						
 		st_mcAxis_bag.rActualPosSet	:= rPos_bag_opened;
 		st_mcAxis_bag.rVelocitySet	:= 100;
@@ -167,7 +172,7 @@ CASE eStates OF
 			eStates	:= E_WorkingStates.WAIT_1;
 		END_IF	
 	E_WorkingStates.WAIT_1:
-		ton_timeout.PT	:= T#2S;
+		ton_timeout.PT	:= T#1S;
 		roller_inbound.roller.forward			:= FALSE;
 		roller_inbound.roller.backward			:= FALSE;
 		roller_outbound.roller.forward			:= FALSE;
@@ -245,7 +250,7 @@ st_mcAxis_bag.mcStop.Execute	:= FALSE;
 st_mcAxis_bag.mcReset.Execute	:= TRUE;
 st_mcAxis_lift.mcStop.Execute	:= FALSE;
 st_mcAxis_lift.mcReset.Execute	:= TRUE;
-error_status	:= OrderToteErrorStatus.NONE;
+error_status	:= OrderToteErrorStatus.NO_ERROR;
 
 eStates	:= E_WorkingStates.IDLE;
 M_init	:= TRUE;]]></ST>
@@ -270,10 +275,11 @@ IF eStates<>E_WorkingStates.IDLE AND eStates<>E_WorkingStates.ERROR THEN
 	IF eStateTemp=eStates THEN
 		ton_timeout.IN	:=TRUE;
 	ELSE
+		ton_timeout.IN	:=FALSE;
 		IF GVL.bAck_stop THEN
+			roller_inbound.roller.forward	:= FALSE;
 			RETURN;		
 		END_IF
-		ton_timeout.IN	:=FALSE;
 		eStateTemp	:= eStates;	
 	END_IF
 ELSE
@@ -322,7 +328,11 @@ END_IF
 CASE eStates OF 
 		E_WorkingStates.IDLE:
 			ton_timeout.PT	:= T#10S;
-			eStates	:= E_WorkingStates.INIT;
+			st_mcAxis_bag.mcPower.Enable	:= TRUE;
+			st_mcAxis_lift.mcPower.Enable	:= TRUE;
+			IF st_mcAxis_bag.mcReadStatus.StandStill AND st_mcAxis_lift.mcReadStatus.StandStill THEN
+				eStates	:= E_WorkingStates.INIT;
+			END_IF			
 		E_WorkingStates.INIT:	
 			st_mcAxis_bag.mcMoveAbsolute.Execute	:= FALSE;
 			st_mcAxis_lift.mcMoveAbsolute.Execute	:= FALSE;
@@ -364,6 +374,7 @@ CASE eStates OF
 			END_IF
 		E_WorkingStates.WAIT:
 			ton_timeout.PT	:= T#500MS;
+			roller_inbound.roller.forward	:= TRUE;
 			IF ton_timeout.Q THEN
 				tote_status	:= ToteStatus.LOADED;
 				roller_inbound.roller.forward	:= FALSE;
@@ -431,7 +442,7 @@ sensor_openbag_detection[6]			:= G_IO.arDI[5].Ch[15];
 sensor_openbag_detection[7]			:= G_IO.arDI[6].Ch[0];
 sensor_cover[0]						:= G_IO.arDI[6].Ch[1];
 sensor_cover[1]						:= G_IO.arDI[6].Ch[2];
-
+EDM_KA10							:= G_IO.arDI[6].Ch[3];
 roller_outbound_end.roller.err		:= G_IO.arDI[6].Ch[4];
 
 
@@ -473,7 +484,7 @@ st_mcAxis_lift.mcHome.bCalibrationCam	:= TRUE;//TODO link to digital input origi
 st_mcAxis_lift.bPositionSensor	:= TRUE;//TODO link to digital input origin
 st_mcAxis_lift.bdirFW	:= TRUE;
 st_mcAxis_lift.sNetID := '192.168.11.159.5.1';
-st_mcAxis_lift.nSlaveAddr	:= 1027;
+st_mcAxis_lift.nSlaveAddr	:= 1026;
 
 
 mcAxis_bag
@@ -499,7 +510,7 @@ st_mcAxis_bag.mcHome.bCalibrationCam	:= TRUE;//TODO link to digital input origin
 st_mcAxis_bag.bPositionSensor	:= TRUE;//TODO link to digital input origin
 st_mcAxis_bag.bdirFW	:= TRUE;
 st_mcAxis_bag.sNetID := '192.168.11.159.5.1';
-st_mcAxis_bag.nSlaveAddr	:= 1028;
+st_mcAxis_bag.nSlaveAddr	:= 1027;
 
 IF MAIN.firstCycle THEN
 	st_mcAxis_bag.mcPower.Enable	:= TRUE;
@@ -515,20 +526,24 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[M_reset	:= FALSE;
+ton_timeout.IN	:= FALSE;
 event.sMethod	:= 'reset';
-error_status	:= OrderToteErrorStatus.NONE;
+error_status	:= OrderToteErrorStatus.NO_ERROR;
 IF xError THEN
 	st_mcAxis_bag.mcStop.Execute	:= FALSE;
 	st_mcAxis_bag.mcReset.Execute	:= TRUE;
 	st_mcAxis_lift.mcStop.Execute	:= FALSE;
 	st_mcAxis_lift.mcReset.Execute	:= TRUE;
-	eStates	:= eStateTemp;//continue	
+	IF eStates<>E_WorkingStates.IDLE THEN
+		eStates	:= eStateTemp;//continue
+	END_IF
+		
 	xError	:= FALSE;
 ELSE
 	;
 END_IF
 
-
+//todo:check if reset successful
 M_reset	:= TRUE;
 ]]></ST>
       </Implementation>
@@ -546,6 +561,21 @@ END_IF
 //check no tote of working
 //wait new tote of loading
 //tote load]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_runStart" Id="{7c0f4dcb-6112-4937-805e-6367eecb6122}">
+      <Declaration><![CDATA[METHOD M_runStart : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_runStart	:= FALSE;
+st_mcAxis_bag.mcPower.Enable	:= TRUE;
+st_mcAxis_lift.mcPower.Enable	:= TRUE;
+IF st_mcAxis_bag.mcReadStatus.StandStill AND st_mcAxis_lift.mcReadStatus.StandStill THEN
+	M_runStart	:= TRUE;
+END_IF
+M_runStart	:= TRUE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="M_safetyEvent" Id="{0b8a20f6-fb60-4092-9d2d-ef36588456de}">
@@ -645,10 +675,12 @@ IF eStates<>E_WorkingStates.IDLE AND eStates<>E_WorkingStates.ERROR  THEN
 	IF eStateTemp=eStates THEN
 		ton_timeout.IN	:=TRUE;
 	ELSE
+		ton_timeout.IN	:=FALSE;
 		IF GVL.bAck_stop THEN
+			roller_outbound.roller.forward	:= FALSE;
+			roller_outbound_end.roller.forward	:= FALSE;
 			RETURN;		
 		END_IF
-		ton_timeout.IN	:=FALSE;
 		eStateTemp	:= eStates;
 	END_IF
 ELSE
@@ -689,6 +721,7 @@ IF ton_timeout.Q THEN
 	IF eStates<>E_WorkingStates.IDLE AND eStates<>E_WorkingStates.WAIT_UNLOADING THEN
 		eStates	:= E_WorkingStates.ERROR;
 		error_status	:= OrderToteErrorStatus.MECHANICAL_ERROR;
+		Event_add(event);
 	END_IF
 	
 END_IF
@@ -729,13 +762,15 @@ CASE eStates OF
 				eStates	:= E_WorkingStates.TOTE_UNLOAD;
 			END_IF
 		E_WorkingStates.TOTE_UNLOAD:
-			ton_timeout.PT	:= T#10S;
+			ton_timeout.PT	:= T#5S;
 			roller_outbound.roller.forward		:= TRUE;
 			roller_outbound_end.roller.forward	:= TRUE;
 			IF roller_outbound.photo_sensor THEN
 				eStates	:= E_WorkingStates.WAIT_SENSOR_OFF;			
 			END_IF	
-		E_WorkingStates.WAIT_SENSOR_OFF:	
+		E_WorkingStates.WAIT_SENSOR_OFF:
+			roller_outbound.roller.forward		:= TRUE;
+			roller_outbound_end.roller.forward	:= TRUE;	
 			IF NOT roller_outbound.photo_sensor THEN
 				roller_outbound.roller.forward		:= FALSE;	
 				roller_outbound_end.roller.forward	:= FALSE;
@@ -794,7 +829,9 @@ END_CASE]]></ST>
     </Method>
     <LineIds Name="FB_working">
       <LineId Id="70" Count="0" />
-      <LineId Id="248" Count="1" />
+      <LineId Id="304" Count="0" />
+      <LineId Id="248" Count="0" />
+      <LineId Id="301" Count="0" />
       <LineId Id="242" Count="0" />
       <LineId Id="246" Count="0" />
       <LineId Id="245" Count="0" />
@@ -879,10 +916,12 @@ END_CASE]]></ST>
       <LineId Id="232" Count="0" />
       <LineId Id="343" Count="0" />
       <LineId Id="8" Count="4" />
+      <LineId Id="363" Count="0" />
       <LineId Id="344" Count="0" />
+      <LineId Id="364" Count="0" />
       <LineId Id="348" Count="0" />
       <LineId Id="346" Count="0" />
-      <LineId Id="349" Count="1" />
+      <LineId Id="350" Count="0" />
       <LineId Id="15" Count="6" />
       <LineId Id="260" Count="0" />
       <LineId Id="313" Count="1" />
@@ -908,7 +947,10 @@ END_CASE]]></ST>
       <LineId Id="5" Count="0" />
       <LineId Id="37" Count="2" />
       <LineId Id="259" Count="0" />
-      <LineId Id="40" Count="0" />
+      <LineId Id="358" Count="0" />
+      <LineId Id="361" Count="0" />
+      <LineId Id="359" Count="1" />
+      <LineId Id="357" Count="0" />
       <LineId Id="116" Count="4" />
       <LineId Id="125" Count="3" />
       <LineId Id="159" Count="0" />
@@ -932,7 +974,9 @@ END_CASE]]></ST>
       <LineId Id="143" Count="0" />
       <LineId Id="152" Count="0" />
       <LineId Id="150" Count="1" />
-      <LineId Id="220" Count="2" />
+      <LineId Id="220" Count="1" />
+      <LineId Id="362" Count="0" />
+      <LineId Id="222" Count="0" />
       <LineId Id="231" Count="0" />
       <LineId Id="226" Count="0" />
       <LineId Id="223" Count="1" />
@@ -1002,10 +1046,12 @@ END_CASE]]></ST>
     </LineIds>
     <LineIds Name="FB_working.M_reset">
       <LineId Id="5" Count="0" />
+      <LineId Id="44" Count="0" />
       <LineId Id="10" Count="0" />
       <LineId Id="35" Count="0" />
       <LineId Id="22" Count="0" />
       <LineId Id="25" Count="3" />
+      <LineId Id="41" Count="2" />
       <LineId Id="23" Count="0" />
       <LineId Id="31" Count="0" />
       <LineId Id="29" Count="1" />
@@ -1016,6 +1062,14 @@ END_CASE]]></ST>
     </LineIds>
     <LineIds Name="FB_working.M_run">
       <LineId Id="5" Count="6" />
+    </LineIds>
+    <LineIds Name="FB_working.M_runStart">
+      <LineId Id="5" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="9" Count="1" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="6" Count="0" />
     </LineIds>
     <LineIds Name="FB_working.M_safetyEvent">
       <LineId Id="10" Count="0" />
@@ -1065,9 +1119,12 @@ END_CASE]]></ST>
       <LineId Id="162" Count="0" />
       <LineId Id="258" Count="0" />
       <LineId Id="14" Count="4" />
-      <LineId Id="260" Count="1" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="260" Count="0" />
+      <LineId Id="272" Count="1" />
+      <LineId Id="261" Count="0" />
       <LineId Id="259" Count="0" />
-      <LineId Id="19" Count="8" />
+      <LineId Id="20" Count="7" />
       <LineId Id="31" Count="0" />
       <LineId Id="187" Count="0" />
       <LineId Id="229" Count="0" />
@@ -1091,6 +1148,7 @@ END_CASE]]></ST>
       <LineId Id="32" Count="0" />
       <LineId Id="179" Count="1" />
       <LineId Id="250" Count="0" />
+      <LineId Id="274" Count="0" />
       <LineId Id="181" Count="0" />
       <LineId Id="36" Count="4" />
       <LineId Id="182" Count="0" />
@@ -1120,6 +1178,8 @@ END_CASE]]></ST>
       <LineId Id="98" Count="0" />
       <LineId Id="101" Count="0" />
       <LineId Id="151" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="269" Count="0" />
       <LineId Id="153" Count="1" />
       <LineId Id="157" Count="0" />
       <LineId Id="155" Count="0" />

@@ -7,13 +7,20 @@ VAR
 	firstCycle	: BOOL := TRUE;
 	fb_Time : FB_LocalSystemTime;
 	Temp_str : STRING;
-   	eState		: E_SystemManager := 0;	
+   	
+	
+	str_state	: STRING;
 	application	: FB_Application;
 	rtReset		: R_TRIG;
 	rtInit		: R_TRIG;
 	rtRun		: R_TRIG;
 	rtSafety	: R_TRIG;
 	
+	ton_timeout			: TON;	
+	eState				: E_SystemManager	:= E_SystemManager.START;
+	eStateTemp			: E_SystemManager	:= E_SystemManager.START;
+	iStateTemp			: INT;
+	sStateTemp			: STRING;	
 	
 	
 	auto_store_run		: BOOL;
@@ -34,7 +41,35 @@ VAR
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[IF firstCycle THEN
+      <ST><![CDATA[//////////////////////////////////////////////////////////timeout//////////////////////////////////////////
+iStateTemp	:= eStateTemp;
+sStateTemp	:= INT_TO_STRING(iStateTemp);
+ton_timeout();
+IF eState<>E_SystemManager.START AND eState<>E_SystemManager.ERROR THEN
+	IF eStateTemp=eState THEN
+		ton_timeout.IN	:=TRUE;
+	ELSE
+		ton_timeout.IN	:=FALSE;
+		eStateTemp	:= eState;	
+	END_IF
+ELSE
+	ton_timeout.IN	:=FALSE;
+END_IF
+IF ton_timeout.Q THEN	
+	ton_timeout.IN	:=FALSE;
+	CASE eState OF		
+		E_SystemManager.START:
+			;	
+		
+	END_CASE
+//	IF eStates<>E_WorkingStates.WAIT_NEW_TOTE AND eStates<>E_WorkingStates.WAIT THEN
+//		eStates	:= E_WorkingStates.ERROR;
+//	END_IF
+	
+END_IF
+
+
+IF firstCycle THEN
 	firstCycle := FALSE;
 END_IF
 pMachine_status	:= ADR(MAIN.application.tote_subsystem.status);
@@ -52,7 +87,9 @@ END_IF
 (******************************************************************************
 State Machine
 ******************************************************************************)
-
+//error while running than estate=error,if electrical error,trig xerror and estate=error
+//reset: xError->false and reset devices
+//wait 1s,
 CASE eState OF
 	E_SystemManager.START:
 		;
@@ -61,6 +98,7 @@ CASE eState OF
 	E_SystemManager.RESET:
 		eState	:= E_SystemManager.RESET_SAFETY;
 	E_SystemManager.RESET_SAFETY:
+		ton_timeout.PT:= T#2S;
 		IF application.safety.M_reset() THEN
 			IF application.safety.xError THEN
 				eState	:= E_SystemManager.ERROR_SAFETY;
@@ -127,45 +165,60 @@ CASE eState OF
 		END_IF				
 		
 	E_SystemManager.READY:
-		eState	:= E_SystemManager.READY_TO_JOB;
-	E_SystemManager.READY_TO_JOB:
+		eState	:= E_SystemManager.READY_TO_JOB;//todo add condition to jump to ready_to_job
+	E_SystemManager.READY_TO_JOB://todo add condition to jump to ready
 		pMachine_status^	:= MachineStatus.READY;
 		IF G_HMI.bRun OR pMachine_control_cmd^=MachineControlCommand.START THEN
 			pMachine_control_cmd^	:= MachineControlCommand.DO_NOTHING;
-			eState	:= E_SystemManager.IN_PROGRESS;
+			GVL.bRunning	:= TRUE;
+			eState	:= E_SystemManager.RUN_START;
 		END_IF
 		IF G_HMI.bAging_test THEN
 			eState	:= E_SystemManager.AGAING_TEST;
 		END_IF
 	E_SystemManager.BUSY:
 		;
+	E_SystemManager.RUN_START:
+		GVL.fb_buffer.M_runStart();
+		GVL.fb_loading.M_runStart();
+		GVL.fb_working.M_runStart();
+		eState	:= E_SystemManager.IN_PROGRESS;
+		GVL.bRunning	:= TRUE;
 	E_SystemManager.IN_PROGRESS:
 		pMachine_status^ := MachineStatus.RUNNING;
 		GVL.fb_buffer.M_run();
 		GVL.fb_loading.M_run();
-		IF pMachine_control_cmd^=MachineControlCommand.STOP THEN
+		IF pMachine_control_cmd^=MachineControlCommand.STOP OR G_HMI.bStop THEN
+			GVL.bRunning	:= FALSE;
 			GVL.bAck_stop	:= TRUE;
 			pMachine_control_cmd^	:= MachineControlCommand.DO_NOTHING;
 		END_IF
 		IF GVL.bAck_stop THEN
-			IF pMachine_control_cmd^=MachineControlCommand.START THEN
+			IF pMachine_control_cmd^=MachineControlCommand.START OR G_HMI.bRun THEN
+				GVL.bRunning	:= TRUE;
 				GVL.bAck_stop	:= FALSE;
 				pMachine_control_cmd^	:= MachineControlCommand.DO_NOTHING;
 			END_IF
 		END_IF		
 		IF M_checkError() THEN
+			GVL.fb_buffer.M_safetyEvent();
+			GVL.fb_loading.M_safetyEvent();
+			GVL.fb_working.M_safetyEvent();
 			eState	:= E_SystemManager.ERROR;
 		END_IF
+	
 	E_SystemManager.ERROR:
 		pMachine_status^	:= MachineStatus.ERROR;
 		IF rtReset.Q THEN
+			Event_clear();
 			pMachine_status^	:= MachineStatus.RESETTING;
 			pMachine_control_cmd^	:= MachineControlCommand.DO_NOTHING;
 			eState	:= E_SystemManager.RESET_SAFETY;
 		END_IF
 		IF rtInit.Q THEN
 			pMachine_status^	:= MachineStatus.INITIALIZING;
-			eState	:= E_SystemManager.INIT_SAFETY;
+			Event_clear();
+			eState	:= E_SystemManager.INIT_SAFETY;					
 		END_IF		
 	E_SystemManager.ERROR_SAFETY:
 		GVL.fb_buffer.M_safetyEvent();
@@ -184,13 +237,15 @@ END_CASE
 
 IF eState<>E_SystemManager.IN_PROGRESS THEN
 	GVL.bAck_stop	:= FALSE;
+	GVL.bRunning	:= FALSE;
 END_IF
 //////////////////////////////////////////////////////////mapping//////////////////////////////////////////
-GVL.fb_working(pre_tote_status:= GVL.fb_loading.current_tote_status);
-GVL.fb_loading(pre_tote_status:=GVL.fb_buffer.fb_rollers[3].current_tote_status,next_tote_status:=GVL.fb_working.current_tote_status);
+GVL.fb_working(	pre_tote_status:= GVL.fb_loading.current_tote_status);
+GVL.fb_loading(	pre_tote_status:=GVL.fb_buffer.fb_rollers[3].current_tote_status,
+				next_tote_status:=GVL.fb_working.current_tote_status);
 GVL.fb_buffer();
 GVL.fb_mcp();
-
+M_convert_estate_string(eState:=eState,str_state=>str_state);
 
 application();
 
@@ -240,7 +295,71 @@ END_VAR
 M_checkError	:= GVL.fb_buffer.xError OR GVL.fb_loading.xError OR GVL.fb_working.xError;]]></ST>
       </Implementation>
     </Method>
+    <Method Name="M_convert_estate_string" Id="{8c9fd5ea-f1d3-49b9-a404-1083d89866f2}">
+      <Declaration><![CDATA[METHOD M_convert_estate_string : BOOL
+VAR_INPUT
+	eState	:E_SystemManager;
+END_VAR
+VAR_OUTPUT
+	str_state	: STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE eState OF
+	E_SystemManager.START:
+		str_state	:= 'START';
+	E_SystemManager.INITIALIZATION:
+		str_state	:= 'INITIALIZATION';
+	E_SystemManager.RESET:
+		str_state	:= 'RESET';
+	E_SystemManager.RESET_SAFETY:
+		str_state	:= 'RESET_SAFETY';
+	E_SystemManager.RESET_FB_LOADING:
+		str_state	:= 'RESET_FB_LOADING';
+	E_SystemManager.RESET_FB_BUFFER:
+		str_state	:= 'RESET_FB_BUFFER';	
+	E_SystemManager.RESET_FB_WORKING:
+		str_state	:= 'RESET_FB_WORKING';
+	E_SystemManager.INIT_SAFETY:
+		str_state	:= 'INIT_SAFETY';
+	E_SystemManager.INIT_FB_LOADING:
+		str_state	:= 'INIT_FB_LOADING';
+	E_SystemManager.INIT_FB_BUFFER:
+		str_state	:= 'INIT_FB_BUFFER';
+	E_SystemManager.INIT_FB_WORKING:			
+		str_state	:= 'INIT_FB_WORKING';		
+	E_SystemManager.READY:
+		str_state	:= 'READY';
+	E_SystemManager.READY_TO_JOB:
+		str_state	:= 'READY_TO_JOB';
+	E_SystemManager.BUSY:
+		str_state	:= 'BUSY';
+	E_SystemManager.RUN_START:
+		str_state	:= 'RUN_START';
+	E_SystemManager.IN_PROGRESS:
+		str_state	:= 'IN_PROGRESS';
+	E_SystemManager.ERROR:
+		str_state	:= 'ERROR';
+	E_SystemManager.ERROR_SAFETY:
+		str_state	:= 'ERROR_SAFETY';
+	E_SystemManager.REJECT:
+		str_state	:= 'REJECT';
+	E_SystemManager.ON_POWER://	============================================================================== 
+		str_state	:= 'ON_POWER';
+	E_SystemManager.AGAING_TEST:
+		str_state	:= 'AGAING_TEST';
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
     <LineIds Name="MAIN">
+      <LineId Id="884" Count="7" />
+      <LineId Id="895" Count="8" />
+      <LineId Id="931" Count="0" />
+      <LineId Id="950" Count="0" />
+      <LineId Id="949" Count="0" />
+      <LineId Id="932" Count="2" />
+      <LineId Id="937" Count="3" />
+      <LineId Id="942" Count="0" />
       <LineId Id="473" Count="0" />
       <LineId Id="478" Count="0" />
       <LineId Id="469" Count="0" />
@@ -257,6 +376,7 @@ M_checkError	:= GVL.fb_buffer.xError OR GVL.fb_loading.xError OR GVL.fb_working.
       <LineId Id="519" Count="1" />
       <LineId Id="481" Count="2" />
       <LineId Id="816" Count="0" />
+      <LineId Id="861" Count="1" />
       <LineId Id="484" Count="0" />
       <LineId Id="470" Count="0" />
       <LineId Id="487" Count="0" />
@@ -265,6 +385,7 @@ M_checkError	:= GVL.fb_buffer.xError OR GVL.fb_loading.xError OR GVL.fb_working.
       <LineId Id="518" Count="0" />
       <LineId Id="523" Count="0" />
       <LineId Id="536" Count="0" />
+      <LineId Id="951" Count="0" />
       <LineId Id="538" Count="1" />
       <LineId Id="545" Count="0" />
       <LineId Id="544" Count="0" />
@@ -291,30 +412,44 @@ M_checkError	:= GVL.fb_buffer.xError OR GVL.fb_loading.xError OR GVL.fb_working.
       <LineId Id="759" Count="0" />
       <LineId Id="498" Count="0" />
       <LineId Id="764" Count="0" />
+      <LineId Id="855" Count="0" />
       <LineId Id="605" Count="1" />
       <LineId Id="674" Count="2" />
       <LineId Id="493" Count="0" />
       <LineId Id="502" Count="0" />
+      <LineId Id="871" Count="1" />
+      <LineId Id="874" Count="1" />
+      <LineId Id="873" Count="0" />
+      <LineId Id="953" Count="0" />
       <LineId Id="494" Count="0" />
       <LineId Id="747" Count="0" />
       <LineId Id="503" Count="0" />
       <LineId Id="610" Count="0" />
-      <LineId Id="805" Count="1" />
+      <LineId Id="805" Count="0" />
+      <LineId Id="853" Count="0" />
+      <LineId Id="806" Count="0" />
       <LineId Id="808" Count="0" />
       <LineId Id="807" Count="0" />
       <LineId Id="810" Count="1" />
+      <LineId Id="854" Count="0" />
       <LineId Id="815" Count="0" />
       <LineId Id="813" Count="1" />
       <LineId Id="809" Count="0" />
-      <LineId Id="716" Count="2" />
+      <LineId Id="716" Count="0" />
+      <LineId Id="881" Count="1" />
+      <LineId Id="880" Count="0" />
+      <LineId Id="717" Count="1" />
+      <LineId Id="879" Count="0" />
       <LineId Id="495" Count="0" />
       <LineId Id="749" Count="0" />
       <LineId Id="752" Count="0" />
+      <LineId Id="864" Count="0" />
       <LineId Id="757" Count="0" />
       <LineId Id="763" Count="0" />
-      <LineId Id="753" Count="2" />
+      <LineId Id="876" Count="0" />
+      <LineId Id="754" Count="1" />
       <LineId Id="758" Count="0" />
-      <LineId Id="756" Count="0" />
+      <LineId Id="869" Count="1" />
       <LineId Id="751" Count="0" />
       <LineId Id="496" Count="0" />
       <LineId Id="685" Count="0" />
@@ -332,9 +467,11 @@ M_checkError	:= GVL.fb_buffer.xError OR GVL.fb_loading.xError OR GVL.fb_working.
       <LineId Id="404" Count="0" />
       <LineId Id="608" Count="0" />
       <LineId Id="821" Count="0" />
+      <LineId Id="863" Count="0" />
       <LineId Id="818" Count="0" />
       <LineId Id="607" Count="0" />
       <LineId Id="414" Count="1" />
+      <LineId Id="878" Count="0" />
       <LineId Id="31" Count="0" />
       <LineId Id="423" Count="0" />
       <LineId Id="760" Count="0" />
@@ -359,6 +496,24 @@ M_checkError	:= GVL.fb_buffer.xError OR GVL.fb_loading.xError OR GVL.fb_working.
     <LineIds Name="MAIN.M_checkError">
       <LineId Id="6" Count="2" />
       <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="MAIN.M_convert_estate_string">
+      <LineId Id="5" Count="0" />
+      <LineId Id="13" Count="6" />
+      <LineId Id="26" Count="1" />
+      <LineId Id="34" Count="1" />
+      <LineId Id="42" Count="1" />
+      <LineId Id="51" Count="1" />
+      <LineId Id="59" Count="1" />
+      <LineId Id="67" Count="1" />
+      <LineId Id="75" Count="1" />
+      <LineId Id="84" Count="3" />
+      <LineId Id="96" Count="3" />
+      <LineId Id="103" Count="1" />
+      <LineId Id="122" Count="1" />
+      <LineId Id="135" Count="1" />
+      <LineId Id="140" Count="5" />
+      <LineId Id="11" Count="1" />
     </LineIds>
   </POU>
 </TcPlcObject>

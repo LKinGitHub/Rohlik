@@ -6,6 +6,7 @@ VAR_GLOBAL
 	iMainFrame 		: INT;
 	bReset			: BOOL;
 	bRun			: BOOL;
+	bStop			: BOOL;
 	bInit			: BOOL;
 	bAging_test		: BOOL;
 END_VAR]]></Declaration>
