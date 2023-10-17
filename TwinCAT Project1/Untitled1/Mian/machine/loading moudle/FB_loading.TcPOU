@@ -8,6 +8,7 @@ VAR_INPUT
 	bRun					: BOOL;
 	bReset					: BOOL;
 	bSafety					: BOOL;
+	lightTower				: ST_LightTower;
 END_VAR
 VAR_OUTPUT
 	ready_recive		: BOOL;
@@ -30,6 +31,7 @@ VAR
 	roller_y					: Roller_y;
 	photo_sensor_tote_detection	: FB_DigitalInput;
 	EDM_KA7						: BOOL;
+	floodlight					: BOOL;
 	mcAxis	 					: FB_MotionAxis_MC;
 	st_mcAxis					: ST_MotionAxis_MC;
 	AxisRef						: AXIS_REF;	
@@ -186,6 +188,13 @@ G_IO.arDO[3].Ch[0]	:= roller_x.roller.forward;
 G_IO.arDO[3].Ch[1]	:= roller_x.roller.backward;
 G_IO.arDO[3].Ch[2]	:= roller_y.roller.forward;
 G_IO.arDO[3].Ch[3]	:= roller_y.roller.backward;
+G_IO.arDO[3].Ch[7]	:= lightTower.RED;
+G_IO.arDO[3].Ch[8]	:= lightTower.YELLOW;
+G_IO.arDO[3].Ch[9]	:= lightTower.GREEN;
+G_IO.arDO[3].Ch[10]	:= lightTower.BLUE;
+G_IO.arDO[3].Ch[11]	:= lightTower.WHITE;
+G_IO.arDO[3].Ch[12]	:= lightTower.BUZZER;
+G_IO.arDO[3].Ch[13]	:= floodlight;
 
 
 
@@ -517,7 +526,11 @@ END_VAR
       <LineId Id="25" Count="1" />
       <LineId Id="88" Count="0" />
       <LineId Id="100" Count="1" />
-      <LineId Id="92" Count="1" />
+      <LineId Id="118" Count="4" />
+      <LineId Id="92" Count="0" />
+      <LineId Id="130" Count="0" />
+      <LineId Id="93" Count="0" />
+      <LineId Id="129" Count="0" />
       <LineId Id="31" Count="24" />
       <LineId Id="106" Count="0" />
       <LineId Id="102" Count="2" />

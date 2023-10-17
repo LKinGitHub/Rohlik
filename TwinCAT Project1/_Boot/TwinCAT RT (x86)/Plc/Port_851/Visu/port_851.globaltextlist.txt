@@ -26,8 +26,12 @@ Id;Default
 614;extended
 841;HOME
 248;HomeDone
+902;ID
 136;inbound
 44;INIT
+708;Message
+361;Method
+737;name
 1029;outbound_end
 706;photo_sens[1]or_start
 681;sensor_start[0]
@@ -100,10 +104,13 @@ Id;Default
 714;sEvent_MSG
 245;sID
 220;sMethod
+1034;StepID
 986;sTime
 198;Stop
 996;STOP
+666;Time
 784;tote_detection
+585;Type
 780;UNLOAD
 863;valve_clamp[0]
 396;valve_lift

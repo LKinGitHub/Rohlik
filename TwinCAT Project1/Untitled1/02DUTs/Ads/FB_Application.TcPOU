@@ -18,7 +18,7 @@ light_tower();
 tote_subsystem();
 
 GVL.fb_mcp.lightTower := light_tower._lightTower;
-
+GVL.fb_loading.lightTower	:= light_tower._lightTower;
 ]]></ST>
     </Implementation>
     <LineIds Name="FB_Application">
