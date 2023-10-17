@@ -158,6 +158,9 @@
     <Compile Include="Mian\machine\loading moudle\E_LoadingStates.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Mian\machine\loading moudle\E_Transfer.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Mian\machine\loading moudle\FB_loading.TcPOU">
       <SubType>Code</SubType>
     </Compile>

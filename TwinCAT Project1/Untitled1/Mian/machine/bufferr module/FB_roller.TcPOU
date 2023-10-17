@@ -87,7 +87,11 @@ CASE eStates OF
 			roller.forward	:= FALSE;
 			eStates	:= E_RollerStates.INIT;
 		E_RollerStates.INIT:
+			IF id_roller=3 THEN
 				eStates	:= E_RollerStates.STOPPER_UP;
+			ELSE
+				eStates	:= E_RollerStates.DETECTION;
+			END_IF		
 		E_RollerStates.DETECTION:
 			IF roller.sensor.Q THEN
 				current_tote_status	:= ToteStatus.READY;
@@ -100,8 +104,15 @@ CASE eStates OF
 				eStates	:= E_RollerStates.LOADING;
 			END_IF
 			IF next_tote_status=ToteStatus.EMPTY AND current_tote_status=ToteStatus.READY THEN
-				eStates	:= E_RollerStates.UNLOADING;
-			END_IF				
+				IF id_roller=3 THEN
+					IF GVL.fb_loading.eTransfer=E_Transfer.LOAD THEN
+						eStates	:= E_RollerStates.UNLOADING;
+					END_IF
+				ELSE
+					eStates	:= E_RollerStates.UNLOADING;
+				END_IF					
+			END_IF
+			
 		E_RollerStates.LOADING:		
 			IF roller.sensor.Q THEN
 				eStates	:= E_RollerStates.DETECTION;
@@ -353,9 +364,19 @@ M_safetyEvent	:= TRUE;]]></ST>
       <LineId Id="684" Count="24" />
       <LineId Id="825" Count="0" />
       <LineId Id="838" Count="0" />
-      <LineId Id="830" Count="1" />
+      <LineId Id="830" Count="0" />
+      <LineId Id="888" Count="1" />
+      <LineId Id="891" Count="1" />
+      <LineId Id="890" Count="0" />
       <LineId Id="710" Count="6" />
-      <LineId Id="718" Count="61" />
+      <LineId Id="718" Count="3" />
+      <LineId Id="880" Count="0" />
+      <LineId Id="882" Count="0" />
+      <LineId Id="885" Count="2" />
+      <LineId Id="883" Count="1" />
+      <LineId Id="879" Count="0" />
+      <LineId Id="877" Count="0" />
+      <LineId Id="724" Count="55" />
       <LineId Id="263" Count="0" />
     </LineIds>
     <LineIds Name="FB_roller.M_agingTest">

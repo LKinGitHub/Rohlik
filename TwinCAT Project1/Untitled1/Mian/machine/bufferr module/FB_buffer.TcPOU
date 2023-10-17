@@ -79,7 +79,7 @@ fb_rollers[2].roller.sensor(D:= G_IO.arDI[1].Ch[3],on_ms:=100,off_ms:=100);
 fb_rollers[2].roller.err			:= G_IO.arDI[1].Ch[4];
 fb_rollers[3].roller.err			:= G_IO.arDI[1].Ch[5];
 fb_rollers[3].roller.sensor(D:= G_IO.arDI[1].Ch[6],on_ms:=100,off_ms:=100);
-fb_rollers[3].sensor_mute(D:= G_IO.arDI[1].Ch[7],on_ms:=100,off_ms:=100);
+fb_rollers[3].sensor_mute(D:= G_IO.arDI[1].Ch[7],on_ms:=10,off_ms:=100);
 EDM_24v								:= G_IO.arDI[1].Ch[11];
 EDM_sto								:= G_IO.arDI[1].Ch[12];
 sensor_start[0](D:= G_IO.arDI[1].Ch[13],on_ms:=100,off_ms:=100);

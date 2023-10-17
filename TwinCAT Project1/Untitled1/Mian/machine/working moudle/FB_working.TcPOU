@@ -427,7 +427,7 @@ event.sComponent_name	:= sComponent_name;
 /////////////////////////////////////digital input////////////////////////////////////////
 valve_lift.extended					:= G_IO.arDI[5].Ch[0] OR G_IO.arDI[5].Ch[2];
 valve_lift.retracted				:= G_IO.arDI[5].Ch[1] OR G_IO.arDI[5].Ch[3];
-roller_inbound.photo_sensor_mute(D:= G_IO.arDI[5].Ch[4],on_ms:=100,off_ms:=100);
+roller_inbound.photo_sensor_mute(D:= G_IO.arDI[5].Ch[4],on_ms:=10,off_ms:=100);
 roller_inbound.roller.err			:= G_IO.arDI[5].Ch[5];
 roller_inbound.photo_sensor(D:= G_IO.arDI[5].Ch[6],on_ms:=100,off_ms:=100);
 roller_outbound.roller.err			:= G_IO.arDI[5].Ch[7];
@@ -821,7 +821,7 @@ CASE condition OF
 			M_waitCondition	:= TRUE;
 		END_IF	
 	E_Condition.READY_LOADING_TOTE:
-		IF pre_tote_status=ToteStatus.READY THEN
+		IF pre_tote_status=ToteStatus.READY AND GVL.fb_loading.eTransfer=E_Transfer.UNLOAD THEN
 			M_waitCondition	:= TRUE;
 		END_IF	
 END_CASE]]></ST>

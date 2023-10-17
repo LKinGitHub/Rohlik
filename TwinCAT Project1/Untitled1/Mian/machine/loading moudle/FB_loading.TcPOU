@@ -24,6 +24,7 @@ VAR
 	xError				: BOOL;
 	event				: ST_EVENT;
 	rt_error			: R_TRIG;
+	eTransfer			: E_Transfer;
 ///////////////hardware define//////////////////	
 	roller_x					: Roller_x;
 	roller_y					: Roller_y;
@@ -171,9 +172,9 @@ END_VAR
         <ST><![CDATA[event.sTime	:= MAIN.Temp_str;
 event.sComponent_name	:= sComponent_name;
 /////////////////////////////////////digital input////////////////////////////////////////
-roller_x.photo_sensor_mute_left(D:= G_IO.arDI[3].Ch[0],on_ms:=100,off_ms:=100);
+roller_x.photo_sensor_mute_left(D:= G_IO.arDI[3].Ch[0],on_ms:=10,off_ms:=100);
 roller_x.roller.err						:= G_IO.arDI[3].Ch[1];
-roller_x.photo_sensor_mute_right(D:= G_IO.arDI[3].Ch[2],on_ms:=100,off_ms:=100);
+roller_x.photo_sensor_mute_right(D:= G_IO.arDI[3].Ch[2],on_ms:=10,off_ms:=100);
 roller_y.roller.err						:= G_IO.arDI[3].Ch[3];
 roller_y.photo_sensor[0](D:= G_IO.arDI[3].Ch[4],on_ms:=100,off_ms:=100);
 roller_y.photo_sensor[1](D:= G_IO.arDI[3].Ch[5],on_ms:=100,off_ms:=100);
@@ -342,7 +343,8 @@ CASE eStates OF
 			st_mcAxis.mcMoveAbsolute.Execute	:= FALSE;
 			roller_x.roller.forward	:= FALSE;
 			ton_timeout.PT	:= T#10S;
-			IF pre_tote_status=ToteStatus.READY AND current_tote_status=ToteStatus.EMPTY THEN
+			eTransfer	:= E_Transfer.IDLE;
+			IF current_tote_status=ToteStatus.EMPTY AND pre_tote_status=ToteStatus.READY THEN
 				eStates	:= E_LoadingStates.LOADING;
 			END_IF
 			IF next_tote_status=ToteStatus.EMPTY AND current_tote_status=ToteStatus.READY AND MAIN.application.tote_subsystem.cmd=OrderToteCommand.LOAD THEN
@@ -353,9 +355,10 @@ CASE eStates OF
 		E_LoadingStates.LIFT_POSITION_LOAD:				
 			st_mcAxis.mcMoveAbsolute.Execute	:= TRUE;						
 			st_mcAxis.rActualPosSet	:= rPos_load;
-			st_mcAxis.rVelocitySet	:= 20;
+			st_mcAxis.rVelocitySet	:= 100;
 			IF st_mcAxis.mcMoveAbsolute.Done THEN
 				st_mcAxis.mcMoveAbsolute.Execute	:= FALSE;
+				eTransfer	:= E_Transfer.LOAD;
 				eStates	:= E_LoadingStates.ROLLER_LOAD;
 			END_IF	
 		E_LoadingStates.ROLLER_LOAD:
@@ -374,9 +377,10 @@ CASE eStates OF
 		E_LoadingStates.LIFT_POSITION_UNLOAD:
 			st_mcAxis.mcMoveAbsolute.Execute	:= TRUE;						
 			st_mcAxis.rActualPosSet	:= rPos_unload;
-			st_mcAxis.rVelocitySet	:= 20;
+			st_mcAxis.rVelocitySet	:= 100;
 			IF st_mcAxis.mcMoveAbsolute.Done THEN
 				st_mcAxis.mcMoveAbsolute.Execute	:= FALSE;
+				eTransfer	:= E_Transfer.UNLOAD;
 				eStates	:= E_LoadingStates.ROLLER_UNLOAD;
 			END_IF	
 		E_LoadingStates.ROLLER_UNLOAD:
@@ -581,9 +585,16 @@ END_VAR
       <LineId Id="185" Count="0" />
       <LineId Id="44" Count="6" />
       <LineId Id="148" Count="0" />
-      <LineId Id="52" Count="21" />
+      <LineId Id="225" Count="0" />
+      <LineId Id="52" Count="13" />
+      <LineId Id="226" Count="0" />
+      <LineId Id="66" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="68" Count="5" />
       <LineId Id="186" Count="0" />
-      <LineId Id="74" Count="19" />
+      <LineId Id="74" Count="11" />
+      <LineId Id="227" Count="0" />
+      <LineId Id="86" Count="7" />
       <LineId Id="195" Count="0" />
       <LineId Id="94" Count="3" />
       <LineId Id="99" Count="2" />
