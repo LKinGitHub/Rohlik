@@ -128,7 +128,7 @@
                     </o>
                     <o>
                       <v n="Id">1970058906L</v>
-                      <v n="Value" t="Int16">20</v>
+                      <v n="Value" t="Int16">30</v>
                     </o>
                     <o>
                       <v n="Id">494569607L</v>
@@ -339,14 +339,13 @@
                     </o>
                     <o>
                       <v n="Id">3729828405L</v>
-                      <l n="Value" t="ArrayList" cet="NamedStyleFont">
+                      <l n="Value" t="ArrayList" cet="FontDescription">
                         <o>
                           <v n="FontStyle">0</v>
                           <v n="AdditionalFontStyle" t="UInt16">0</v>
                           <v n="ExplicitColor">-16777216</v>
-                          <v n="CanonicalName">"Font-Standard"</v>
-                          <v n="FontName">"Arial"</v>
-                          <v n="FontSize">12</v>
+                          <v n="FontName">"Tahoma"</v>
+                          <v n="FontSize">16</v>
                           <v n="ScriptIdentification">0</v>
                           <v n="DoubleFontSize" t="Double">0</v>
                           <o n="NamedColor" t="NamedStyleColor">
@@ -856,31 +855,31 @@
                     </o>
                     <o>
                       <v n="Id">2232123230L</v>
-                      <v n="Value">"sTime"</v>
+                      <v n="Value">"Time"</v>
                     </o>
                     <o>
                       <v n="Id">511219082L</v>
-                      <v n="Value">"sEventType"</v>
+                      <v n="Value">"Type"</v>
                     </o>
                     <o>
                       <v n="Id">1755163831L</v>
-                      <v n="Value">"sComponent_name"</v>
+                      <v n="Value">"name"</v>
                     </o>
                     <o>
                       <v n="Id">4092479075L</v>
-                      <v n="Value">"sComponent_ID"</v>
+                      <v n="Value">"ID"</v>
                     </o>
                     <o>
                       <v n="Id">2237128397L</v>
-                      <v n="Value">"sMethod"</v>
+                      <v n="Value">"Method"</v>
                     </o>
                     <o>
                       <v n="Id">505689113L</v>
-                      <v n="Value">"sStepID"</v>
+                      <v n="Value">"StepID"</v>
                     </o>
                     <o>
                       <v n="Id">1757482276L</v>
-                      <v n="Value">"sEvent_MSG"</v>
+                      <v n="Value">"Message"</v>
                     </o>
                     <o>
                       <v n="Id">2685023577L</v>
@@ -912,7 +911,7 @@
                     </o>
                     <o>
                       <v n="Id">4036189354L</v>
-                      <v n="Value" t="Int16">400</v>
+                      <v n="Value" t="Int16">350</v>
                     </o>
                     <o>
                       <v n="Id">1010392116L</v>
@@ -920,7 +919,7 @@
                     </o>
                     <o>
                       <v n="Id">2998295511L</v>
-                      <v n="Value" t="Int16">150</v>
+                      <v n="Value" t="Int16">200</v>
                     </o>
                     <o>
                       <v n="Id">2115787593L</v>
@@ -932,11 +931,11 @@
                     </o>
                     <o>
                       <v n="Id">3094565582L</v>
-                      <v n="Value" t="Int16">150</v>
+                      <v n="Value" t="Int16">100</v>
                     </o>
                     <o>
                       <v n="Id">922506541L</v>
-                      <v n="Value" t="Int16">1048</v>
+                      <v n="Value" t="Int16">946</v>
                     </o>
                     <o>
                       <v n="Id">3669839856L</v>
@@ -1036,7 +1035,7 @@
                     </o>
                     <o>
                       <v n="Id">3922825740L</v>
-                      <v n="Value">false</v>
+                      <v n="Value">true</v>
                     </o>
                     <o>
                       <v n="Id">3236595599L</v>
@@ -1080,7 +1079,55 @@
                     </o>
                     <o>
                       <v n="Id">2766787066L</v>
-                      <v n="Value">"102"</v>
+                      <v n="Value">"1034"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4250787478L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">3979887725L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">202788361L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">283128086L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">1128707560L</v>
+                      <v n="Value">""</v>
+                    </o>
+                    <o>
+                      <v n="Id">1893244285L</v>
+                      <v n="Value">"585"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3736079596L</v>
+                      <v n="Value">"666"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1494231439L</v>
+                      <v n="Value">"737"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4151883806L</v>
+                      <v n="Value">"902"</v>
+                    </o>
+                    <o>
+                      <v n="Id">176242795L</v>
+                      <v n="Value">"361"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2367776008L</v>
+                      <v n="Value">"708"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3812948200L</v>
+                      <v n="Value">true</v>
                     </o>
                   </l>
                 </o>
@@ -1301,6 +1348,7 @@
         <Type n="Double">System.Double</Type>
         <Type n="DynamicArrayNode">{6c16f79c-dd98-4c29-b3ba-7042e3055542}</Type>
         <Type n="EArrayType">{ebaacb5d-5a32-412b-9087-31925070be93}</Type>
+        <Type n="FontDescription">{896a5e54-96c3-433b-96d2-4f1442fef591}</Type>
         <Type n="GeneratedLanguageModelEntriesData">{703465dc-4679-4ff2-bcc3-c57d0a204da3}</Type>
         <Type n="GenericFbDescription">{40d6dd8d-dfd0-493a-8e29-c9a35e1e6539}</Type>
         <Type n="GenericVisualElem">{f86c2928-8614-4cca-824b-e819ac4d58c4}</Type>
@@ -1311,7 +1359,6 @@
         <Type n="Int32">System.Int32</Type>
         <Type n="Int64">System.Int64</Type>
         <Type n="NamedStyleColor">{fa491db2-51ff-4bc1-9cd0-ce8c94ff6216}</Type>
-        <Type n="NamedStyleFont">{9e842eb2-1463-4af2-b605-4fbb17044f94}</Type>
         <Type n="String">System.String</Type>
         <Type n="StructuredTypeNode">{503c5b2e-e80e-4ee7-ae00-c5b93a62b1aa}</Type>
         <Type n="TextDocument">{f3878285-8e4f-490b-bb1b-9acbb7eb04db}</Type>

@@ -431,7 +431,7 @@ roller_inbound.photo_sensor_mute(D:= G_IO.arDI[5].Ch[4],on_ms:=10,off_ms:=100);
 roller_inbound.roller.err			:= G_IO.arDI[5].Ch[5];
 roller_inbound.photo_sensor(D:= G_IO.arDI[5].Ch[6],on_ms:=100,off_ms:=100);
 roller_outbound.roller.err			:= G_IO.arDI[5].Ch[7];
-roller_outbound.photo_sensor(D:= G_IO.arDI[5].Ch[8],on_ms:=100,off_ms:=100);		
+roller_outbound.photo_sensor(D:= G_IO.arDI[5].Ch[8],on_ms:=100,off_ms:=500);		
 sensor_openbag_detection[0]			:= G_IO.arDI[5].Ch[9];
 sensor_openbag_detection[1]			:= G_IO.arDI[5].Ch[10];
 sensor_openbag_detection[2]			:= G_IO.arDI[5].Ch[11];

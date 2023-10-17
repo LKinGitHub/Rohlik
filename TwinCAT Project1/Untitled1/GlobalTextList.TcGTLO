@@ -141,6 +141,11 @@
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>
+              <v n="TextID">"902"</v>
+              <v n="TextDefault">"ID"</v>
+              <l n="LanguageTexts" t="ArrayList" />
+            </o>
+            <o>
               <v n="TextID">"136"</v>
               <v n="TextDefault">"inbound"</v>
               <l n="LanguageTexts" t="ArrayList" />
@@ -148,6 +153,21 @@
             <o>
               <v n="TextID">"44"</v>
               <v n="TextDefault">"INIT"</v>
+              <l n="LanguageTexts" t="ArrayList" />
+            </o>
+            <o>
+              <v n="TextID">"708"</v>
+              <v n="TextDefault">"Message"</v>
+              <l n="LanguageTexts" t="ArrayList" />
+            </o>
+            <o>
+              <v n="TextID">"361"</v>
+              <v n="TextDefault">"Method"</v>
+              <l n="LanguageTexts" t="ArrayList" />
+            </o>
+            <o>
+              <v n="TextID">"737"</v>
+              <v n="TextDefault">"name"</v>
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>
@@ -514,6 +534,11 @@ encoder as rotation"</v>
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>
+              <v n="TextID">"1034"</v>
+              <v n="TextDefault">"StepID"</v>
+              <l n="LanguageTexts" t="ArrayList" />
+            </o>
+            <o>
               <v n="TextID">"986"</v>
               <v n="TextDefault">"sTime"</v>
               <l n="LanguageTexts" t="ArrayList" />
@@ -529,8 +554,18 @@ encoder as rotation"</v>
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>
+              <v n="TextID">"666"</v>
+              <v n="TextDefault">"Time"</v>
+              <l n="LanguageTexts" t="ArrayList" />
+            </o>
+            <o>
               <v n="TextID">"784"</v>
               <v n="TextDefault">"tote_detection"</v>
+              <l n="LanguageTexts" t="ArrayList" />
+            </o>
+            <o>
+              <v n="TextID">"585"</v>
+              <v n="TextDefault">"Type"</v>
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>

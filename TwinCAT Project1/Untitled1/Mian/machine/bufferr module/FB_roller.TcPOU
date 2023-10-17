@@ -45,8 +45,6 @@ IF rt_error.Q THEN
 	xError	:= TRUE;
 	eStates	:= E_RollerStates.ERROR;
 END_IF
-
-
 //////////////////////////////////////////////////////////timeout//////////////////////////////////////////
 iStateTemp	:= eStateTemp;
 sStateTemp	:= INT_TO_STRING(iStateTemp);
@@ -67,16 +65,24 @@ END_IF
 IF ton_timeout.Q THEN	
 	ton_timeout.IN	:=FALSE;
 	CASE eStates OF
-		E_RollerStates.LOADING:		
+		E_RollerStates.STOPPER_DOWN:		
 			event.sEventType	:= 'error';
-			event.sEvent_MSG	:=  CONCAT('LOADING','timeout');
+			event.sEvent_MSG	:=  CONCAT('STOPPER_DOWN ','timeout');
 			event.sStepID		:=	sStateTemp;
-		E_RollerStates.UNLOADING:		
+		E_RollerStates.ROLLER_UNLOAD:		
 			event.sEventType	:= 'error';
-			event.sEvent_MSG	:=  CONCAT('UNLOADING','timeout');
+			event.sEvent_MSG	:=  CONCAT('ROLLER_UNLOAD ','timeout');
 			event.sStepID		:=  sStateTemp;
+		E_RollerStates.WAIT_MUTE_OFF:
+			event.sEventType	:= 'error';
+			event.sEvent_MSG	:=  CONCAT('WAIT_MUTE_OFF ','timeout');
+			event.sStepID		:=  sStateTemp;
+		E_RollerStates.STOPPER_UP:			
+			event.sEventType	:= 'error';
+			event.sEvent_MSG	:=  CONCAT('STOPPER_UP ','timeout');
+			event.sStepID		:=  sStateTemp;						
 	END_CASE
-	IF eStates<>E_RollerStates.DETECTION THEN
+	IF eStates<>E_RollerStates.DETECTION AND eStates<>E_RollerStates.LOADING AND eStates<>E_RollerStates.UNLOADING THEN
 		eStates	:= E_RollerStates.ERROR;
 		Event_add(event);
 	END_IF
@@ -87,19 +93,22 @@ CASE eStates OF
 			roller.forward	:= FALSE;
 			eStates	:= E_RollerStates.INIT;
 		E_RollerStates.INIT:
-			IF id_roller=3 THEN
-				eStates	:= E_RollerStates.STOPPER_UP;
-			ELSE
-				eStates	:= E_RollerStates.DETECTION;
-			END_IF		
+//			IF id_roller=3 THEN
+//				eStates	:= E_RollerStates.STOPPER_UP;
+//			ELSE
+//				eStates	:= E_RollerStates.DETECTION;
+//			END_IF
+//avoide tote is just on the top of stopper and stopper is on the button,then if stopper lift up,will demage the tote	
+			eStates	:= E_RollerStates.DETECTION;
 		E_RollerStates.DETECTION:
+			roller.forward	:= FALSE;
+			st_mcAxis.mcMoveAbsolute.Execute	:= FALSE;
+			ton_timeout.PT	:= T#10S;			
 			IF roller.sensor.Q THEN
 				current_tote_status	:= ToteStatus.READY;
 			ELSE
 				current_tote_status	:= ToteStatus.EMPTY;
 			END_IF		
-			st_mcAxis.mcMoveAbsolute.Execute	:= FALSE;
-			ton_timeout.PT	:= T#600S;
 			IF pre_tote_status=ToteStatus.READY AND current_tote_status=ToteStatus.EMPTY THEN
 				eStates	:= E_RollerStates.LOADING;
 			END_IF
@@ -120,6 +129,9 @@ CASE eStates OF
 			ELSE
 				roller.forward	:= TRUE;
 			END_IF
+			IF ton_timeout.Q THEN
+				eStates	:= E_RollerStates.DETECTION;
+			END_IF
 		E_RollerStates.UNLOADING:	
 			IF id_roller=3 THEN
 				eStates	:= E_RollerStates.STOPPER_DOWN;
@@ -130,6 +142,9 @@ CASE eStates OF
 					eStates	:= E_RollerStates.DETECTION;
 					roller.forward	:= FALSE;
 				END_IF	
+				IF ton_timeout.Q THEN
+					eStates	:= E_RollerStates.DETECTION;
+				END_IF
 			END_IF	
 		E_RollerStates.STOPPER_DOWN:
 			st_mcAxis.mcMoveAbsolute.Execute	:= TRUE;						
@@ -137,9 +152,9 @@ CASE eStates OF
 			st_mcAxis.rVelocitySet	:= 100;
 			IF st_mcAxis.mcMoveAbsolute.Done THEN
 				st_mcAxis.mcMoveAbsolute.Execute	:= FALSE;
-				eStates	:= E_RollerStates.ROLLER_FORWARD;
+				eStates	:= E_RollerStates.ROLLER_UNLOAD;
 			END_IF					
-		E_RollerStates.ROLLER_FORWARD:
+		E_RollerStates.ROLLER_UNLOAD:
 			roller.forward	:= TRUE;
 			IF sensor_mute.Q THEN
 				eStates	:= E_RollerStates.WAIT_MUTE_OFF;
@@ -357,26 +372,45 @@ M_safetyEvent	:= TRUE;]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="FB_roller">
-      <LineId Id="666" Count="16" />
+      <LineId Id="666" Count="6" />
+      <LineId Id="675" Count="7" />
       <LineId Id="839" Count="0" />
       <LineId Id="781" Count="1" />
       <LineId Id="780" Count="0" />
-      <LineId Id="684" Count="24" />
+      <LineId Id="684" Count="15" />
+      <LineId Id="919" Count="0" />
+      <LineId Id="924" Count="1" />
+      <LineId Id="923" Count="0" />
+      <LineId Id="900" Count="0" />
+      <LineId Id="926" Count="1" />
+      <LineId Id="901" Count="0" />
+      <LineId Id="700" Count="8" />
       <LineId Id="825" Count="0" />
       <LineId Id="838" Count="0" />
       <LineId Id="830" Count="0" />
       <LineId Id="888" Count="1" />
       <LineId Id="891" Count="1" />
       <LineId Id="890" Count="0" />
-      <LineId Id="710" Count="6" />
-      <LineId Id="718" Count="3" />
+      <LineId Id="929" Count="0" />
+      <LineId Id="928" Count="0" />
+      <LineId Id="710" Count="0" />
+      <LineId Id="931" Count="0" />
+      <LineId Id="933" Count="0" />
+      <LineId Id="932" Count="0" />
+      <LineId Id="711" Count="4" />
+      <LineId Id="719" Count="2" />
       <LineId Id="880" Count="0" />
       <LineId Id="882" Count="0" />
       <LineId Id="885" Count="2" />
       <LineId Id="883" Count="1" />
       <LineId Id="879" Count="0" />
       <LineId Id="877" Count="0" />
-      <LineId Id="724" Count="55" />
+      <LineId Id="724" Count="7" />
+      <LineId Id="893" Count="2" />
+      <LineId Id="732" Count="9" />
+      <LineId Id="898" Count="1" />
+      <LineId Id="897" Count="0" />
+      <LineId Id="742" Count="37" />
       <LineId Id="263" Count="0" />
     </LineIds>
     <LineIds Name="FB_roller.M_agingTest">
