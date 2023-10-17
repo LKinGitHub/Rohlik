@@ -122,7 +122,8 @@ CASE eStates OF
 				END_IF					
 			END_IF
 			
-		E_RollerStates.LOADING:		
+		E_RollerStates.LOADING:	
+			current_tote_status	:= ToteStatus.UNKNOWN;	
 			IF roller.sensor.Q THEN
 				eStates	:= E_RollerStates.DETECTION;
 				roller.forward	:= FALSE;
@@ -132,7 +133,8 @@ CASE eStates OF
 			IF ton_timeout.Q THEN
 				eStates	:= E_RollerStates.DETECTION;
 			END_IF
-		E_RollerStates.UNLOADING:	
+		E_RollerStates.UNLOADING:
+			current_tote_status	:= ToteStatus.UNKNOWN;	
 			IF id_roller=3 THEN
 				eStates	:= E_RollerStates.STOPPER_DOWN;
 			ELSE	
@@ -405,9 +407,13 @@ M_safetyEvent	:= TRUE;]]></ST>
       <LineId Id="883" Count="1" />
       <LineId Id="879" Count="0" />
       <LineId Id="877" Count="0" />
-      <LineId Id="724" Count="7" />
+      <LineId Id="724" Count="1" />
+      <LineId Id="939" Count="0" />
+      <LineId Id="726" Count="5" />
       <LineId Id="893" Count="2" />
-      <LineId Id="732" Count="9" />
+      <LineId Id="732" Count="0" />
+      <LineId Id="940" Count="0" />
+      <LineId Id="733" Count="8" />
       <LineId Id="898" Count="1" />
       <LineId Id="897" Count="0" />
       <LineId Id="742" Count="37" />
