@@ -87,8 +87,10 @@ b_ErrorAck := tonSaftyDelay.Q;
 GPWM(i_xEnable:=TRUE,i_udiTime:=25,i_udiCycle:=50);
 GPWM_1s(i_xEnable:=TRUE,i_udiTime:=500,i_udiCycle:=1000);
 //light curtain mute
-GVL.fb_working.lightcurtain_mute_left 	:= GVL.fb_buffer.fb_rollers[3].sensor_mute.Q OR GVL.fb_loading.roller_x.photo_sensor_mute_left.Q;   
-GVL.fb_working.lightcurtain_mute_right 	:= GVL.fb_loading.roller_x.photo_sensor_mute_right.Q OR GVL.fb_working.roller_inbound.photo_sensor_mute.Q;
+GVL.fb_working.lightcurtain_mute_left 	:= (GVL.fb_buffer.fb_rollers[3].sensor_mute.Q OR GVL.fb_loading.roller_x.photo_sensor_mute_left.Q)
+											AND GVL.fb_loading.eTransfer=E_Transfer.LOAD;   
+GVL.fb_working.lightcurtain_mute_right 	:= (GVL.fb_loading.roller_x.photo_sensor_mute_right.Q OR GVL.fb_working.roller_inbound.photo_sensor_mute.Q)
+											AND (GVL.fb_working.eTransfer=E_Transfer.LOAD AND GVL.fb_working.roller_inbound.roller.forward);
  
 
 
@@ -128,13 +130,16 @@ END_VAR
         <ST><![CDATA[
 
 
-mcp_estop				:= SI0_0 AND SI0_1;//MCPestop
-mcp_safetyDoor			:= SI0_2 AND SI0_3;//MCP门锁
-belt_estop				:= SI1_0 AND SI1_1;//belt estop
-lift_lightCurtain_left	:= SI2_0 AND SI2_1;//安全光栅1
-lift_estop				:= SI2_2 AND SI2_3;//estop
-lift_lightCurtain_right	:= SI3_0 AND SI3_1;//安全光栅2
-lift_station_detection	:= SI3_2 AND SI3_3;//升降到位
+mcp_estop					:= SI0_0 AND SI0_1;
+mcp_safetyDoor				:= SI0_2 AND SI0_3;
+belt_estop					:= SI1_0 AND SI1_1;
+lift_lightCurtain_left		:= SI2_0 AND SI2_1;
+lift_estop					:= SI2_2 AND SI2_3;
+lift_lightCurtain_right		:= SI3_0 AND SI3_1;
+lift_station_detection		:= SI3_2 AND SI3_3;
+bShield_light_curtain_Left	:= SI4_0;
+bShield_light_curtain_Right	:= SI4_1;
+
 
 robot_EES				:= SO0_0;
 robot_EAS				:= SO0_1;
@@ -338,7 +343,11 @@ update_station_mode	:= TRUE;]]></ST>
       <LineId Id="173" Count="0" />
       <LineId Id="172" Count="0" />
       <LineId Id="145" Count="0" />
-      <LineId Id="162" Count="4" />
+      <LineId Id="162" Count="2" />
+      <LineId Id="290" Count="0" />
+      <LineId Id="165" Count="0" />
+      <LineId Id="291" Count="0" />
+      <LineId Id="166" Count="0" />
       <LineId Id="175" Count="0" />
       <LineId Id="174" Count="0" />
       <LineId Id="167" Count="4" />
@@ -356,6 +365,8 @@ update_station_mode	:= TRUE;]]></ST>
       <LineId Id="5" Count="0" />
       <LineId Id="29" Count="0" />
       <LineId Id="13" Count="6" />
+      <LineId Id="62" Count="1" />
+      <LineId Id="61" Count="0" />
       <LineId Id="36" Count="9" />
       <LineId Id="49" Count="0" />
       <LineId Id="53" Count="0" />

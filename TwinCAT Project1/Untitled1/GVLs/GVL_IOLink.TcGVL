@@ -20,8 +20,10 @@ SI3_0              AT%I*  :BOOL           ;   //light_curtain_right[0]	安全光
 SI3_1              AT%I*  :BOOL           ;   //light_curtain_right[1]	安全光栅2-ON2
 SI3_2              AT%I*  :BOOL           ;   //station_detection_NC1	升降推到位检测ON1
 SI3_3              AT%I*  :BOOL           ;   //station_detection_NC2	升降推到位检测ON2
-SI4_0              AT%I*  :BOOL           ;   //light_curtain_right[0]	安全光栅2-ON1
-SI4_1              AT%I*  :BOOL           ;   //light_curtain_right[1]	安全光栅2-ON2	                                         
+SI4_0              AT%I*  :BOOL           ;   //屏蔽光栅_left
+SI4_1              AT%I*  :BOOL           ;   //屏蔽光栅_right	                                         
+SI4_2              AT%I*  :BOOL           ;   
+SI4_3              AT%I*  :BOOL           ;   
 	                                         
 SO0_0              AT%I*  :BOOL           ;   //EES	机器人EES急停         
 SO0_1              AT%I*  :BOOL           ;   //EAS	机器人EAS安全门        

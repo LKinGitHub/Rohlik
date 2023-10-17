@@ -44,7 +44,7 @@ VAR
 	AxisRef_bag			: AXIS_REF;	
 	event				: ST_EVENT;
 	rt_error			: R_TRIG;
-	
+	eTransfer			: E_Transfer;
 
 END_VAR
 VAR CONSTANT
@@ -333,7 +333,7 @@ CASE eStates OF
 			IF st_mcAxis_bag.mcReadStatus.StandStill AND st_mcAxis_lift.mcReadStatus.StandStill THEN
 				eStates	:= E_WorkingStates.INIT;
 			END_IF			
-		E_WorkingStates.INIT:	
+		E_WorkingStates.INIT:		
 			st_mcAxis_bag.mcMoveAbsolute.Execute	:= FALSE;
 			st_mcAxis_lift.mcMoveAbsolute.Execute	:= FALSE;
 			eStates	:= E_WorkingStates.BAG_OPEN_UP;

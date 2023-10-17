@@ -24,6 +24,7 @@ Id;Default
 673;error
 924;Extend
 614;extended
+801;Flood Light
 841;HOME
 248;HomeDone
 902;ID

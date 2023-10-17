@@ -323,8 +323,8 @@ IF ton_timeout.Q THEN
 			event.sEvent_MSG	:=  CONCAT('UNLOADING ','timeout');
 			event.sStepID		:= sStateTemp;
 		E_LoadingStates.LIFT_POSITION_UNLOAD:	
-				event.sEventType	:= 'error';
-			event.sEvent_MSG	:=  CONCAT('sStateTemp ','timeout');
+			event.sEventType	:= 'error';
+			event.sEvent_MSG	:=  CONCAT('LIFT_POSITION_UNLOAD ','timeout');
 			event.sStepID		:= sStateTemp;
 		E_LoadingStates.ROLLER_UNLOAD:
 			event.sEventType	:= 'error';
