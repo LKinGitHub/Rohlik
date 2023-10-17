@@ -38,6 +38,8 @@ VAR
 	b_test: BOOL;
 	event	: ST_EVENT;
 	b_test1: BOOL;
+	b_test2: BOOL;
+
 END_VAR
 ]]></Declaration>
     <Implementation>

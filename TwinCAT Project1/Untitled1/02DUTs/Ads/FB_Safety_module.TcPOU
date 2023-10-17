@@ -87,8 +87,8 @@ b_ErrorAck := tonSaftyDelay.Q;
 GPWM(i_xEnable:=TRUE,i_udiTime:=25,i_udiCycle:=50);
 GPWM_1s(i_xEnable:=TRUE,i_udiTime:=500,i_udiCycle:=1000);
 //light curtain mute
-GVL.fb_working.lightcurtain_mute_left 	:= GVL.fb_buffer.fb_rollers[3].sensor_mute OR GVL.fb_loading.roller_x.photo_sensor_mute_left;   
-GVL.fb_working.lightcurtain_mute_right 	:= GVL.fb_loading.roller_x.photo_sensor_mute_right OR GVL.fb_working.roller_inbound.photo_sensor_mute;
+GVL.fb_working.lightcurtain_mute_left 	:= GVL.fb_buffer.fb_rollers[3].sensor_mute.Q OR GVL.fb_loading.roller_x.photo_sensor_mute_left.Q;   
+GVL.fb_working.lightcurtain_mute_right 	:= GVL.fb_loading.roller_x.photo_sensor_mute_right.Q OR GVL.fb_working.roller_inbound.photo_sensor_mute.Q;
  
 
 

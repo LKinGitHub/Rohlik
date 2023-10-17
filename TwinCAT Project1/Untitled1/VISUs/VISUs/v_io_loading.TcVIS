@@ -80,7 +80,7 @@
                     </o>
                     <o>
                       <v n="Id">743958181L</v>
-                      <v n="Value">"GVL.fb_loading.photo_sensor_tote_detection"</v>
+                      <v n="Value">"GVL.fb_loading.photo_sensor_tote_detection.Q"</v>
                     </o>
                     <o>
                       <v n="Id">2880254039L</v>
@@ -2468,7 +2468,7 @@
                     </o>
                     <o>
                       <v n="Id">743958181L</v>
-                      <v n="Value">"GVL.fb_loading.roller_x.photo_sensor_mute_left"</v>
+                      <v n="Value">"GVL.fb_loading.roller_x.photo_sensor_mute_left.Q"</v>
                     </o>
                     <o>
                       <v n="Id">2880254039L</v>
@@ -2691,7 +2691,7 @@
                     </o>
                     <o>
                       <v n="Id">743958181L</v>
-                      <v n="Value">"GVL.fb_loading.roller_x.photo_sensor_mute_right"</v>
+                      <v n="Value">"GVL.fb_loading.roller_x.photo_sensor_mute_right.Q"</v>
                     </o>
                     <o>
                       <v n="Id">2880254039L</v>
@@ -3039,7 +3039,7 @@
                     </o>
                     <o>
                       <v n="Id">743958181L</v>
-                      <v n="Value">"GVL.fb_loading.roller_y.roller.sensor"</v>
+                      <v n="Value">"GVL.fb_loading.roller_y.roller.sensor.Q"</v>
                     </o>
                     <o>
                       <v n="Id">2880254039L</v>
@@ -5427,7 +5427,7 @@
                     </o>
                     <o>
                       <v n="Id">743958181L</v>
-                      <v n="Value">"GVL.fb_loading.roller_y.photo_sensor[0]"</v>
+                      <v n="Value">"GVL.fb_loading.roller_y.photo_sensor[0].Q"</v>
                     </o>
                     <o>
                       <v n="Id">2880254039L</v>
@@ -5650,7 +5650,7 @@
                     </o>
                     <o>
                       <v n="Id">743958181L</v>
-                      <v n="Value">"GVL.fb_loading.roller_y.photo_sensor[1]"</v>
+                      <v n="Value">"GVL.fb_loading.roller_y.photo_sensor[1].Q"</v>
                     </o>
                     <o>
                       <v n="Id">2880254039L</v>

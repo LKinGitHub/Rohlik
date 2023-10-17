@@ -27,7 +27,7 @@ VAR
 ///////////////hardware define//////////////////	
 	roller_x					: Roller_x;
 	roller_y					: Roller_y;
-	photo_sensor_tote_detection	: BOOL;
+	photo_sensor_tote_detection	: FB_DigitalInput;
 	EDM_KA7						: BOOL;
 	mcAxis	 					: FB_MotionAxis_MC;
 	st_mcAxis					: ST_MotionAxis_MC;
@@ -171,13 +171,13 @@ END_VAR
         <ST><![CDATA[event.sTime	:= MAIN.Temp_str;
 event.sComponent_name	:= sComponent_name;
 /////////////////////////////////////digital input////////////////////////////////////////
-roller_x.photo_sensor_mute_left			:= G_IO.arDI[3].Ch[0];
+roller_x.photo_sensor_mute_left(D:= G_IO.arDI[3].Ch[0],on_ms:=100,off_ms:=100);
 roller_x.roller.err						:= G_IO.arDI[3].Ch[1];
-roller_x.photo_sensor_mute_right		:= G_IO.arDI[3].Ch[2];
+roller_x.photo_sensor_mute_right(D:= G_IO.arDI[3].Ch[2],on_ms:=100,off_ms:=100);
 roller_y.roller.err						:= G_IO.arDI[3].Ch[3];
-roller_y.photo_sensor[0]				:= G_IO.arDI[3].Ch[4];
-roller_y.photo_sensor[1]				:= G_IO.arDI[3].Ch[5];
-photo_sensor_tote_detection				:= G_IO.arDI[3].Ch[6];
+roller_y.photo_sensor[0](D:= G_IO.arDI[3].Ch[4],on_ms:=100,off_ms:=100);
+roller_y.photo_sensor[1](D:= G_IO.arDI[3].Ch[5],on_ms:=100,off_ms:=100);
+photo_sensor_tote_detection(D:= G_IO.arDI[3].Ch[6],on_ms:=100,off_ms:=100);
 EDM_KA7									:= G_IO.arDI[3].Ch[7];
 
 /////////////////////////////////////digital output////////////////////////////////////////
@@ -255,11 +255,11 @@ END_VAR
         <ST><![CDATA[M_run	:= FALSE;
 event.sMethod	:= 'M_run';
 //////////////////////////////////////////////////////////current_tote status//////////////////////////////////////////
-IF photo_sensor_tote_detection AND NOT(roller_x.photo_sensor_mute_left OR roller_x.photo_sensor_mute_right) THEN
+IF photo_sensor_tote_detection.Q AND NOT(roller_x.photo_sensor_mute_left.Q OR roller_x.photo_sensor_mute_right.Q) THEN
 	current_tote_status	:= ToteStatus.READY;
 END_IF
-IF NOT(roller_x.photo_sensor_mute_left OR roller_x.photo_sensor_mute_right 
-	OR roller_y.photo_sensor[0] OR roller_y.photo_sensor[1]OR roller_y.roller.sensor) THEN
+IF NOT(roller_x.photo_sensor_mute_left.Q OR roller_x.photo_sensor_mute_right.Q 
+	OR roller_y.photo_sensor[0].Q OR roller_y.photo_sensor[1].Q OR roller_y.roller.sensor.Q) THEN
 	current_tote_status	:= ToteStatus.EMPTY;
 END_IF
 //////////////////////////////////////////////////////////timeout//////////////////////////////////////////
@@ -360,12 +360,12 @@ CASE eStates OF
 			END_IF	
 		E_LoadingStates.ROLLER_LOAD:
 			roller_x.roller.forward	:= TRUE;
-			IF photo_sensor_tote_detection THEN
+			IF photo_sensor_tote_detection.Q THEN
 				eStates	:= E_LoadingStates.WAIT_LEFT_MUTE_OFF;
 			END_IF
 		E_LoadingStates.WAIT_LEFT_MUTE_OFF:
 			roller_x.roller.forward	:= TRUE;
-			IF NOT roller_x.photo_sensor_mute_left THEN
+			IF NOT roller_x.photo_sensor_mute_left.Q THEN
 				roller_x.roller.forward	:= FALSE;
 				eStates	:= E_LoadingStates.DETECTION;
 			END_IF	
@@ -381,12 +381,12 @@ CASE eStates OF
 			END_IF	
 		E_LoadingStates.ROLLER_UNLOAD:
 			roller_x.roller.forward	:= TRUE;
-			IF NOT photo_sensor_tote_detection THEN
+			IF NOT photo_sensor_tote_detection.Q THEN
 				eStates	:= E_LoadingStates.WAIT_RIGHT_MUTE_OFF;
 			END_IF			
 		E_LoadingStates.WAIT_RIGHT_MUTE_OFF:
 			roller_x.roller.forward	:= TRUE;
-			IF NOT roller_x.photo_sensor_mute_right THEN
+			IF NOT roller_x.photo_sensor_mute_right.Q THEN
 				roller_x.roller.forward	:= FALSE;
 				eStates	:= E_LoadingStates.DETECTION;
 			END_IF				

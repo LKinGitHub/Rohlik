@@ -7,7 +7,7 @@ VAR_INPUT
 	next_tote_status		: ToteStatus;//roller +1 totestatus=empty
 	roller					: Roller;	
 	id_roller				: INT;
-	sensor_mute				: BOOL;
+	sensor_mute				: FB_DigitalInput;
 END_VAR
 VAR_OUTPUT
 	
@@ -89,7 +89,7 @@ CASE eStates OF
 		E_RollerStates.INIT:
 				eStates	:= E_RollerStates.DETECTION;
 		E_RollerStates.DETECTION:
-			IF roller.sensor THEN
+			IF roller.sensor.Q THEN
 				current_tote_status	:= ToteStatus.READY;
 			ELSE
 				current_tote_status	:= ToteStatus.EMPTY;
@@ -103,7 +103,7 @@ CASE eStates OF
 				eStates	:= E_RollerStates.UNLOADING;
 			END_IF				
 		E_RollerStates.LOADING:		
-			IF roller.sensor THEN
+			IF roller.sensor.Q THEN
 				eStates	:= E_RollerStates.DETECTION;
 				roller.forward	:= FALSE;
 			ELSE
@@ -113,7 +113,7 @@ CASE eStates OF
 			IF id_roller=3 THEN
 				eStates	:= E_RollerStates.STOPPER_DOWN;
 			ELSE	
-				IF roller.sensor THEN			
+				IF roller.sensor.Q THEN			
 					roller.forward	:= TRUE;
 				ELSE
 					eStates	:= E_RollerStates.DETECTION;
@@ -130,11 +130,11 @@ CASE eStates OF
 			END_IF					
 		E_RollerStates.ROLLER_FORWARD:
 			roller.forward	:= TRUE;
-			IF sensor_mute THEN
+			IF sensor_mute.Q THEN
 				eStates	:= E_RollerStates.WAIT_MUTE_OFF;
 			END_IF
 		E_RollerStates.WAIT_MUTE_OFF:
-			IF NOT sensor_mute THEN
+			IF NOT sensor_mute.Q THEN
 				roller.forward	:= FALSE;
 				eStates	:= E_RollerStates.STOPPER_UP;
 			END_IF

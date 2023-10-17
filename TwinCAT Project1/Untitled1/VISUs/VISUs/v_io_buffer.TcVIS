@@ -80,7 +80,7 @@
                     </o>
                     <o>
                       <v n="Id">743958181L</v>
-                      <v n="Value">"GVL.fb_buffer.fb_rollers[0].roller.sensor"</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[0].roller.sensor.Q"</v>
                     </o>
                     <o>
                       <v n="Id">2880254039L</v>
@@ -2593,7 +2593,7 @@
                     </o>
                     <o>
                       <v n="Id">743958181L</v>
-                      <v n="Value">"GVL.fb_buffer.sensor_start[0]"</v>
+                      <v n="Value">"GVL.fb_buffer.sensor_start[0].Q"</v>
                     </o>
                     <o>
                       <v n="Id">2880254039L</v>
@@ -2816,7 +2816,7 @@
                     </o>
                     <o>
                       <v n="Id">743958181L</v>
-                      <v n="Value">"GVL.fb_buffer.fb_rollers[1].roller.sensor"</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[1].roller.sensor.Q"</v>
                     </o>
                     <o>
                       <v n="Id">2880254039L</v>
@@ -5329,7 +5329,7 @@
                     </o>
                     <o>
                       <v n="Id">743958181L</v>
-                      <v n="Value">"GVL.fb_buffer.fb_rollers[2].roller.sensor"</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[2].roller.sensor.Q"</v>
                     </o>
                     <o>
                       <v n="Id">2880254039L</v>
@@ -7842,7 +7842,7 @@
                     </o>
                     <o>
                       <v n="Id">743958181L</v>
-                      <v n="Value">"GVL.fb_buffer.fb_rollers[3].roller.sensor"</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[3].roller.sensor.Q"</v>
                     </o>
                     <o>
                       <v n="Id">2880254039L</v>
@@ -10355,7 +10355,7 @@
                     </o>
                     <o>
                       <v n="Id">743958181L</v>
-                      <v n="Value">"GVL.fb_buffer.fb_rollers[3].sensor_mute"</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[3].sensor_mute.Q"</v>
                     </o>
                     <o>
                       <v n="Id">2880254039L</v>
@@ -10578,7 +10578,7 @@
                     </o>
                     <o>
                       <v n="Id">743958181L</v>
-                      <v n="Value">"GVL.fb_buffer.sensor_start[1]"</v>
+                      <v n="Value">"GVL.fb_buffer.sensor_start[1].Q"</v>
                     </o>
                     <o>
                       <v n="Id">2880254039L</v>

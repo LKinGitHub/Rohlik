@@ -65,10 +65,10 @@ IF rt_error.Q THEN
 	eStates	:= E_WorkingStates.ERROR;
 END_IF
 
-IF NOT(roller_inbound.photo_sensor_mute OR roller_inbound.photo_sensor OR roller_outbound.photo_sensor) THEN
+IF NOT(roller_inbound.photo_sensor_mute.Q OR roller_inbound.photo_sensor.Q OR roller_outbound.photo_sensor.Q) THEN
 	current_tote_status	:= ToteStatus.EMPTY;
 END_IF
-IF NOT roller_inbound.photo_sensor_mute AND roller_inbound.photo_sensor AND NOT roller_outbound.photo_sensor THEN
+IF NOT roller_inbound.photo_sensor_mute.Q AND roller_inbound.photo_sensor.Q AND NOT roller_outbound.photo_sensor.Q THEN
 	current_tote_status	:= ToteStatus.READY;
 END_IF
 CASE iMethod_test OF
@@ -223,11 +223,11 @@ END_VAR
         <ST><![CDATA[M_checkCondition	:= FALSE;
 CASE condition OF
 	E_Condition.NO_TOTE:
-	 	IF NOT roller_inbound.photo_sensor THEN
+	 	IF NOT roller_inbound.photo_sensor.Q THEN
 			M_checkCondition	:= TRUE;
 		END_IF
 	E_Condition.TOTE_IN:
-	 	IF roller_inbound.photo_sensor THEN
+	 	IF roller_inbound.photo_sensor.Q THEN
 			M_checkCondition	:= TRUE;
 		END_IF		
 	E_Condition.READY_LOADING_TOTE:
@@ -369,7 +369,7 @@ CASE eStates OF
 			workflow_status	:= ToteSubsystemWorkflowStatus.INBOUNDING;
 			ton_timeout.PT	:= T#10S;	
 			roller_inbound.roller.forward	:= TRUE;
-			IF roller_inbound.photo_sensor THEN	
+			IF roller_inbound.photo_sensor.Q THEN	
 				eStates	:= E_WorkingStates.WAIT;
 			END_IF
 		E_WorkingStates.WAIT:
@@ -427,11 +427,11 @@ event.sComponent_name	:= sComponent_name;
 /////////////////////////////////////digital input////////////////////////////////////////
 valve_lift.extended					:= G_IO.arDI[5].Ch[0] OR G_IO.arDI[5].Ch[2];
 valve_lift.retracted				:= G_IO.arDI[5].Ch[1] OR G_IO.arDI[5].Ch[3];
-roller_inbound.photo_sensor_mute	:= G_IO.arDI[5].Ch[4];
+roller_inbound.photo_sensor_mute(D:= G_IO.arDI[5].Ch[4],on_ms:=100,off_ms:=100);
 roller_inbound.roller.err			:= G_IO.arDI[5].Ch[5];
-roller_inbound.photo_sensor			:= G_IO.arDI[5].Ch[6];
+roller_inbound.photo_sensor(D:= G_IO.arDI[5].Ch[6],on_ms:=100,off_ms:=100);
 roller_outbound.roller.err			:= G_IO.arDI[5].Ch[7];
-roller_outbound.photo_sensor		:= G_IO.arDI[5].Ch[8];
+roller_outbound.photo_sensor(D:= G_IO.arDI[5].Ch[8],on_ms:=100,off_ms:=100);		
 sensor_openbag_detection[0]			:= G_IO.arDI[5].Ch[9];
 sensor_openbag_detection[1]			:= G_IO.arDI[5].Ch[10];
 sensor_openbag_detection[2]			:= G_IO.arDI[5].Ch[11];
@@ -607,7 +607,7 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[M_toteLoad	:= FALSE;
-IF roller_inbound.photo_sensor THEN
+IF roller_inbound.photo_sensor.Q THEN
 	roller_inbound.roller.forward	:= FALSE;
 	ADSLOGSTR(msgCtrlMask:= ADSLOG_MSGTYPE_LOG,msgFmtStr:='tote load finish',strArg:='MSG ARG');
 ELSE
@@ -634,7 +634,7 @@ CASE eStates OF
 				eStates	:= E_WorkingStates.TOTE_UNLOAD;
 			END_IF
 		E_WorkingStates.TOTE_OUT:
-			IF roller_outbound.photo_sensor THEN
+			IF roller_outbound.photo_sensor.Q THEN
 				roller_outbound.roller.forward	:= FALSE;
 				M_toteUnload	:= TRUE;
 			ELSE
@@ -765,13 +765,13 @@ CASE eStates OF
 			ton_timeout.PT	:= T#5S;
 			roller_outbound.roller.forward		:= TRUE;
 			roller_outbound_end.roller.forward	:= TRUE;
-			IF roller_outbound.photo_sensor THEN
+			IF roller_outbound.photo_sensor.Q THEN
 				eStates	:= E_WorkingStates.WAIT_SENSOR_OFF;			
 			END_IF	
 		E_WorkingStates.WAIT_SENSOR_OFF:
 			roller_outbound.roller.forward		:= TRUE;
 			roller_outbound_end.roller.forward	:= TRUE;	
-			IF NOT roller_outbound.photo_sensor THEN
+			IF NOT roller_outbound.photo_sensor.Q THEN
 				roller_outbound.roller.forward		:= FALSE;	
 				roller_outbound_end.roller.forward	:= FALSE;
 				eStates	:= E_WorkingStates.TOTE_LIFT_DOWN;			
@@ -813,11 +813,11 @@ END_VAR
         <ST><![CDATA[M_waitCondition	:= FALSE;
 CASE condition OF
 	E_Condition.NO_TOTE:
-	 	IF NOT roller_inbound.photo_sensor THEN
+	 	IF NOT roller_inbound.photo_sensor.Q THEN
 			M_waitCondition	:= TRUE;
 		END_IF
 	E_Condition.TOTE_IN:
-	 	IF roller_inbound.photo_sensor THEN
+	 	IF roller_inbound.photo_sensor.Q THEN
 			M_waitCondition	:= TRUE;
 		END_IF	
 	E_Condition.READY_LOADING_TOTE:

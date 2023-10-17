@@ -5,8 +5,8 @@
 STRUCT
 	
 	roller	: Roller;
-	photo_sensor_mute_left	 : BOOL;
-	photo_sensor_mute_right	: BOOL;
+	photo_sensor_mute_left	 : FB_DigitalInput;
+	photo_sensor_mute_right	: FB_DigitalInput;
 END_STRUCT
 END_TYPE
 ]]></Declaration>

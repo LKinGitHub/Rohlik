@@ -7,7 +7,7 @@ STRUCT
 	forward  		: BOOL; 
 	backward		: BOOL;
 	err 			: BOOL;
-	sensor 			: BOOL;
+	sensor 			: FB_DigitalInput;
 END_STRUCT
 END_TYPE
 ]]></Declaration>

@@ -4540,7 +4540,7 @@ GVL.fb_working.valve_lift.retract 	:= TRUE;"</v>
                     </o>
                     <o>
                       <v n="Id">743958181L</v>
-                      <v n="Value">"GVL.fb_working.roller_inbound.photo_sensor_mute"</v>
+                      <v n="Value">"GVL.fb_working.roller_inbound.photo_sensor_mute.Q"</v>
                     </o>
                     <o>
                       <v n="Id">2880254039L</v>
@@ -4763,7 +4763,7 @@ GVL.fb_working.valve_lift.retract 	:= TRUE;"</v>
                     </o>
                     <o>
                       <v n="Id">743958181L</v>
-                      <v n="Value">"GVL.fb_working.roller_inbound.photo_sensor"</v>
+                      <v n="Value">"GVL.fb_working.roller_inbound.photo_sensor.Q"</v>
                     </o>
                     <o>
                       <v n="Id">2880254039L</v>
@@ -7276,7 +7276,7 @@ GVL.fb_working.valve_lift.retract 	:= TRUE;"</v>
                     </o>
                     <o>
                       <v n="Id">743958181L</v>
-                      <v n="Value">"GVL.fb_working.roller_outbound.photo_sensor"</v>
+                      <v n="Value">"GVL.fb_working.roller_outbound.photo_sensor.Q"</v>
                     </o>
                     <o>
                       <v n="Id">2880254039L</v>
