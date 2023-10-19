@@ -233,7 +233,7 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[order_tote_action_request	:= FALSE; 
-IF MAIN.eState=E_SystemManager.IN_PROGRESS AND cmd=OrderToteCommand.DO_NOTHING THEN
+IF MAIN.eState=E_SystemManager.IN_PROGRESS AND cmd=OrderToteCommand.DO_NOTHING AND MAIN.application.safety.bStop_button_unlock THEN
 	cmd	:= Command;
 ELSE
 	error_status	:= OrderToteErrorStatus.MACHINE_NOT_RUNNING;

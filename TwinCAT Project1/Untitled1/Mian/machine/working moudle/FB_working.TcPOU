@@ -45,7 +45,9 @@ VAR
 	event				: ST_EVENT;
 	rt_error			: R_TRIG;
 	eTransfer			: E_Transfer;
-
+	
+	
+	bStopped				: BOOL;
 END_VAR
 VAR CONSTANT
 	rPos_lift_up			: REAL	:= 120;
@@ -70,6 +72,14 @@ IF NOT(roller_inbound.photo_sensor_mute.Q OR roller_inbound.photo_sensor.Q OR ro
 END_IF
 IF NOT roller_inbound.photo_sensor_mute.Q AND roller_inbound.photo_sensor.Q AND NOT roller_outbound.photo_sensor.Q THEN
 	current_tote_status	:= ToteStatus.READY;
+END_IF
+
+
+
+IF eStates=E_WorkingStates.IDLE THEN
+	bStopped	:= TRUE;
+ELSE
+	bStopped	:= FALSE;
 END_IF
 CASE iMethod_test OF
 	0:
@@ -292,7 +302,7 @@ IF eStates<>E_WorkingStates.IDLE AND eStates<>E_WorkingStates.ERROR THEN
 		ton_timeout.IN	:=FALSE;
 		IF GVL.bAck_stop THEN
 			roller_inbound.roller.forward	:= FALSE;
-			RETURN;		
+			RETURN;			
 		END_IF
 		eStateTemp	:= eStates;	
 	END_IF
@@ -879,6 +889,10 @@ END_CASE]]></ST>
       <LineId Id="124" Count="1" />
       <LineId Id="123" Count="0" />
       <LineId Id="132" Count="3" />
+      <LineId Id="360" Count="1" />
+      <LineId Id="363" Count="0" />
+      <LineId Id="381" Count="3" />
+      <LineId Id="369" Count="0" />
       <LineId Id="71" Count="3" />
       <LineId Id="76" Count="0" />
       <LineId Id="126" Count="1" />

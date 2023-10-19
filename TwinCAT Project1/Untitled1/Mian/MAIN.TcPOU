@@ -207,7 +207,6 @@ CASE eState OF
 			GVL.fb_working.M_safetyEvent();
 			eState	:= E_SystemManager.ERROR;
 		END_IF
-	
 	E_SystemManager.ERROR:
 		pMachine_status^	:= MachineStatus.ERROR;
 		IF rtReset.Q THEN
@@ -433,7 +432,6 @@ END_CASE]]></ST>
       <LineId Id="881" Count="1" />
       <LineId Id="880" Count="0" />
       <LineId Id="717" Count="1" />
-      <LineId Id="879" Count="0" />
       <LineId Id="495" Count="0" />
       <LineId Id="749" Count="0" />
       <LineId Id="752" Count="0" />

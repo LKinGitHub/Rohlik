@@ -57,6 +57,7 @@ VAR
 	
 	ref_safety_door	: POINTER TO ST_safetyDoor;
 	safety_door_unlock_en		: BOOL;
+	bStop_button_unlock		: BOOL;//for not receive cmd from tote_subsystem
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -261,8 +262,8 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[ref_safety_door	:= ADR(GVL.fb_mcp.st_safety_door);
-safety_door_unlock_en	:= safety_status=SafetyStatus.SAFETY_STOPPED OR station_mode = StationMode.STOPPED OR station_mode = StationMode.DISABLED
-							OR station_mode = StationMode.FORCE_STOP OR station_mode = StationMode.INTERVENTION;
+safety_door_unlock_en	:= (safety_status=SafetyStatus.SAFETY_STOPPED OR station_mode = StationMode.STOPPED OR station_mode = StationMode.DISABLED
+							OR station_mode = StationMode.FORCE_STOP OR station_mode = StationMode.INTERVENTION) AND GVL.fb_working.bStopped;
 
 							
 CASE eStates_safetyDoor	 OF
@@ -276,6 +277,7 @@ CASE eStates_safetyDoor	 OF
 		ref_safety_door^.lamp_reset	:=	FALSE;
 		ref_safety_door^.lamp_unlock	:= FALSE;
 		IF ref_safety_door^.button_unlock THEN
+			bStop_button_unlock	:= TRUE;
 			eStates_safetyDoor	:= E_SAFETYDOOR.UNLOCKING;
 		END_IF
 	E_SAFETYDOOR.REQUEST_LOCK:
@@ -287,6 +289,7 @@ CASE eStates_safetyDoor	 OF
 		IF ref_safety_door^.door_closed THEN
 			ref_safety_door^.lamp_reset	:= GPWM_1s.q_xOut;//door closed,reset lamp blinking
 			IF ref_safety_door^.button_reset THEN
+				bStop_button_unlock	:= FALSE;
 				eStates_safetyDoor	:= E_SAFETYDOOR.WAIT_LOCKED;
 			END_IF
 		ELSE
@@ -427,10 +430,13 @@ update_station_mode	:= TRUE;]]></ST>
       <LineId Id="56" Count="0" />
       <LineId Id="7" Count="7" />
       <LineId Id="49" Count="1" />
-      <LineId Id="15" Count="7" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="16" Count="6" />
       <LineId Id="51" Count="0" />
       <LineId Id="23" Count="1" />
       <LineId Id="26" Count="0" />
+      <LineId Id="62" Count="0" />
       <LineId Id="28" Count="2" />
       <LineId Id="48" Count="0" />
       <LineId Id="32" Count="15" />
