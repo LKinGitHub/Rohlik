@@ -5,12 +5,14 @@
 {attribute 'strict'}
 TYPE StationMode :
 (
-	UNKNOW := 0,
-	RUNNING	:= 1,
-	RESETTING	:=2,
-	STOPPED	:=3,
-	DISABLED	:= 4,
-	FORCE_STOP	:= 5
+	UNKNOW 			:= 0,
+	RUNNING			:= 1,
+	RESETTING		:= 2,
+	STOPPED			:= 3,
+	DISABLED		:= 4,
+	STARTING		:= 5,
+	FORCE_STOP		:= 6,
+	INTERVENTION	:= 7
 	
 	
 );

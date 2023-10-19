@@ -56,6 +56,7 @@ VAR
 //	working_safety_24v		: BOOL;
 	
 	ref_safety_door	: POINTER TO ST_safetyDoor;
+	safety_door_unlock_en		: BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -87,10 +88,8 @@ b_ErrorAck := tonSaftyDelay.Q;
 GPWM(i_xEnable:=TRUE,i_udiTime:=25,i_udiCycle:=50);
 GPWM_1s(i_xEnable:=TRUE,i_udiTime:=500,i_udiCycle:=1000);
 //light curtain mute
-GVL.fb_working.lightcurtain_mute_left 	:= (GVL.fb_buffer.fb_rollers[3].sensor_mute.Q OR GVL.fb_loading.roller_x.photo_sensor_mute_left.Q)
-											AND GVL.fb_loading.eTransfer=E_Transfer.LOAD;   
-GVL.fb_working.lightcurtain_mute_right 	:= (GVL.fb_loading.roller_x.photo_sensor_mute_right.Q OR GVL.fb_working.roller_inbound.photo_sensor_mute.Q)
-											AND (GVL.fb_working.eTransfer=E_Transfer.LOAD AND GVL.fb_working.roller_inbound.roller.forward);
+GVL.fb_working.lightcurtain_mute_left 	:= GVL.fb_buffer.fb_rollers[3].sensor_mute.Q OR GVL.fb_loading.roller_x.photo_sensor_mute_left.Q;   
+GVL.fb_working.lightcurtain_mute_right 	:= GVL.fb_loading.roller_x.photo_sensor_mute_right.Q OR GVL.fb_working.roller_inbound.photo_sensor_mute.Q;
  
 
 
@@ -262,6 +261,10 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[ref_safety_door	:= ADR(GVL.fb_mcp.st_safety_door);
+safety_door_unlock_en	:= safety_status=SafetyStatus.SAFETY_STOPPED OR station_mode = StationMode.STOPPED OR station_mode = StationMode.DISABLED
+							OR station_mode = StationMode.FORCE_STOP OR station_mode = StationMode.INTERVENTION;
+
+							
 CASE eStates_safetyDoor	 OF
 	E_SAFETYDOOR.IDLE:
 		IF mcp_safetyDoor THEN
@@ -296,7 +299,7 @@ CASE eStates_safetyDoor	 OF
 	 	END_IF
 	E_SAFETYDOOR.UNLOCKING:
 		ref_safety_door^.lamp_unlock	:= GPWM_1s.q_xOut;//door opennig,unlock lamp blinking
-		IF station_mode = StationMode.STOPPED OR safety_status=SafetyStatus.SAFETY_STOPPED THEN
+		IF safety_door_unlock_en THEN
 			ref_safety_door^.door_lock	:= TRUE;
 			IF NOT mcp_safetyDoor THEN
 				eStates_safetyDoor	:= E_SAFETYDOOR.UNLOCKED;
@@ -343,11 +346,7 @@ update_station_mode	:= TRUE;]]></ST>
       <LineId Id="173" Count="0" />
       <LineId Id="172" Count="0" />
       <LineId Id="145" Count="0" />
-      <LineId Id="162" Count="2" />
-      <LineId Id="290" Count="0" />
-      <LineId Id="165" Count="0" />
-      <LineId Id="291" Count="0" />
-      <LineId Id="166" Count="0" />
+      <LineId Id="162" Count="4" />
       <LineId Id="175" Count="0" />
       <LineId Id="174" Count="0" />
       <LineId Id="167" Count="4" />
@@ -421,7 +420,12 @@ update_station_mode	:= TRUE;]]></ST>
       <LineId Id="6" Count="0" />
     </LineIds>
     <LineIds Name="FB_Safety_module.M_safetyDoor">
-      <LineId Id="6" Count="8" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="58" Count="0" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="7" Count="7" />
       <LineId Id="49" Count="1" />
       <LineId Id="15" Count="7" />
       <LineId Id="51" Count="0" />

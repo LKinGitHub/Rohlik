@@ -268,7 +268,7 @@ event.sMethod	:= 'M_run';
 IF photo_sensor_tote_detection.Q AND NOT(roller_x.photo_sensor_mute_left.Q OR roller_x.photo_sensor_mute_right.Q) THEN
 	current_tote_status	:= ToteStatus.READY;
 END_IF
-IF NOT(roller_x.photo_sensor_mute_left.Q OR roller_x.photo_sensor_mute_right.Q 
+IF NOT(roller_x.photo_sensor_mute_left.Q OR roller_x.photo_sensor_mute_right.Q OR photo_sensor_tote_detection.Q
 	OR roller_y.photo_sensor[0].Q OR roller_y.photo_sensor[1].Q OR roller_y.roller.sensor.Q) THEN
 	current_tote_status	:= ToteStatus.EMPTY;
 END_IF

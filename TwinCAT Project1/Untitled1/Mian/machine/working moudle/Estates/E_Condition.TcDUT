@@ -12,7 +12,8 @@ TYPE E_Condition :
 	BAG_CLOSED			:= 4,
 	NO_TOTE				:= 5,
 	TOTE_IN				:= 6,
-	READY_LOADING_TOTE	:= 7
+	READY_LOADING_TOTE	:= 7,
+	TOTE_READY			:= 8
 	
 );
 END_TYPE

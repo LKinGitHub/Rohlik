@@ -23,9 +23,9 @@ VAR
 	sStateTemp			: STRING;	
 	
 	
-	auto_store_run		: BOOL;
-	auto_store_sensor	: BOOL;
+
 	rtStop_auto_store	: R_TRIG;
+	pAutostore_control_cmd	: POINTER TO AutostoreControlCommand;
 	bButton				: BOOL;
 	ton_button			: TON;
 	resetting			: BOOL;
@@ -100,7 +100,6 @@ CASE eState OF
 	E_SystemManager.RESET:
 		eState	:= E_SystemManager.RESET_SAFETY;
 	E_SystemManager.RESET_SAFETY:
-		ton_timeout.PT:= T#2S;
 		IF application.safety.M_reset() THEN
 			IF application.safety.xError THEN
 				eState	:= E_SystemManager.ERROR_SAFETY;
@@ -269,20 +268,14 @@ END_IF
     </Implementation>
     <Action Name="auto_store_simulation" Id="{5e7c4530-8faf-4286-a590-f7a53f75013f}">
       <Implementation>
-        <ST><![CDATA[G_IO.arDO[0].Ch[13]	:= auto_store_run;
-auto_store_sensor	:= G_IO.arDI[0].Ch[13];
-bButton				:= G_IO.arDI[0].Ch[14];
+        <ST><![CDATA[
+bButton	:= G_IO.arDI[0].Ch[14];
 ton_button(IN:=bButton,PT:=T#2S);
-rtStop_auto_store(CLK:=auto_store_sensor);
+pAutostore_control_cmd := ADR(application.tote_subsystem.autostore_control_cmd);
 IF ton_button.Q THEN
-	auto_store_run	:= TRUE;
+	pAutostore_control_cmd^	:= AutostoreControlCommand.START;
 END_IF
-IF rtStop_auto_store.Q THEN
-	auto_store_run	:= FALSE;
-END_IF
-IF application.safety.xError THEN
-	auto_store_run	:= FALSE;
-END_IF]]></ST>
+]]></ST>
       </Implementation>
     </Action>
     <Method Name="M_checkError" Id="{2a7b0736-01e7-4929-a7b3-7cc5bb04f63e}">
@@ -387,7 +380,6 @@ END_CASE]]></ST>
       <LineId Id="518" Count="0" />
       <LineId Id="523" Count="0" />
       <LineId Id="536" Count="0" />
-      <LineId Id="951" Count="0" />
       <LineId Id="538" Count="1" />
       <LineId Id="545" Count="0" />
       <LineId Id="544" Count="0" />
@@ -492,7 +484,7 @@ END_CASE]]></ST>
       <LineId Id="340" Count="0" />
     </LineIds>
     <LineIds Name="MAIN.auto_store_simulation">
-      <LineId Id="2" Count="12" />
+      <LineId Id="3" Count="6" />
       <LineId Id="1" Count="0" />
     </LineIds>
     <LineIds Name="MAIN.M_checkError">

@@ -3,9 +3,9 @@
   <DUT Name="E_WorkingStates" Id="{6f75a5c4-44ff-4fb1-9d15-0d913b000b2e}">
     <Declaration><![CDATA[{attribute 'qualified_only'}
 {attribute 'strict'}
-TYPE E_WorkingStates :
+TYPE E_WorkingStates ://can't divide into 2 states for load and unload,for sometimes if not unload,then call load,can cause accident
 (
-	IDLE 				:= 0,
+	IDLE := 0,
 	INIT,
 	CHECK,
 	WAIT_NEW_TOTE,

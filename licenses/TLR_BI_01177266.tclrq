@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<TcLicenseInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2011/11/TcLicenseInfo">
+	<TargetInfo>
+		<TcTargetDesc>
+			<TargetType>CX51x0-CE</TargetType>
+			<TargetVersion>
+				<Version>3</Version>
+				<Revision>1</Revision>
+				<Build>4024</Build>
+			</TargetVersion>
+			<TargetFeatures>
+				<NetId>192.168.11.159.1.1</NetId>
+			</TargetFeatures>
+			<Hardware>
+				<Model>CX5120-0115</Model>
+				<SerialNo>000sz6ko</SerialNo>
+				<CPUVersion>5.0</CPUVersion>
+				<Date>14.12.22</Date>
+				<CPUArchitecture>0</CPUArchitecture>
+			</Hardware>
+			<OsImage>
+				<ImageDevice>CX51x0</ImageDevice>
+				<ImageVersion>6.08w</ImageVersion>
+				<ImageLevel>HPS</ImageLevel>
+				<OsName>Windows CE</OsName>
+				<OsVersion>7.0</OsVersion>
+			</OsImage>
+		</TcTargetDesc>
+	</TargetInfo>
+	<LicenseInfo>
+		<SystemId Level="40" SerialNo="000sz6ko" MacAddress="00010579181e">{D5F4D496-7F2F-324F-9614-F58761AACFCA}</SystemId>
+		<PurchaseOrder><![CDATA[01177266]]></PurchaseOrder>
+		<IssueTime>2023-10-18T13:48:00</IssueTime>
+		<License>
+			<LicenseId>{66689887-CCBD-452C-AC9A-039D997C6E66}</LicenseId>
+			<Name>TC3 PLC</Name>
+			<OrderNo>TC1200</OrderNo>
+		</License>
+		<License>
+			<LicenseId>{520DE751-9DB6-47CB-8240-BD5C466E7E64}</LicenseId>
+			<Name>TC3 NC PTP</Name>
+			<OrderNo>TF5000</OrderNo>
+		</License>
+		<License>
+			<LicenseId>{7AFD0713-1333-4A3B-938C-7B9BD0418C8D}</LicenseId>
+			<Name>TC3 PLC-HMI Web</Name>
+			<OrderNo>TF1810</OrderNo>
+		</License>
+	</LicenseInfo>
+</TcLicenseInfo>

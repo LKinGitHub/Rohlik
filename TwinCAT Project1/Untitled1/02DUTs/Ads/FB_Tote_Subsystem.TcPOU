@@ -14,6 +14,8 @@ VAR
 	buffer_tote		: FB_ToteData;
 	working_tote	: FB_ToteData;
 	machine_control_cmd	: MachineControlCommand;
+	autostore_control_cmd	: AutostoreControlCommand;
+	autostore_status	: AutostoreStatus;
 
 	cmd	: OrderToteCommand;
 	iLoad	: INT;
@@ -21,11 +23,15 @@ VAR
 	ton1	: TON;
 	working_tote_status	: ToteStatus;
 	p_eTransfer_working	: POINTER TO E_Transfer;
+///////////////////////////autostore mock////////////////	
+	auto_store_run		: BOOL;
+	auto_store_sensor	: BOOL;
+	rtStop_auto_store	: R_TRIG;
 
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[
+      <ST><![CDATA[M_mapping();
 //status					:= GVL.machine_status;
 workflow_status			:= GVL.fb_working.workflow_status;
 error_status			:= GVL.fb_working.error_status;
@@ -34,44 +40,74 @@ working_tote._status	:= GVL.fb_working.tote_status;
 p_eTransfer_working	:= ADR(GVL.fb_working.eTransfer);
 CASE cmd OF
 	OrderToteCommand.DO_NOTHING:
-		p_eTransfer_working^	:= E_Transfer.IDLE;
+		p_eTransfer_working^ := E_Transfer.IDLE;
 	OrderToteCommand.LOAD:
-		p_eTransfer_working^	:= E_Transfer.LOAD;
+		IF GVL.fb_working.xUnloading THEN//avoid wrong command
+			cmd	:= OrderToteCommand.DO_NOTHING;
+			RETURN;
+		END_IF
+		p_eTransfer_working^ := E_Transfer.LOAD;
 		IF GVL.fb_working.M_load() THEN
 			cmd	:= OrderToteCommand.DO_NOTHING;
-		END_IF
-	OrderToteCommand.OPEN_BAG:
-		workflow_status := ToteSubsystemWorkflowStatus.BAG_OPENING;
-		working_tote._status	:= ToteStatus.READY;
-		workflow_status := ToteSubsystemWorkflowStatus.IDLE;
-		IF GVL.fb_working.M_bag_open() THEN
-			cmd	:= OrderToteCommand.DO_NOTHING;
-		END_IF
-		
-	;
+		END_IF			
+	OrderToteCommand.OPEN_BAG:		
+		;
 	OrderToteCommand.STOP:
-		working_tote._status	:= ToteStatus.EMPTY;
-		workflow_status := ToteSubsystemWorkflowStatus.IDLE;
-		cmd	:= OrderToteCommand.DO_NOTHING;
 		;
 	OrderToteCommand.SWAP:
-		IF M_Unload() THEN
-			IF M_Load() THEN
-				cmd	:= OrderToteCommand.DO_NOTHING;
-			END_IF
-		END_IF
-	;
+		;
 	OrderToteCommand.UNLOAD:
-		p_eTransfer_working^	:= E_Transfer.UNLOAD;
+		IF GVL.fb_working.xLoading THEN//avoid wrong command
+			cmd	:= OrderToteCommand.DO_NOTHING;
+			RETURN;
+		END_IF
+		p_eTransfer_working^ := E_Transfer.UNLOAD;
 		IF GVL.fb_working.M_unload() THEN
 			cmd	:= OrderToteCommand.DO_NOTHING;
 		END_IF
-	;	
 END_CASE
+
+
 ton1(PT:=T#1S);
 
+//////////////////////////mock autostore/////////////////
+rtStop_auto_store(CLK:=auto_store_sensor);
+IF MAIN.application.safety.xError THEN
+	auto_store_run	:= FALSE;
+	autostore_control_cmd	:= AutostoreControlCommand.DO_NOTHING;
+END_IF
+CASE autostore_control_cmd OF
+	AutostoreControlCommand.DO_NOTHING:
+		auto_store_run	:= FALSE;
+	AutostoreControlCommand.START:
+		auto_store_run	:= TRUE;
+		autostore_status	:= AutostoreStatus.ROTATING;
+		IF rtStop_auto_store.Q THEN
+			auto_store_run	:= FALSE;
+			autostore_status	:= AutostoreStatus.READY;
+			autostore_control_cmd	:= AutostoreControlCommand.DO_NOTHING;
+		END_IF
+	AutostoreControlCommand.STOP:
+		auto_store_run	:= FALSE;
+		autostore_control_cmd	:= AutostoreControlCommand.DO_NOTHING;
+END_CASE	
 ]]></ST>
     </Implementation>
+    <Method Name="autostore_control_command" Id="{5957a64f-9f0f-4290-9a05-8528b8c728c6}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD autostore_control_command : BOOL
+VAR_INPUT
+	Command	: AutostoreControlCommand;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[autostore_control_command	:= FALSE; 
+IF autostore_control_cmd=AutostoreControlCommand.DO_NOTHING THEN
+	autostore_control_cmd	:= Command;
+END_IF
+autostore_control_command	:= TRUE;]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="M_Load" Id="{f3d31d0d-ba45-4048-bf50-b51644cf2466}">
       <Declaration><![CDATA[METHOD M_Load : BOOL
 VAR_INPUT
@@ -117,6 +153,16 @@ CASE iLoad OF
 		M_Load	:= TRUE;
 		GVL.fb_working.M_load();
 END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_mapping" Id="{541fb1a0-cd7a-4efb-8c21-3483a35c300d}">
+      <Declaration><![CDATA[METHOD M_mapping : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[G_IO.arDO[0].Ch[13]	:= auto_store_run;
+auto_store_sensor	:= G_IO.arDI[0].Ch[13];]]></ST>
       </Implementation>
     </Method>
     <Method Name="M_Swap" Id="{20428881-b3c0-40e9-9ad8-a4eb281ff8b2}">
@@ -207,31 +253,39 @@ order_tote_action_request	:= TRUE; ]]></ST>
       <LineId Id="17" Count="0" />
       <LineId Id="21" Count="0" />
       <LineId Id="19" Count="0" />
+      <LineId Id="220" Count="0" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="221" Count="1" />
       <LineId Id="212" Count="0" />
-      <LineId Id="70" Count="2" />
-      <LineId Id="23" Count="0" />
-      <LineId Id="37" Count="0" />
-      <LineId Id="59" Count="0" />
-      <LineId Id="38" Count="0" />
-      <LineId Id="91" Count="2" />
-      <LineId Id="47" Count="0" />
-      <LineId Id="24" Count="1" />
-      <LineId Id="49" Count="0" />
-      <LineId Id="43" Count="0" />
+      <LineId Id="217" Count="1" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="23" Count="2" />
       <LineId Id="48" Count="0" />
-      <LineId Id="26" Count="1" />
-      <LineId Id="66" Count="3" />
-      <LineId Id="44" Count="0" />
-      <LineId Id="28" Count="1" />
+      <LineId Id="27" Count="2" />
+      <LineId Id="225" Count="2" />
+      <LineId Id="224" Count="0" />
       <LineId Id="213" Count="0" />
       <LineId Id="51" Count="0" />
       <LineId Id="58" Count="0" />
       <LineId Id="65" Count="0" />
-      <LineId Id="20" Count="0" />
       <LineId Id="18" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="236" Count="0" />
       <LineId Id="56" Count="0" />
       <LineId Id="61" Count="0" />
+      <LineId Id="251" Count="0" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="252" Count="1" />
+      <LineId Id="279" Count="0" />
+      <LineId Id="262" Count="0" />
+      <LineId Id="264" Count="13" />
+      <LineId Id="263" Count="0" />
       <LineId Id="60" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Tote_Subsystem.autostore_control_command">
+      <LineId Id="8" Count="1" />
+      <LineId Id="12" Count="1" />
+      <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_Tote_Subsystem.M_Load">
       <LineId Id="25" Count="0" />
@@ -266,6 +320,10 @@ order_tote_action_request	:= TRUE; ]]></ST>
       <LineId Id="18" Count="0" />
       <LineId Id="48" Count="0" />
       <LineId Id="17" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Tote_Subsystem.M_mapping">
+      <LineId Id="6" Count="0" />
+      <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_Tote_Subsystem.M_Swap">
       <LineId Id="5" Count="0" />
