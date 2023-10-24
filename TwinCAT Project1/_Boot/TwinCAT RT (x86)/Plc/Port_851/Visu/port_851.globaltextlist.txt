@@ -9,6 +9,12 @@ Id;Default
 773;Aging test
 5;Alarm
 203;Axis Error 
+299;Axis_bagOpen_0
+618;Axis_bagOpen_1
+211;Axis_bagOpen_2
+743;Axis_bagOpen_3
+324;Axis_vacuun_0
+786;Axis_vacuun_1
 179;BagOpen
 81;BELT ESTOP
 808;Breaker OFF

@@ -52,6 +52,7 @@ VAR
 	uFinishTime				:	UDINT;
 	ftimeDiff				:	REAL;
 	ton_dly	: TON;
+	offset	: WORD;
 END_VAR         	
                 	
 VAR_IN_OUT      	
@@ -296,36 +297,39 @@ IN_OUT.CoeWrt(
 	bError=> , 
 	nErrId=> );
 	ton_dly(PT:=T#100MS);
+
+
+offset	:= 16#800*IN_OUT.iAxis;	
 CASE IN_OUT.iCoeWrt OF 
 	0:
 		IN_OUT.CoeWrt.bExecute := FALSE;
 	1:
 		IN_OUT.CoeWrt.bExecute := TRUE;
-		IN_OUT.nIndex	:= 16#2005;
+		IN_OUT.nIndex	:= 16#2005+offset;
 		IN_OUT.nSubIndex	:= 16#1F;
 		IN_OUT.iSdoWrite	:= 6;//clear encoder and set current position as origin
 		IN_OUT.iCoeWrt	:= 10;
 	2:
 		IN_OUT.CoeWrt.bExecute := TRUE;
-		IN_OUT.nIndex	:= 16#2002;
+		IN_OUT.nIndex	:= 16#2002+offset;
 		IN_OUT.nSubIndex	:= 16#02;
 		IN_OUT.iSdoWrite	:= 1;//linear mode
 		IN_OUT.iCoeWrt	:= 10;
 	3:
 		IN_OUT.CoeWrt.bExecute := TRUE;
-		IN_OUT.nIndex	:= 16#2002;
+		IN_OUT.nIndex	:= 16#2002+offset;
 		IN_OUT.nSubIndex	:= 16#02;
 		IN_OUT.iSdoWrite	:= 2;//rotate mode
 		IN_OUT.iCoeWrt	:= 10;
 	4:
 		IN_OUT.CoeWrt.bExecute := TRUE;
-		IN_OUT.nIndex	:= 16#2004;
+		IN_OUT.nIndex	:= 16#2004+offset;
 		IN_OUT.nSubIndex	:= 16#06;
 		IN_OUT.iSdoWrite	:= 1;//breaker on
 		IN_OUT.iCoeWrt	:= 10;
 	5:
 		IN_OUT.CoeWrt.bExecute := TRUE;
-		IN_OUT.nIndex	:= 16#2004;
+		IN_OUT.nIndex	:= 16#2004+offset;
 		IN_OUT.nSubIndex	:= 16#06;
 		IN_OUT.iSdoWrite	:= 0;//breaker off
 		IN_OUT.iCoeWrt	:= 10;		
@@ -539,6 +543,8 @@ END_VAR
       <LineId Id="3290" Count="10" />
       <LineId Id="3289" Count="0" />
       <LineId Id="3358" Count="0" />
+      <LineId Id="3520" Count="1" />
+      <LineId Id="3518" Count="0" />
       <LineId Id="3330" Count="1" />
       <LineId Id="3341" Count="0" />
       <LineId Id="3334" Count="0" />

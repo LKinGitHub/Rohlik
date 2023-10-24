@@ -39,7 +39,8 @@ VAR
 	event	: ST_EVENT;
 	b_test1: BOOL;
 	b_test2: BOOL;
-
+	
+	bWriteLog	: BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -232,7 +233,7 @@ CASE eState OF
 	E_SystemManager.AGAING_TEST:
 		GVL.fb_buffer.M_agingTest();
 		GVL.fb_loading.M_agingTest();
-		GVL.fb_working.M_agingTest();
+		//GVL.fb_working.M_agingTest();
 END_CASE
 
 IF eState<>E_SystemManager.IN_PROGRESS THEN
@@ -263,7 +264,10 @@ END_IF
 IF b_test1 THEN
 	Event_clear();
 END_IF
-]]></ST>
+IF bWriteLog THEN
+	ADSLOGSTR(msgCtrlMask:= ADSLOG_MSGTYPE_LOG,msgFmtStr:='msg:log',strArg:='MSG ARG');
+	bWriteLog	:= FALSE;
+END_IF]]></ST>
     </Implementation>
     <Action Name="auto_store_simulation" Id="{5e7c4530-8faf-4286-a590-f7a53f75013f}">
       <Implementation>
@@ -479,6 +483,7 @@ END_CASE]]></ST>
       <LineId Id="800" Count="0" />
       <LineId Id="794" Count="0" />
       <LineId Id="801" Count="2" />
+      <LineId Id="994" Count="2" />
       <LineId Id="340" Count="0" />
     </LineIds>
     <LineIds Name="MAIN.auto_store_simulation">

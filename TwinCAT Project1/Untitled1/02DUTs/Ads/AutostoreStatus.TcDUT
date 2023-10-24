@@ -5,7 +5,7 @@
 {attribute 'strict'}
 TYPE AutostoreStatus :
 (
-	UNKNOW := 0,
+	UNKNOWN := 0,
 	ROTATING	:=1,
 	READY	:=2
 );

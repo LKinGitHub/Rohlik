@@ -2058,8 +2058,888 @@ External Setpoint Generation:
 						<PositionAreaControl Enable="false"/>
 						<OtherSettings AllowMotionCmdToSlave="true"/>
 					</AxisPara>
+					<Encoder Name="Enc" EncType="1">
+						<EncPara ScaleFactorNumerator="36" ScaleFactorDenominator="8388608" ReferenceSystem="1">
+							<Inc RefSoftSyncMask="#x00800000"/>
+						</EncPara>
+						<Vars VarGrpType="1">
+							<Name>Inputs</Name>
+							<Var>
+								<Name>In</Name>
+								<Type GUID="{901C2423-655B-45CE-B7E3-21F174F0F99F}" Namespace="MC">NCENCODERSTRUCT_IN2B</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn6</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn7</Name>
+									<Comment><![CDATA[Drive Velocity Actual Value
+]]></Comment>
+								</SubVar>
+							</Var>
+						</Vars>
+						<Vars VarGrpType="2">
+							<Name>Outputs</Name>
+							<Var>
+								<Name>Out</Name>
+								<Type GUID="{9CC50AB2-5D79-4869-A3C2-1FA7761BAFEA}" Namespace="MC">NCENCODERSTRUCT_OUT2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+					</Encoder>
+					<Drive Name="Drive" DrvType="5">
+						<DrvPara>
+							<Analog TorqueSetpointScale="10" ScaleFactorActTorque="0.1"/>
+							<TimeComp TaskDelayCycles="1"/>
+						</DrvPara>
+						<Vars VarGrpType="1">
+							<Name>Inputs</Name>
+							<Var>
+								<Name>In</Name>
+								<Type GUID="{F95C7C69-0C87-46C4-9559-1285CCA5B23A}" Namespace="MC">NCDRIVESTRUCT_IN2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+						<Vars VarGrpType="2">
+							<Name>Outputs</Name>
+							<Var>
+								<Name>Out</Name>
+								<Type GUID="{644DC4BD-3D15-4DCB-94C7-24F3A5D579AA}" Namespace="MC">NCDRIVESTRUCT_OUT2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut2</Name>
+								</SubVar>
+								<SubVar>
+									<Name>nCtrl2</Name>
+									<Comment><![CDATA[Digital Outputs Setpoint Generator:
+0x41 (0100 0001) = Minus (0x42 for inverse motor polarity)
+0x42 (0100 0010) = Plus (0x41 for inverse motor polarity)
+0x80 (1000 0000) = Stop
+]]></Comment>
+								</SubVar>
+								<SubVar>
+									<Name>nCtrl3</Name>
+									<Comment><![CDATA[Digital Outputs (Setpoint Generator + Position Controller):
+0x41 (0100 0001) = Minus (0x42 for inverse motor polarity)
+0x42 (0100 0010) = Plus (0x41 for inverse motor polarity)
+0x80 (1000 0000) = Stop
+]]></Comment>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+					</Drive>
+					<Controller Name="Ctrl" CtrType="1">
+						<CtrPara PriorControlFactor="1">
+							<PosDiffControl Enable="false"/>
+							<Observer BandWidth="20"/>
+						</CtrPara>
+					</Controller>
+					<Vars VarGrpType="1" InsertType="1">
+						<Name>Inputs</Name>
+						<Var>
+							<Name>FromPlc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+					</Vars>
+					<Vars VarGrpType="2" InsertType="1">
+						<Name>Outputs</Name>
+						<Var>
+							<Name>ToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+					</Vars>
+				</Axis>
+				<Axis Id="2" CreateSymbols="true" AxisType="1" GroupId="1">
+					<Name>bag_open_vacuun_0</Name>
+					<AxisPara>
+						<General UnitName="°"/>
+						<PositionAreaControl Enable="false"/>
+						<OtherSettings AllowMotionCmdToSlave="true"/>
+					</AxisPara>
 					<Encoder Name="Enc" EncType="19">
-						<EncPara ScaleFactorNumerator="36" ScaleFactorDenominator="8388608" MaxCount="#xffffffff" ReferenceSystem="1">
+						<EncPara ScaleFactorNumerator="90" ScaleFactorDenominator="8388608" MaxCount="#xffffffff" ReferenceSystem="1">
+							<Inc RefSoftSyncMask="#x00800000"/>
+						</EncPara>
+						<Vars VarGrpType="1">
+							<Name>Inputs</Name>
+							<Var>
+								<Name>In</Name>
+								<Type GUID="{901C2423-655B-45CE-B7E3-21F174F0F99F}" Namespace="MC">NCENCODERSTRUCT_IN2B</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn6</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn7</Name>
+									<Comment><![CDATA[Drive Velocity Actual Value
+]]></Comment>
+								</SubVar>
+							</Var>
+						</Vars>
+						<Vars VarGrpType="2">
+							<Name>Outputs</Name>
+							<Var>
+								<Name>Out</Name>
+								<Type GUID="{9CC50AB2-5D79-4869-A3C2-1FA7761BAFEA}" Namespace="MC">NCENCODERSTRUCT_OUT2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+					</Encoder>
+					<Drive Name="Drive" DrvType="16">
+						<DrvPara MaxCount="#xffffffff" DriveControlDWord="#x00020100">
+							<Analog TorqueSetpointScale="10" ScaleFactorActTorque="0.1"/>
+							<TimeComp TaskDelayCycles="1"/>
+						</DrvPara>
+						<Vars VarGrpType="1">
+							<Name>Inputs</Name>
+							<Var>
+								<Name>In</Name>
+								<Type GUID="{F95C7C69-0C87-46C4-9559-1285CCA5B23A}" Namespace="MC">NCDRIVESTRUCT_IN2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+						<Vars VarGrpType="2">
+							<Name>Outputs</Name>
+							<Var>
+								<Name>Out</Name>
+								<Type GUID="{644DC4BD-3D15-4DCB-94C7-24F3A5D579AA}" Namespace="MC">NCDRIVESTRUCT_OUT2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+					</Drive>
+					<Controller Name="Ctrl" CtrType="1">
+						<CtrPara PriorControlFactor="1">
+							<PosDiffControl Enable="false"/>
+							<Observer BandWidth="20"/>
+						</CtrPara>
+					</Controller>
+					<Vars VarGrpType="1" InsertType="1">
+						<Name>Inputs</Name>
+						<Var>
+							<Name>FromPlc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+					</Vars>
+					<Vars VarGrpType="2" InsertType="1">
+						<Name>Outputs</Name>
+						<Var>
+							<Name>ToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+					</Vars>
+				</Axis>
+				<Axis Id="8" CreateSymbols="true" AxisType="1">
+					<Name>bag_open_vacuun_1</Name>
+					<AxisPara>
+						<General UnitName="°"/>
+						<PositionAreaControl Enable="false"/>
+						<OtherSettings AllowMotionCmdToSlave="true"/>
+					</AxisPara>
+					<Encoder Name="Enc" EncType="19">
+						<EncPara ScaleFactorNumerator="90" ScaleFactorDenominator="8388608" MaxCount="#xffffffff" ReferenceSystem="1">
+							<Inc RefSoftSyncMask="#x00800000"/>
+						</EncPara>
+						<Vars VarGrpType="1">
+							<Name>Inputs</Name>
+							<Var>
+								<Name>In</Name>
+								<Type GUID="{901C2423-655B-45CE-B7E3-21F174F0F99F}" Namespace="MC">NCENCODERSTRUCT_IN2B</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn6</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn7</Name>
+									<Comment><![CDATA[Drive Velocity Actual Value
+]]></Comment>
+								</SubVar>
+							</Var>
+						</Vars>
+						<Vars VarGrpType="2">
+							<Name>Outputs</Name>
+							<Var>
+								<Name>Out</Name>
+								<Type GUID="{9CC50AB2-5D79-4869-A3C2-1FA7761BAFEA}" Namespace="MC">NCENCODERSTRUCT_OUT2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+					</Encoder>
+					<Drive Name="Drive" DrvType="16">
+						<DrvPara MaxCount="#xffffffff" DriveControlDWord="#x00020100">
+							<Analog TorqueSetpointScale="10" ScaleFactorActTorque="0.1"/>
+							<TimeComp TaskDelayCycles="1"/>
+						</DrvPara>
+						<Vars VarGrpType="1">
+							<Name>Inputs</Name>
+							<Var>
+								<Name>In</Name>
+								<Type GUID="{F95C7C69-0C87-46C4-9559-1285CCA5B23A}" Namespace="MC">NCDRIVESTRUCT_IN2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+						<Vars VarGrpType="2">
+							<Name>Outputs</Name>
+							<Var>
+								<Name>Out</Name>
+								<Type GUID="{644DC4BD-3D15-4DCB-94C7-24F3A5D579AA}" Namespace="MC">NCDRIVESTRUCT_OUT2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+					</Drive>
+					<Controller Name="Ctrl" CtrType="1">
+						<CtrPara PriorControlFactor="1">
+							<PosDiffControl Enable="false"/>
+							<Observer BandWidth="20"/>
+						</CtrPara>
+					</Controller>
+					<Vars VarGrpType="1" InsertType="1">
+						<Name>Inputs</Name>
+						<Var>
+							<Name>FromPlc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+					</Vars>
+					<Vars VarGrpType="2" InsertType="1">
+						<Name>Outputs</Name>
+						<Var>
+							<Name>ToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+					</Vars>
+				</Axis>
+				<Axis Id="9" CreateSymbols="true" AxisType="1">
+					<Name>bag_open_0</Name>
+					<AxisPara>
+						<General UnitName="°"/>
+						<PositionAreaControl Enable="false"/>
+						<OtherSettings AllowMotionCmdToSlave="true"/>
+					</AxisPara>
+					<Encoder Name="Enc" EncType="19">
+						<EncPara ScaleFactorNumerator="360" ScaleFactorDenominator="8388608" MaxCount="#xffffffff" ReferenceSystem="1">
+							<Inc RefSoftSyncMask="#x00800000"/>
+						</EncPara>
+						<Vars VarGrpType="1">
+							<Name>Inputs</Name>
+							<Var>
+								<Name>In</Name>
+								<Type GUID="{901C2423-655B-45CE-B7E3-21F174F0F99F}" Namespace="MC">NCENCODERSTRUCT_IN2B</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn6</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn7</Name>
+									<Comment><![CDATA[Drive Velocity Actual Value
+]]></Comment>
+								</SubVar>
+							</Var>
+						</Vars>
+						<Vars VarGrpType="2">
+							<Name>Outputs</Name>
+							<Var>
+								<Name>Out</Name>
+								<Type GUID="{9CC50AB2-5D79-4869-A3C2-1FA7761BAFEA}" Namespace="MC">NCENCODERSTRUCT_OUT2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+					</Encoder>
+					<Drive Name="Drive" DrvType="16">
+						<DrvPara MaxCount="#xffffffff" DriveControlDWord="#x00020100">
+							<Analog TorqueSetpointScale="10" ScaleFactorActTorque="0.1"/>
+							<TimeComp TaskDelayCycles="1"/>
+						</DrvPara>
+						<Vars VarGrpType="1">
+							<Name>Inputs</Name>
+							<Var>
+								<Name>In</Name>
+								<Type GUID="{F95C7C69-0C87-46C4-9559-1285CCA5B23A}" Namespace="MC">NCDRIVESTRUCT_IN2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+						<Vars VarGrpType="2">
+							<Name>Outputs</Name>
+							<Var>
+								<Name>Out</Name>
+								<Type GUID="{644DC4BD-3D15-4DCB-94C7-24F3A5D579AA}" Namespace="MC">NCDRIVESTRUCT_OUT2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+					</Drive>
+					<Controller Name="Ctrl" CtrType="1">
+						<CtrPara PriorControlFactor="1">
+							<PosDiffControl Enable="false"/>
+							<Observer BandWidth="20"/>
+						</CtrPara>
+					</Controller>
+					<Vars VarGrpType="1" InsertType="1">
+						<Name>Inputs</Name>
+						<Var>
+							<Name>FromPlc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+					</Vars>
+					<Vars VarGrpType="2" InsertType="1">
+						<Name>Outputs</Name>
+						<Var>
+							<Name>ToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+					</Vars>
+				</Axis>
+				<Axis Id="7" CreateSymbols="true" AxisType="1">
+					<Name>bag_open_1</Name>
+					<AxisPara>
+						<General UnitName="°"/>
+						<PositionAreaControl Enable="false"/>
+						<OtherSettings AllowMotionCmdToSlave="true"/>
+					</AxisPara>
+					<Encoder Name="Enc" EncType="19">
+						<EncPara ScaleFactorNumerator="360" ScaleFactorDenominator="8388608" MaxCount="#xffffffff" ReferenceSystem="1">
+							<Inc RefSoftSyncMask="#x00800000"/>
+						</EncPara>
+						<Vars VarGrpType="1">
+							<Name>Inputs</Name>
+							<Var>
+								<Name>In</Name>
+								<Type GUID="{901C2423-655B-45CE-B7E3-21F174F0F99F}" Namespace="MC">NCENCODERSTRUCT_IN2B</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn6</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn7</Name>
+									<Comment><![CDATA[Drive Velocity Actual Value
+]]></Comment>
+								</SubVar>
+							</Var>
+						</Vars>
+						<Vars VarGrpType="2">
+							<Name>Outputs</Name>
+							<Var>
+								<Name>Out</Name>
+								<Type GUID="{9CC50AB2-5D79-4869-A3C2-1FA7761BAFEA}" Namespace="MC">NCENCODERSTRUCT_OUT2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+					</Encoder>
+					<Drive Name="Drive" DrvType="16">
+						<DrvPara MaxCount="#xffffffff" DriveControlDWord="#x00020100">
+							<Analog TorqueSetpointScale="10" ScaleFactorActTorque="0.1"/>
+							<TimeComp TaskDelayCycles="1"/>
+						</DrvPara>
+						<Vars VarGrpType="1">
+							<Name>Inputs</Name>
+							<Var>
+								<Name>In</Name>
+								<Type GUID="{F95C7C69-0C87-46C4-9559-1285CCA5B23A}" Namespace="MC">NCDRIVESTRUCT_IN2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+						<Vars VarGrpType="2">
+							<Name>Outputs</Name>
+							<Var>
+								<Name>Out</Name>
+								<Type GUID="{644DC4BD-3D15-4DCB-94C7-24F3A5D579AA}" Namespace="MC">NCDRIVESTRUCT_OUT2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+					</Drive>
+					<Controller Name="Ctrl" CtrType="1">
+						<CtrPara PriorControlFactor="1">
+							<PosDiffControl Enable="false"/>
+							<Observer BandWidth="20"/>
+						</CtrPara>
+					</Controller>
+					<Vars VarGrpType="1" InsertType="1">
+						<Name>Inputs</Name>
+						<Var>
+							<Name>FromPlc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+					</Vars>
+					<Vars VarGrpType="2" InsertType="1">
+						<Name>Outputs</Name>
+						<Var>
+							<Name>ToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+					</Vars>
+				</Axis>
+				<Axis Id="10" CreateSymbols="true" AxisType="1">
+					<Name>bag_open_2</Name>
+					<AxisPara>
+						<General UnitName="°"/>
+						<PositionAreaControl Enable="false"/>
+						<OtherSettings AllowMotionCmdToSlave="true"/>
+					</AxisPara>
+					<Encoder Name="Enc" EncType="19">
+						<EncPara ScaleFactorNumerator="360" ScaleFactorDenominator="8388608" MaxCount="#xffffffff" ReferenceSystem="1">
+							<Inc RefSoftSyncMask="#x00800000"/>
+						</EncPara>
+						<Vars VarGrpType="1">
+							<Name>Inputs</Name>
+							<Var>
+								<Name>In</Name>
+								<Type GUID="{901C2423-655B-45CE-B7E3-21F174F0F99F}" Namespace="MC">NCENCODERSTRUCT_IN2B</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn6</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn7</Name>
+									<Comment><![CDATA[Drive Velocity Actual Value
+]]></Comment>
+								</SubVar>
+							</Var>
+						</Vars>
+						<Vars VarGrpType="2">
+							<Name>Outputs</Name>
+							<Var>
+								<Name>Out</Name>
+								<Type GUID="{9CC50AB2-5D79-4869-A3C2-1FA7761BAFEA}" Namespace="MC">NCENCODERSTRUCT_OUT2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+					</Encoder>
+					<Drive Name="Drive" DrvType="16">
+						<DrvPara MaxCount="#xffffffff" DriveControlDWord="#x00020100">
+							<Analog TorqueSetpointScale="10" ScaleFactorActTorque="0.1"/>
+							<TimeComp TaskDelayCycles="1"/>
+						</DrvPara>
+						<Vars VarGrpType="1">
+							<Name>Inputs</Name>
+							<Var>
+								<Name>In</Name>
+								<Type GUID="{F95C7C69-0C87-46C4-9559-1285CCA5B23A}" Namespace="MC">NCDRIVESTRUCT_IN2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+						<Vars VarGrpType="2">
+							<Name>Outputs</Name>
+							<Var>
+								<Name>Out</Name>
+								<Type GUID="{644DC4BD-3D15-4DCB-94C7-24F3A5D579AA}" Namespace="MC">NCDRIVESTRUCT_OUT2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+					</Drive>
+					<Controller Name="Ctrl" CtrType="1">
+						<CtrPara PriorControlFactor="1">
+							<PosDiffControl Enable="false"/>
+							<Observer BandWidth="20"/>
+						</CtrPara>
+					</Controller>
+					<Vars VarGrpType="1" InsertType="1">
+						<Name>Inputs</Name>
+						<Var>
+							<Name>FromPlc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+					</Vars>
+					<Vars VarGrpType="2" InsertType="1">
+						<Name>Outputs</Name>
+						<Var>
+							<Name>ToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+					</Vars>
+				</Axis>
+				<Axis Id="6" CreateSymbols="true" AxisType="1" GroupId="2">
+					<Name>bag_open_3</Name>
+					<AxisPara>
+						<General UnitName="°"/>
+						<PositionAreaControl Enable="false"/>
+						<OtherSettings AllowMotionCmdToSlave="true"/>
+					</AxisPara>
+					<Encoder Name="Enc" EncType="19">
+						<EncPara ScaleFactorNumerator="360" ScaleFactorDenominator="8388608" MaxCount="#xffffffff" ReferenceSystem="1">
 							<Inc RefSoftSyncMask="#x00800000"/>
 						</EncPara>
 						<Vars VarGrpType="1">
@@ -2199,7 +3079,7 @@ External Setpoint Generation:
 		</Motion>
 		<Plc>
 			<Project GUID="{6D202D54-030C-410D-B649-C97C3EE97249}" Name="Untitled1" PrjFilePath="Untitled1\Untitled1.plcproj" TmcFilePath="Untitled1\Untitled1.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" CopyTmcToTarget="true" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Untitled1\Untitled1.tmc" TmcHash="{FB70A53A-A0CA-E7D9-9259-EE48B6C2BFA4}">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Untitled1\Untitled1.tmc" TmcHash="{D60FF1AE-7C54-D05F-4868-33CC5E54B5E6}">
 					<Name>Untitled1 Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="1" ContextId="1" AreaNo="16">
@@ -2433,6 +3313,30 @@ External Setpoint Generation:
 							<Name>GVL.fb_working.AxisRef_bag.NcToPlc</Name>
 							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
 						</Var>
+						<Var>
+							<Name>GVL.fb_working.AxisRef_vacuun[0].NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_working.AxisRef_vacuun[1].NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_working.AxisRef_bagOpen[0].NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_working.AxisRef_bagOpen[1].NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_working.AxisRef_bagOpen[2].NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_working.AxisRef_bagOpen[3].NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
 					</Vars>
 					<Vars VarGrpType="2" ContextId="1" AreaNo="17">
 						<Name>MianTask Outputs</Name>
@@ -2525,6 +3429,30 @@ External Setpoint Generation:
 						</Var>
 						<Var>
 							<Name>GVL.fb_working.AxisRef_bag.PlcToNc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_working.AxisRef_vacuun[0].PlcToNc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_working.AxisRef_vacuun[1].PlcToNc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_working.AxisRef_bagOpen[0].PlcToNc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_working.AxisRef_bagOpen[1].PlcToNc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_working.AxisRef_bagOpen[2].PlcToNc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_working.AxisRef_bagOpen[3].PlcToNc</Name>
 							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
 						</Var>
 					</Vars>
@@ -6676,6 +7604,749 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 								<CoeProfile ProfileNo="402"/>
 							</EtherCAT>
 						</Box>
+						<Box Id="69" BoxType="9099">
+							<Name>bag_open_dio</Name>
+							<ImageId>111</ImageId>
+							<EtherCAT SlaveType="1" PdiType="#x0d00" CycleMBoxPollingTime="0" VendorId="#x00000002" ProductCode="#x044c2c52" RevisionNo="#x00120000" PortPhys="305" MaxSlotCount="256" MaxSlotGroupCount="1" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="EK1100 EtherCAT Coupler (2A E-Bus)" Desc="EK1100" PortABoxInfo="#x01000024"/>
+							<Box Id="70" BoxType="9099">
+								<Name>di7</Name>
+								<ImageId>7</ImageId>
+								<EtherCAT SlaveType="1" PdiType="#x0104" CycleMBoxPollingTime="0" VendorId="#x00000002" ProductCode="#x07113052" RevisionNo="#x00120000" RepeatSupport="true" PortPhys="51" MaxSlotCount="256" MaxSlotGroupCount="1" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="EL1809 16Ch. Dig. Input 24V, 3ms" Desc="EL1809" PortABoxInfo="#x01000045">
+									<SyncMan>001002000000010004000000000000000200001000010000</SyncMan>
+									<Fmmu>0000000000000000001000010100000002000000000000000000000000000000</Fmmu>
+									<Pdo Name="Channel 1" Index="#x1a00" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x6000" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 2" Index="#x1a01" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x6010" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 3" Index="#x1a02" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x6020" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 4" Index="#x1a03" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x6030" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 5" Index="#x1a04" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x6040" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 6" Index="#x1a05" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x6050" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 7" Index="#x1a06" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x6060" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 8" Index="#x1a07" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x6070" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 9" Index="#x1a08" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x6080" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 10" Index="#x1a09" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x6090" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 11" Index="#x1a0a" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x60a0" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 12" Index="#x1a0b" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x60b0" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 13" Index="#x1a0c" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x60c0" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 14" Index="#x1a0d" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x60d0" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 15" Index="#x1a0e" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x60e0" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 16" Index="#x1a0f" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x60f0" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+								</EtherCAT>
+							</Box>
+							<Box Id="71" BoxType="9099">
+								<Name>di8</Name>
+								<ImageId>7</ImageId>
+								<EtherCAT SlaveType="1" PdiType="#x0104" CycleMBoxPollingTime="0" VendorId="#x00000002" ProductCode="#x07113052" RevisionNo="#x00120000" RepeatSupport="true" PortPhys="51" MaxSlotCount="256" MaxSlotGroupCount="1" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="EL1809 16Ch. Dig. Input 24V, 3ms" Desc="EL1809" PortABoxInfo="#x01000046">
+									<SyncMan>001002000000010004000000000000000200001000010000</SyncMan>
+									<Fmmu>0000000000000000001000010100000002000000000000000000000000000000</Fmmu>
+									<Pdo Name="Channel 1" Index="#x1a00" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x6000" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 2" Index="#x1a01" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x6010" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 3" Index="#x1a02" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x6020" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 4" Index="#x1a03" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x6030" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 5" Index="#x1a04" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x6040" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 6" Index="#x1a05" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x6050" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 7" Index="#x1a06" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x6060" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 8" Index="#x1a07" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x6070" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 9" Index="#x1a08" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x6080" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 10" Index="#x1a09" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x6090" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 11" Index="#x1a0a" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x60a0" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 12" Index="#x1a0b" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x60b0" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 13" Index="#x1a0c" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x60c0" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 14" Index="#x1a0d" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x60d0" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 15" Index="#x1a0e" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x60e0" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 16" Index="#x1a0f" Flags="#x0011" SyncMan="0">
+										<Entry Name="Input" Index="#x60f0" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+								</EtherCAT>
+							</Box>
+							<Box Id="72" BoxType="9099">
+								<Name>do7</Name>
+								<ImageId>31</ImageId>
+								<EtherCAT SlaveType="1" PdiType="#x0104" CycleMBoxPollingTime="0" VendorId="#x00000002" ProductCode="#x0af93052" RevisionNo="#x0010000f" RepeatSupport="true" PortPhys="51" MaxSlotCount="256" MaxSlotGroupCount="1" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="EL2809-0015 16Ch. Dig. Output 24V DC, 0.35A, not short-circuit proof" Desc="EL2809-0015" PortABoxInfo="#x01000047">
+									<SyncMan>000f01004400010003000000000000000100000f44090000</SyncMan>
+									<SyncMan>010f01004400010003000000000000000100010f44090000</SyncMan>
+									<Fmmu>0000000000000000000f00020100000001000000000000000000000000000000</Fmmu>
+									<Pdo Name="Channel 1" Index="#x1600" InOut="1" Flags="#x0011" SyncMan="0">
+										<Entry Name="Output" Index="#x7000" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 2" Index="#x1601" InOut="1" Flags="#x0011" SyncMan="0">
+										<Entry Name="Output" Index="#x7010" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 3" Index="#x1602" InOut="1" Flags="#x0011" SyncMan="0">
+										<Entry Name="Output" Index="#x7020" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 4" Index="#x1603" InOut="1" Flags="#x0011" SyncMan="0">
+										<Entry Name="Output" Index="#x7030" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 5" Index="#x1604" InOut="1" Flags="#x0011" SyncMan="0">
+										<Entry Name="Output" Index="#x7040" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 6" Index="#x1605" InOut="1" Flags="#x0011" SyncMan="0">
+										<Entry Name="Output" Index="#x7050" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 7" Index="#x1606" InOut="1" Flags="#x0011" SyncMan="0">
+										<Entry Name="Output" Index="#x7060" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 8" Index="#x1607" InOut="1" Flags="#x0011" SyncMan="0">
+										<Entry Name="Output" Index="#x7070" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 9" Index="#x1608" InOut="1" Flags="#x0011" SyncMan="1">
+										<Entry Name="Output" Index="#x7080" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 10" Index="#x1609" InOut="1" Flags="#x0011" SyncMan="1">
+										<Entry Name="Output" Index="#x7090" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 11" Index="#x160a" InOut="1" Flags="#x0011" SyncMan="1">
+										<Entry Name="Output" Index="#x70a0" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 12" Index="#x160b" InOut="1" Flags="#x0011" SyncMan="1">
+										<Entry Name="Output" Index="#x70b0" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 13" Index="#x160c" InOut="1" Flags="#x0011" SyncMan="1">
+										<Entry Name="Output" Index="#x70c0" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 14" Index="#x160d" InOut="1" Flags="#x0011" SyncMan="1">
+										<Entry Name="Output" Index="#x70d0" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 15" Index="#x160e" InOut="1" Flags="#x0011" SyncMan="1">
+										<Entry Name="Output" Index="#x70e0" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+									<Pdo Name="Channel 16" Index="#x160f" InOut="1" Flags="#x0011" SyncMan="1">
+										<Entry Name="Output" Index="#x70f0" Sub="#x01">
+											<Type>BIT</Type>
+										</Entry>
+									</Pdo>
+								</EtherCAT>
+							</Box>
+							<Box Id="80" BoxType="9099">
+								<Name>Term 71 (EL9011)</Name>
+								<ImageId>1004</ImageId>
+								<EtherCAT CycleMBoxPollingTime="0" VendorId="#x00000002" ProductCode="#x23333050" InfoDataState="false" MaxSlotCount="256" MaxSlotGroupCount="1" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="EL9011 End Terminal" Desc="EL9011" PortABoxInfo="#x01000048"/>
+							</Box>
+						</Box>
+						<Box Id="73" BoxType="9099" BoxFlags="#x00000020">
+							<Name>bag_vacuun</Name>
+							<ImageId>1007</ImageId>
+							<EtherCAT SlaveType="2" PdiType="#x0c08" MboxDataLinkLayer="true" CycleMBoxPolling="true" CoeType="13" EoeType="1" VendorId="#x00100000" ProductCode="#x000c0122" RevisionNo="#x00010000" InfoDataAddr="true" InfoDataSoeDS401="true" InfoDataDcTimes="true" TimeoutStateChange2="9000" TimeoutMailbox2="2000" PortPhys="17" SlotPdoIncrement="16" SlotIndexIncrement="2048" Type="SV660ND_2Axis_V1.00" Desc="InoSV660ND" PortABoxInfo="#x02000045">
+								<SyncMan>001000022600010001000000220000020002001026010000</SyncMan>
+								<SyncMan>001400022200010002000000220000020002001422010000</SyncMan>
+								<SyncMan>00181a006400010003000000000000000000001864010000</SyncMan>
+								<SyncMan>001c3e002000010004000000000000000000001c20010000</SyncMan>
+								<Fmmu>0000000000000000001800020100000001000000000000000000000000000000</Fmmu>
+								<Fmmu>0000000000000000001c00010100000002000000000000000000000000000000</Fmmu>
+								<SwitchPortData>00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000</SwitchPortData>
+								<DcData>0003000000000000000000000000000001000000000000000000000000000000</DcData>
+								<DcMode>4443000000000000000000000000000044432d53796e6300000000000000000000000000000000000000000000000000000000000000000000000000000000030100000000000000000000000000000000000000000000000000000000000000</DcMode>
+								<MBoxUserCmdData>020003000900000000000000030000001800090300000000000000000000000020606000010000000800</MBoxUserCmdData>
+								<MBoxUserCmdData>020003000900000000000000030000001900090300000000000000000000000020606800010000000800</MBoxUserCmdData>
+								<Pdo Name="Inputs" Index="#x1a00" Flags="#x0280" SyncMan="3">
+									<Entry Name="Error code" Index="#x603f" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="StatusWord" Index="#x6041" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="Modes of Operation Display" Index="#x6061" Flags="#x00001000">
+										<Type>SINT</Type>
+									</Entry>
+									<Entry Name="Position actual value" Index="#x6064" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="ActualVelocity" Index="#x606c" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Touch probe status" Index="#x60b9" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="Touch probe pos1 pos value" Index="#x60ba" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Touch probe pos2 pos value" Index="#x60bc" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Following error actual value" Index="#x60f4" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Digital inputs" Index="#x60fd" Flags="#x00001000">
+										<Type>UDINT</Type>
+									</Entry>
+								</Pdo>
+								<Pdo Name="Outputs" Index="#x1600" InOut="1" Flags="#x0280" SyncMan="2">
+									<Entry Name="ControlWord" Index="#x6040" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="Modes of Operation" Index="#x6060" Flags="#x00001000">
+										<Type>SINT</Type>
+									</Entry>
+									<Entry Name="Target position" Index="#x607a" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Touch probe function" Index="#x60b8" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="Target velocity" Index="#x60ff" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+								</Pdo>
+								<Pdo Name="Inputs" Index="#x1a10" Flags="#x0280" SyncMan="3">
+									<Entry Name="Error code" Index="#x683f" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="StatusWord" Index="#x6841" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="Modes of Operation Display" Index="#x6861" Flags="#x00001000">
+										<Type>SINT</Type>
+									</Entry>
+									<Entry Name="Position actual value" Index="#x6864" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="ActualVelocity" Index="#x686c" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Touch probe status" Index="#x68b9" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="Touch probe pos1 pos value" Index="#x68ba" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Touch probe pos2 pos value" Index="#x68bc" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Following error actual value" Index="#x68f4" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Digital inputs" Index="#x68fd" Flags="#x00001000">
+										<Type>UDINT</Type>
+									</Entry>
+								</Pdo>
+								<Pdo Name="Outputs" Index="#x1610" InOut="1" Flags="#x0280" SyncMan="2">
+									<Entry Name="ControlWord" Index="#x6840" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="Modes of Operation" Index="#x6860" Flags="#x00001000">
+										<Type>SINT</Type>
+									</Entry>
+									<Entry Name="Target position" Index="#x687a" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Touch probe function" Index="#x68b8" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="Target velocity" Index="#x68ff" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+								</Pdo>
+								<CoeProfile ProfileNo="402"/>
+								<Slot Name="Axis 1">
+									<SlotData>0000010001000000100000000008000000000000000000000000000000000000</SlotData>
+									<ModuleIdent>256</ModuleIdent>
+									<ModuleIdent>512</ModuleIdent>
+									<ModuleIdent>768</ModuleIdent>
+									<ModuleIdent>1024</ModuleIdent>
+									<ModuleIdent>1280</ModuleIdent>
+									<ModuleIdent>1536</ModuleIdent>
+									<ModuleIdent>1792</ModuleIdent>
+									<ModuleIdent>2048</ModuleIdent>
+									<ModuleIdent>2304</ModuleIdent>
+									<Module Id="#x03090018" Type="CSP/CSV" Class="">
+										<Name>Module 1 (CSP/CSV)</Name>
+										<ImageId>412</ImageId>
+										<ModuleData>0000100000010000000004000000000000000000000000000000000000000000</ModuleData>
+										<PdoIndex>6656</PdoIndex>
+										<PdoIndex>5632</PdoIndex>
+										<CoeProfile ProfileNo="#x00000192"/>
+									</Module>
+								</Slot>
+								<Slot Name="Axis 2">
+									<SlotData>0000010001000000100000000008000000000000000000000000000000000000</SlotData>
+									<ModuleIdent>256</ModuleIdent>
+									<ModuleIdent>512</ModuleIdent>
+									<ModuleIdent>768</ModuleIdent>
+									<ModuleIdent>1024</ModuleIdent>
+									<ModuleIdent>1280</ModuleIdent>
+									<ModuleIdent>1536</ModuleIdent>
+									<ModuleIdent>1792</ModuleIdent>
+									<ModuleIdent>2048</ModuleIdent>
+									<ModuleIdent>2304</ModuleIdent>
+									<Module Id="#x03090019" Type="CSP/CSV" Class="">
+										<Name>Module 2 (CSP/CSV)</Name>
+										<ImageId>412</ImageId>
+										<ModuleData>0000100000010000000004000000000000000000000000000000000000000000</ModuleData>
+										<PdoIndex>6672</PdoIndex>
+										<PdoIndex>5648</PdoIndex>
+										<CoeProfile ProfileNo="#x00000192"/>
+									</Module>
+								</Slot>
+							</EtherCAT>
+						</Box>
+						<Box Id="74" BoxType="9099" BoxFlags="#x00000020">
+							<Name>bag_open_0_1</Name>
+							<ImageId>1007</ImageId>
+							<EtherCAT SlaveType="2" PdiType="#x0c08" MboxDataLinkLayer="true" CycleMBoxPolling="true" CoeType="13" EoeType="1" VendorId="#x00100000" ProductCode="#x000c0122" RevisionNo="#x00010000" InfoDataAddr="true" InfoDataSoeDS401="true" InfoDataDcTimes="true" TimeoutStateChange2="9000" TimeoutMailbox2="2000" PortPhys="17" SlotPdoIncrement="16" SlotIndexIncrement="2048" Type="SV660ND_2Axis_V1.00" Desc="InoSV660ND" PortABoxInfo="#x01000049">
+								<SyncMan>001000022600010001000000220000020002001026010000</SyncMan>
+								<SyncMan>001400022200010002000000220000020002001422010000</SyncMan>
+								<SyncMan>00181a006400010003000000000000000000001864010000</SyncMan>
+								<SyncMan>001c3e002000010004000000000000000000001c20010000</SyncMan>
+								<Fmmu>0000000000000000001800020100000001000000000000000000000000000000</Fmmu>
+								<Fmmu>0000000000000000001c00010100000002000000000000000000000000000000</Fmmu>
+								<SwitchPortData>00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000</SwitchPortData>
+								<DcData>0003000000000000000000000000000001000000000000000000000000000000</DcData>
+								<DcMode>4443000000000000000000000000000044432d53796e6300000000000000000000000000000000000000000000000000000000000000000000000000000000030100000000000000000000000000000000000000000000000000000000000000</DcMode>
+								<MBoxUserCmdData>020003000900000000000000030000001a00090300000000000000000000000020606000010000000800</MBoxUserCmdData>
+								<MBoxUserCmdData>020003000900000000000000030000001b00090300000000000000000000000020606800010000000800</MBoxUserCmdData>
+								<Pdo Name="Inputs" Index="#x1a00" Flags="#x0280" SyncMan="3">
+									<Entry Name="Error code" Index="#x603f" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="StatusWord" Index="#x6041" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="Modes of Operation Display" Index="#x6061" Flags="#x00001000">
+										<Type>SINT</Type>
+									</Entry>
+									<Entry Name="Position actual value" Index="#x6064" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="ActualVelocity" Index="#x606c" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Touch probe status" Index="#x60b9" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="Touch probe pos1 pos value" Index="#x60ba" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Touch probe pos2 pos value" Index="#x60bc" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Following error actual value" Index="#x60f4" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Digital inputs" Index="#x60fd" Flags="#x00001000">
+										<Type>UDINT</Type>
+									</Entry>
+								</Pdo>
+								<Pdo Name="Outputs" Index="#x1600" InOut="1" Flags="#x0280" SyncMan="2">
+									<Entry Name="ControlWord" Index="#x6040" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="Modes of Operation" Index="#x6060" Flags="#x00001000">
+										<Type>SINT</Type>
+									</Entry>
+									<Entry Name="Target position" Index="#x607a" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Touch probe function" Index="#x60b8" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="Target velocity" Index="#x60ff" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+								</Pdo>
+								<Pdo Name="Inputs" Index="#x1a10" Flags="#x0280" SyncMan="3">
+									<Entry Name="Error code" Index="#x683f" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="StatusWord" Index="#x6841" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="Modes of Operation Display" Index="#x6861" Flags="#x00001000">
+										<Type>SINT</Type>
+									</Entry>
+									<Entry Name="Position actual value" Index="#x6864" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="ActualVelocity" Index="#x686c" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Touch probe status" Index="#x68b9" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="Touch probe pos1 pos value" Index="#x68ba" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Touch probe pos2 pos value" Index="#x68bc" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Following error actual value" Index="#x68f4" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Digital inputs" Index="#x68fd" Flags="#x00001000">
+										<Type>UDINT</Type>
+									</Entry>
+								</Pdo>
+								<Pdo Name="Outputs" Index="#x1610" InOut="1" Flags="#x0280" SyncMan="2">
+									<Entry Name="ControlWord" Index="#x6840" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="Modes of Operation" Index="#x6860" Flags="#x00001000">
+										<Type>SINT</Type>
+									</Entry>
+									<Entry Name="Target position" Index="#x687a" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Touch probe function" Index="#x68b8" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="Target velocity" Index="#x68ff" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+								</Pdo>
+								<CoeProfile ProfileNo="402"/>
+								<Slot Name="Axis 1">
+									<SlotData>0000010001000000100000000008000000000000000000000000000000000000</SlotData>
+									<ModuleIdent>256</ModuleIdent>
+									<ModuleIdent>512</ModuleIdent>
+									<ModuleIdent>768</ModuleIdent>
+									<ModuleIdent>1024</ModuleIdent>
+									<ModuleIdent>1280</ModuleIdent>
+									<ModuleIdent>1536</ModuleIdent>
+									<ModuleIdent>1792</ModuleIdent>
+									<ModuleIdent>2048</ModuleIdent>
+									<ModuleIdent>2304</ModuleIdent>
+									<Module Id="#x0309001a" Type="CSP/CSV" Class="">
+										<Name>Module 1 (CSP/CSV)</Name>
+										<ImageId>412</ImageId>
+										<ModuleData>0000100000010000000004000000000000000000000000000000000000000000</ModuleData>
+										<PdoIndex>6656</PdoIndex>
+										<PdoIndex>5632</PdoIndex>
+										<CoeProfile ProfileNo="#x00000192"/>
+									</Module>
+								</Slot>
+								<Slot Name="Axis 2">
+									<SlotData>0000010001000000100000000008000000000000000000000000000000000000</SlotData>
+									<ModuleIdent>256</ModuleIdent>
+									<ModuleIdent>512</ModuleIdent>
+									<ModuleIdent>768</ModuleIdent>
+									<ModuleIdent>1024</ModuleIdent>
+									<ModuleIdent>1280</ModuleIdent>
+									<ModuleIdent>1536</ModuleIdent>
+									<ModuleIdent>1792</ModuleIdent>
+									<ModuleIdent>2048</ModuleIdent>
+									<ModuleIdent>2304</ModuleIdent>
+									<Module Id="#x0309001b" Type="CSP/CSV" Class="">
+										<Name>Module 2 (CSP/CSV)</Name>
+										<ImageId>412</ImageId>
+										<ModuleData>0000100000010000000004000000000000000000000000000000000000000000</ModuleData>
+										<PdoIndex>6672</PdoIndex>
+										<PdoIndex>5648</PdoIndex>
+										<CoeProfile ProfileNo="#x00000192"/>
+									</Module>
+								</Slot>
+							</EtherCAT>
+						</Box>
+						<Box Id="75" BoxType="9099" BoxFlags="#x00000020">
+							<Name>bag_open_2_3</Name>
+							<ImageId>1007</ImageId>
+							<EtherCAT SlaveType="2" PdiType="#x0c08" MboxDataLinkLayer="true" CycleMBoxPolling="true" CoeType="13" EoeType="1" VendorId="#x00100000" ProductCode="#x000c0122" RevisionNo="#x00010000" InfoDataAddr="true" InfoDataSoeDS401="true" InfoDataDcTimes="true" TimeoutStateChange2="9000" TimeoutMailbox2="2000" PortPhys="17" SlotPdoIncrement="16" SlotIndexIncrement="2048" Type="SV660ND_2Axis_V1.00" Desc="InoSV660ND" PortABoxInfo="#x0100004a">
+								<SyncMan>001000022600010001000000220000020002001026010000</SyncMan>
+								<SyncMan>001400022200010002000000220000020002001422010000</SyncMan>
+								<SyncMan>00181a006400010003000000000000000000001864010000</SyncMan>
+								<SyncMan>001c3e002000010004000000000000000000001c20010000</SyncMan>
+								<Fmmu>0000000000000000001800020100000001000000000000000000000000000000</Fmmu>
+								<Fmmu>0000000000000000001c00010100000002000000000000000000000000000000</Fmmu>
+								<SwitchPortData>00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000</SwitchPortData>
+								<DcData>0003000000000000000000000000000001000000000000000000000000000000</DcData>
+								<DcMode>4443000000000000000000000000000044432d53796e6300000000000000000000000000000000000000000000000000000000000000000000000000000000030100000000000000000000000000000000000000000000000000000000000000</DcMode>
+								<MBoxUserCmdData>020003000900000000000000030000001c00090300000000000000000000000020606000010000000800</MBoxUserCmdData>
+								<MBoxUserCmdData>020003000900000000000000030000001d00090300000000000000000000000020606800010000000800</MBoxUserCmdData>
+								<Pdo Name="Inputs" Index="#x1a00" Flags="#x0280" SyncMan="3">
+									<Entry Name="Error code" Index="#x603f" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="StatusWord" Index="#x6041" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="Modes of Operation Display" Index="#x6061" Flags="#x00001000">
+										<Type>SINT</Type>
+									</Entry>
+									<Entry Name="Position actual value" Index="#x6064" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="ActualVelocity" Index="#x606c" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Touch probe status" Index="#x60b9" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="Touch probe pos1 pos value" Index="#x60ba" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Touch probe pos2 pos value" Index="#x60bc" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Following error actual value" Index="#x60f4" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Digital inputs" Index="#x60fd" Flags="#x00001000">
+										<Type>UDINT</Type>
+									</Entry>
+								</Pdo>
+								<Pdo Name="Outputs" Index="#x1600" InOut="1" Flags="#x0280" SyncMan="2">
+									<Entry Name="ControlWord" Index="#x6040" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="Modes of Operation" Index="#x6060" Flags="#x00001000">
+										<Type>SINT</Type>
+									</Entry>
+									<Entry Name="Target position" Index="#x607a" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Touch probe function" Index="#x60b8" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="Target velocity" Index="#x60ff" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+								</Pdo>
+								<Pdo Name="Inputs" Index="#x1a10" Flags="#x0280" SyncMan="3">
+									<Entry Name="Error code" Index="#x683f" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="StatusWord" Index="#x6841" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="Modes of Operation Display" Index="#x6861" Flags="#x00001000">
+										<Type>SINT</Type>
+									</Entry>
+									<Entry Name="Position actual value" Index="#x6864" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="ActualVelocity" Index="#x686c" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Touch probe status" Index="#x68b9" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="Touch probe pos1 pos value" Index="#x68ba" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Touch probe pos2 pos value" Index="#x68bc" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Following error actual value" Index="#x68f4" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Digital inputs" Index="#x68fd" Flags="#x00001000">
+										<Type>UDINT</Type>
+									</Entry>
+								</Pdo>
+								<Pdo Name="Outputs" Index="#x1610" InOut="1" Flags="#x0280" SyncMan="2">
+									<Entry Name="ControlWord" Index="#x6840" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="Modes of Operation" Index="#x6860" Flags="#x00001000">
+										<Type>SINT</Type>
+									</Entry>
+									<Entry Name="Target position" Index="#x687a" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+									<Entry Name="Touch probe function" Index="#x68b8" Flags="#x00001000">
+										<Type>UINT</Type>
+									</Entry>
+									<Entry Name="Target velocity" Index="#x68ff" Flags="#x00001000">
+										<Type>DINT</Type>
+									</Entry>
+								</Pdo>
+								<CoeProfile ProfileNo="402"/>
+								<Slot Name="Axis 1">
+									<SlotData>0000010001000000100000000008000000000000000000000000000000000000</SlotData>
+									<ModuleIdent>256</ModuleIdent>
+									<ModuleIdent>512</ModuleIdent>
+									<ModuleIdent>768</ModuleIdent>
+									<ModuleIdent>1024</ModuleIdent>
+									<ModuleIdent>1280</ModuleIdent>
+									<ModuleIdent>1536</ModuleIdent>
+									<ModuleIdent>1792</ModuleIdent>
+									<ModuleIdent>2048</ModuleIdent>
+									<ModuleIdent>2304</ModuleIdent>
+									<Module Id="#x0309001c" Type="CSP/CSV" Class="">
+										<Name>Module 1 (CSP/CSV)</Name>
+										<ImageId>412</ImageId>
+										<ModuleData>0000100000010000000004000000000000000000000000000000000000000000</ModuleData>
+										<PdoIndex>6656</PdoIndex>
+										<PdoIndex>5632</PdoIndex>
+										<CoeProfile ProfileNo="#x00000192"/>
+									</Module>
+								</Slot>
+								<Slot Name="Axis 2">
+									<SlotData>0000010001000000100000000008000000000000000000000000000000000000</SlotData>
+									<ModuleIdent>256</ModuleIdent>
+									<ModuleIdent>512</ModuleIdent>
+									<ModuleIdent>768</ModuleIdent>
+									<ModuleIdent>1024</ModuleIdent>
+									<ModuleIdent>1280</ModuleIdent>
+									<ModuleIdent>1536</ModuleIdent>
+									<ModuleIdent>1792</ModuleIdent>
+									<ModuleIdent>2048</ModuleIdent>
+									<ModuleIdent>2304</ModuleIdent>
+									<Module Id="#x0309001d" Type="CSP/CSV" Class="">
+										<Name>Module 2 (CSP/CSV)</Name>
+										<ImageId>412</ImageId>
+										<ModuleData>0000100000010000000004000000000000000000000000000000000000000000</ModuleData>
+										<PdoIndex>6672</PdoIndex>
+										<PdoIndex>5648</PdoIndex>
+										<CoeProfile ProfileNo="#x00000192"/>
+									</Module>
+								</Slot>
+							</EtherCAT>
+						</Box>
 					</Box>
 					<Box Id="37" BoxType="9099">
 						<Name>Term 37 (CU1128-C)</Name>
@@ -6683,7 +8354,7 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 						<EtherCAT SlaveType="1" PdiType="#x0d00" CycleMBoxPollingTime="0" VendorId="#x00000002" ProductCode="#x04685432" RevisionNo="#x00020002" PortPhys="4371" MaxSlotCount="256" MaxSlotGroupCount="1" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="CU1128 6x EtherCAT junction - Dev B" Desc="CU1128-C" PortABoxInfo="#x0200001b"/>
 					</Box>
 				</Box>
-				<EtherCAT DcSyncMode="3" EnableVirtualSwitch="true" MaxSwitchPorts="5" MaxSwitchFrames="180" MaxSwitchMACs="100">
+				<EtherCAT DcSyncMode="3" EnableVirtualSwitch="true" MaxSwitchPorts="8" MaxSwitchFrames="240" MaxSwitchMACs="100">
 					<SyncUnit Name="Sync1" NoDeleteIfUnused="true"/>
 				</EtherCAT>
 			</Device>
@@ -6737,6 +8408,168 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 				<Link VarA="Box 8 (CU1128)^loading_io^Term 24 (EL1904)^Module 1 (FSOES)^TxPDO^FSOE" VarB="ConnectionOutputs^Message_8 RxPDO"/>
 			</OwnerB>
 		</OwnerA>
+		<OwnerA Name="TINC^NC-Task 1 SAF^Axes^bag_open_0">
+			<OwnerB Name="TIID^Device 4 (EtherCAT)^Box 8 (CU1128)^working_module^bag_open_0_1">
+				<Link VarA="Drive^Inputs^In^nDataIn1" VarB="Module 1 (CSP/CSV)^Inputs^Following error actual value"/>
+				<Link VarA="Drive^Inputs^In^nDcOutputTime" VarB="InfoData^DcOutputShift"/>
+				<Link VarA="Drive^Inputs^In^nState1" VarB="Module 1 (CSP/CSV)^Inputs^StatusWord"/>
+				<Link VarA="Drive^Inputs^In^nState2" VarB="Module 1 (CSP/CSV)^Inputs^StatusWord" Size="8" OffsB="8"/>
+				<Link VarA="Drive^Inputs^In^nState4" VarB="WcState^InputToggle" Size="1" OffsA="1"/>
+				<Link VarA="Drive^Inputs^In^nState4" VarB="WcState^WcState"/>
+				<Link VarA="Drive^Inputs^In^nState5" VarB="Module 1 (CSP/CSV)^Inputs^Modes of Operation Display"/>
+				<Link VarA="Drive^Outputs^Out^nCtrl1" VarB="Module 1 (CSP/CSV)^Outputs^ControlWord"/>
+				<Link VarA="Drive^Outputs^Out^nCtrl2" VarB="Module 1 (CSP/CSV)^Outputs^ControlWord" Size="8" OffsB="8"/>
+				<Link VarA="Drive^Outputs^Out^nCtrl5" VarB="Module 1 (CSP/CSV)^Outputs^Modes of Operation"/>
+				<Link VarA="Drive^Outputs^Out^nDataOut1" VarB="Module 1 (CSP/CSV)^Outputs^Target position"/>
+				<Link VarA="Drive^Outputs^Out^nDataOut2" VarB="Module 1 (CSP/CSV)^Outputs^Target velocity"/>
+				<Link VarA="Enc^Inputs^In^nDataIn1" VarB="Module 1 (CSP/CSV)^Inputs^Position actual value"/>
+				<Link VarA="Enc^Inputs^In^nDataIn3" VarB="Module 1 (CSP/CSV)^Inputs^Touch probe pos1 pos value"/>
+				<Link VarA="Enc^Inputs^In^nDataIn5" VarB="Module 1 (CSP/CSV)^Inputs^Touch probe pos2 pos value"/>
+				<Link VarA="Enc^Inputs^In^nDataIn7" VarB="Module 1 (CSP/CSV)^Inputs^ActualVelocity"/>
+				<Link VarA="Enc^Inputs^In^nDcInputTime" VarB="InfoData^DcInputShift"/>
+				<Link VarA="Enc^Inputs^In^nState4" VarB="WcState^InputToggle" Size="1" OffsA="1"/>
+				<Link VarA="Enc^Inputs^In^nState4" VarB="WcState^WcState"/>
+				<Link VarA="Enc^Inputs^In^nState5" VarB="Module 1 (CSP/CSV)^Inputs^Touch probe status"/>
+				<Link VarA="Enc^Inputs^In^nState6" VarB="Module 1 (CSP/CSV)^Inputs^Touch probe status" Size="8" OffsB="8"/>
+				<Link VarA="Enc^Outputs^Out^nCtrl5" VarB="Module 1 (CSP/CSV)^Outputs^Touch probe function"/>
+				<Link VarA="Enc^Outputs^Out^nCtrl6" VarB="Module 1 (CSP/CSV)^Outputs^Touch probe function" Size="8" OffsB="8"/>
+			</OwnerB>
+		</OwnerA>
+		<OwnerA Name="TINC^NC-Task 1 SAF^Axes^bag_open_1">
+			<OwnerB Name="TIID^Device 4 (EtherCAT)^Box 8 (CU1128)^working_module^bag_open_0_1">
+				<Link VarA="Drive^Inputs^In^nDataIn1" VarB="Module 2 (CSP/CSV)^Inputs^Following error actual value"/>
+				<Link VarA="Drive^Inputs^In^nDcOutputTime" VarB="InfoData^DcOutputShift"/>
+				<Link VarA="Drive^Inputs^In^nState1" VarB="Module 2 (CSP/CSV)^Inputs^StatusWord"/>
+				<Link VarA="Drive^Inputs^In^nState2" VarB="Module 2 (CSP/CSV)^Inputs^StatusWord" Size="8" OffsB="8"/>
+				<Link VarA="Drive^Inputs^In^nState4" VarB="WcState^InputToggle" Size="1" OffsA="1"/>
+				<Link VarA="Drive^Inputs^In^nState4" VarB="WcState^WcState"/>
+				<Link VarA="Drive^Inputs^In^nState5" VarB="Module 2 (CSP/CSV)^Inputs^Modes of Operation Display"/>
+				<Link VarA="Drive^Outputs^Out^nCtrl1" VarB="Module 2 (CSP/CSV)^Outputs^ControlWord"/>
+				<Link VarA="Drive^Outputs^Out^nCtrl2" VarB="Module 2 (CSP/CSV)^Outputs^ControlWord" Size="8" OffsB="8"/>
+				<Link VarA="Drive^Outputs^Out^nCtrl5" VarB="Module 2 (CSP/CSV)^Outputs^Modes of Operation"/>
+				<Link VarA="Drive^Outputs^Out^nDataOut1" VarB="Module 2 (CSP/CSV)^Outputs^Target position"/>
+				<Link VarA="Drive^Outputs^Out^nDataOut2" VarB="Module 2 (CSP/CSV)^Outputs^Target velocity"/>
+				<Link VarA="Enc^Inputs^In^nDataIn1" VarB="Module 2 (CSP/CSV)^Inputs^Position actual value"/>
+				<Link VarA="Enc^Inputs^In^nDataIn3" VarB="Module 2 (CSP/CSV)^Inputs^Touch probe pos1 pos value"/>
+				<Link VarA="Enc^Inputs^In^nDataIn5" VarB="Module 2 (CSP/CSV)^Inputs^Touch probe pos2 pos value"/>
+				<Link VarA="Enc^Inputs^In^nDataIn7" VarB="Module 2 (CSP/CSV)^Inputs^ActualVelocity"/>
+				<Link VarA="Enc^Inputs^In^nDcInputTime" VarB="InfoData^DcInputShift"/>
+				<Link VarA="Enc^Inputs^In^nState4" VarB="WcState^InputToggle" Size="1" OffsA="1"/>
+				<Link VarA="Enc^Inputs^In^nState4" VarB="WcState^WcState"/>
+				<Link VarA="Enc^Inputs^In^nState5" VarB="Module 2 (CSP/CSV)^Inputs^Touch probe status"/>
+				<Link VarA="Enc^Inputs^In^nState6" VarB="Module 2 (CSP/CSV)^Inputs^Touch probe status" Size="8" OffsB="8"/>
+				<Link VarA="Enc^Outputs^Out^nCtrl5" VarB="Module 2 (CSP/CSV)^Outputs^Touch probe function"/>
+				<Link VarA="Enc^Outputs^Out^nCtrl6" VarB="Module 2 (CSP/CSV)^Outputs^Touch probe function" Size="8" OffsB="8"/>
+			</OwnerB>
+		</OwnerA>
+		<OwnerA Name="TINC^NC-Task 1 SAF^Axes^bag_open_2">
+			<OwnerB Name="TIID^Device 4 (EtherCAT)^Box 8 (CU1128)^working_module^bag_open_2_3">
+				<Link VarA="Drive^Inputs^In^nDataIn1" VarB="Module 1 (CSP/CSV)^Inputs^Following error actual value"/>
+				<Link VarA="Drive^Inputs^In^nDcOutputTime" VarB="InfoData^DcOutputShift"/>
+				<Link VarA="Drive^Inputs^In^nState1" VarB="Module 1 (CSP/CSV)^Inputs^StatusWord"/>
+				<Link VarA="Drive^Inputs^In^nState2" VarB="Module 1 (CSP/CSV)^Inputs^StatusWord" Size="8" OffsB="8"/>
+				<Link VarA="Drive^Inputs^In^nState4" VarB="WcState^InputToggle" Size="1" OffsA="1"/>
+				<Link VarA="Drive^Inputs^In^nState4" VarB="WcState^WcState"/>
+				<Link VarA="Drive^Inputs^In^nState5" VarB="Module 1 (CSP/CSV)^Inputs^Modes of Operation Display"/>
+				<Link VarA="Drive^Outputs^Out^nCtrl1" VarB="Module 1 (CSP/CSV)^Outputs^ControlWord"/>
+				<Link VarA="Drive^Outputs^Out^nCtrl2" VarB="Module 1 (CSP/CSV)^Outputs^ControlWord" Size="8" OffsB="8"/>
+				<Link VarA="Drive^Outputs^Out^nCtrl5" VarB="Module 1 (CSP/CSV)^Outputs^Modes of Operation"/>
+				<Link VarA="Drive^Outputs^Out^nDataOut1" VarB="Module 1 (CSP/CSV)^Outputs^Target position"/>
+				<Link VarA="Drive^Outputs^Out^nDataOut2" VarB="Module 1 (CSP/CSV)^Outputs^Target velocity"/>
+				<Link VarA="Enc^Inputs^In^nDataIn1" VarB="Module 1 (CSP/CSV)^Inputs^Position actual value"/>
+				<Link VarA="Enc^Inputs^In^nDataIn3" VarB="Module 1 (CSP/CSV)^Inputs^Touch probe pos1 pos value"/>
+				<Link VarA="Enc^Inputs^In^nDataIn5" VarB="Module 1 (CSP/CSV)^Inputs^Touch probe pos2 pos value"/>
+				<Link VarA="Enc^Inputs^In^nDataIn7" VarB="Module 1 (CSP/CSV)^Inputs^ActualVelocity"/>
+				<Link VarA="Enc^Inputs^In^nDcInputTime" VarB="InfoData^DcInputShift"/>
+				<Link VarA="Enc^Inputs^In^nState4" VarB="WcState^InputToggle" Size="1" OffsA="1"/>
+				<Link VarA="Enc^Inputs^In^nState4" VarB="WcState^WcState"/>
+				<Link VarA="Enc^Inputs^In^nState5" VarB="Module 1 (CSP/CSV)^Inputs^Touch probe status"/>
+				<Link VarA="Enc^Inputs^In^nState6" VarB="Module 1 (CSP/CSV)^Inputs^Touch probe status" Size="8" OffsB="8"/>
+				<Link VarA="Enc^Outputs^Out^nCtrl5" VarB="Module 1 (CSP/CSV)^Outputs^Touch probe function"/>
+				<Link VarA="Enc^Outputs^Out^nCtrl6" VarB="Module 1 (CSP/CSV)^Outputs^Touch probe function" Size="8" OffsB="8"/>
+			</OwnerB>
+		</OwnerA>
+		<OwnerA Name="TINC^NC-Task 1 SAF^Axes^bag_open_3">
+			<OwnerB Name="TIID^Device 4 (EtherCAT)^Box 8 (CU1128)^working_module^bag_open_2_3">
+				<Link VarA="Drive^Inputs^In^nDataIn1" VarB="Module 2 (CSP/CSV)^Inputs^Following error actual value"/>
+				<Link VarA="Drive^Inputs^In^nDcOutputTime" VarB="InfoData^DcOutputShift"/>
+				<Link VarA="Drive^Inputs^In^nState1" VarB="Module 2 (CSP/CSV)^Inputs^StatusWord"/>
+				<Link VarA="Drive^Inputs^In^nState2" VarB="Module 2 (CSP/CSV)^Inputs^StatusWord" Size="8" OffsB="8"/>
+				<Link VarA="Drive^Inputs^In^nState4" VarB="WcState^InputToggle" Size="1" OffsA="1"/>
+				<Link VarA="Drive^Inputs^In^nState4" VarB="WcState^WcState"/>
+				<Link VarA="Drive^Inputs^In^nState5" VarB="Module 2 (CSP/CSV)^Inputs^Modes of Operation Display"/>
+				<Link VarA="Drive^Outputs^Out^nCtrl1" VarB="Module 2 (CSP/CSV)^Outputs^ControlWord"/>
+				<Link VarA="Drive^Outputs^Out^nCtrl2" VarB="Module 2 (CSP/CSV)^Outputs^ControlWord" Size="8" OffsB="8"/>
+				<Link VarA="Drive^Outputs^Out^nCtrl5" VarB="Module 2 (CSP/CSV)^Outputs^Modes of Operation"/>
+				<Link VarA="Drive^Outputs^Out^nDataOut1" VarB="Module 2 (CSP/CSV)^Outputs^Target position"/>
+				<Link VarA="Drive^Outputs^Out^nDataOut2" VarB="Module 2 (CSP/CSV)^Outputs^Target velocity"/>
+				<Link VarA="Enc^Inputs^In^nDataIn1" VarB="Module 2 (CSP/CSV)^Inputs^Position actual value"/>
+				<Link VarA="Enc^Inputs^In^nDataIn3" VarB="Module 2 (CSP/CSV)^Inputs^Touch probe pos1 pos value"/>
+				<Link VarA="Enc^Inputs^In^nDataIn5" VarB="Module 2 (CSP/CSV)^Inputs^Touch probe pos2 pos value"/>
+				<Link VarA="Enc^Inputs^In^nDataIn7" VarB="Module 2 (CSP/CSV)^Inputs^ActualVelocity"/>
+				<Link VarA="Enc^Inputs^In^nDcInputTime" VarB="InfoData^DcInputShift"/>
+				<Link VarA="Enc^Inputs^In^nState4" VarB="WcState^InputToggle" Size="1" OffsA="1"/>
+				<Link VarA="Enc^Inputs^In^nState4" VarB="WcState^WcState"/>
+				<Link VarA="Enc^Inputs^In^nState5" VarB="Module 2 (CSP/CSV)^Inputs^Touch probe status"/>
+				<Link VarA="Enc^Inputs^In^nState6" VarB="Module 2 (CSP/CSV)^Inputs^Touch probe status" Size="8" OffsB="8"/>
+				<Link VarA="Enc^Outputs^Out^nCtrl5" VarB="Module 2 (CSP/CSV)^Outputs^Touch probe function"/>
+				<Link VarA="Enc^Outputs^Out^nCtrl6" VarB="Module 2 (CSP/CSV)^Outputs^Touch probe function" Size="8" OffsB="8"/>
+			</OwnerB>
+		</OwnerA>
+		<OwnerA Name="TINC^NC-Task 1 SAF^Axes^bag_open_vacuun_0">
+			<OwnerB Name="TIID^Device 4 (EtherCAT)^Box 8 (CU1128)^working_module^bag_vacuun">
+				<Link VarA="Drive^Inputs^In^nDataIn1" VarB="Module 1 (CSP/CSV)^Inputs^Following error actual value"/>
+				<Link VarA="Drive^Inputs^In^nDcOutputTime" VarB="InfoData^DcOutputShift"/>
+				<Link VarA="Drive^Inputs^In^nState1" VarB="Module 1 (CSP/CSV)^Inputs^StatusWord"/>
+				<Link VarA="Drive^Inputs^In^nState2" VarB="Module 1 (CSP/CSV)^Inputs^StatusWord" Size="8" OffsB="8"/>
+				<Link VarA="Drive^Inputs^In^nState4" VarB="WcState^InputToggle" Size="1" OffsA="1"/>
+				<Link VarA="Drive^Inputs^In^nState4" VarB="WcState^WcState"/>
+				<Link VarA="Drive^Inputs^In^nState5" VarB="Module 1 (CSP/CSV)^Inputs^Modes of Operation Display"/>
+				<Link VarA="Drive^Outputs^Out^nCtrl1" VarB="Module 1 (CSP/CSV)^Outputs^ControlWord"/>
+				<Link VarA="Drive^Outputs^Out^nCtrl2" VarB="Module 1 (CSP/CSV)^Outputs^ControlWord" Size="8" OffsB="8"/>
+				<Link VarA="Drive^Outputs^Out^nCtrl5" VarB="Module 1 (CSP/CSV)^Outputs^Modes of Operation"/>
+				<Link VarA="Drive^Outputs^Out^nDataOut1" VarB="Module 1 (CSP/CSV)^Outputs^Target position"/>
+				<Link VarA="Drive^Outputs^Out^nDataOut2" VarB="Module 1 (CSP/CSV)^Outputs^Target velocity"/>
+				<Link VarA="Enc^Inputs^In^nDataIn1" VarB="Module 1 (CSP/CSV)^Inputs^Position actual value"/>
+				<Link VarA="Enc^Inputs^In^nDataIn3" VarB="Module 1 (CSP/CSV)^Inputs^Touch probe pos1 pos value"/>
+				<Link VarA="Enc^Inputs^In^nDataIn5" VarB="Module 1 (CSP/CSV)^Inputs^Touch probe pos2 pos value"/>
+				<Link VarA="Enc^Inputs^In^nDataIn7" VarB="Module 1 (CSP/CSV)^Inputs^ActualVelocity"/>
+				<Link VarA="Enc^Inputs^In^nDcInputTime" VarB="InfoData^DcInputShift"/>
+				<Link VarA="Enc^Inputs^In^nState4" VarB="WcState^InputToggle" Size="1" OffsA="1"/>
+				<Link VarA="Enc^Inputs^In^nState4" VarB="WcState^WcState"/>
+				<Link VarA="Enc^Inputs^In^nState5" VarB="Module 1 (CSP/CSV)^Inputs^Touch probe status"/>
+				<Link VarA="Enc^Inputs^In^nState6" VarB="Module 1 (CSP/CSV)^Inputs^Touch probe status" Size="8" OffsB="8"/>
+				<Link VarA="Enc^Outputs^Out^nCtrl5" VarB="Module 1 (CSP/CSV)^Outputs^Touch probe function"/>
+				<Link VarA="Enc^Outputs^Out^nCtrl6" VarB="Module 1 (CSP/CSV)^Outputs^Touch probe function" Size="8" OffsB="8"/>
+			</OwnerB>
+		</OwnerA>
+		<OwnerA Name="TINC^NC-Task 1 SAF^Axes^bag_open_vacuun_1">
+			<OwnerB Name="TIID^Device 4 (EtherCAT)^Box 8 (CU1128)^working_module^bag_vacuun">
+				<Link VarA="Drive^Inputs^In^nDataIn1" VarB="Module 2 (CSP/CSV)^Inputs^Following error actual value"/>
+				<Link VarA="Drive^Inputs^In^nDcOutputTime" VarB="InfoData^DcOutputShift"/>
+				<Link VarA="Drive^Inputs^In^nState1" VarB="Module 2 (CSP/CSV)^Inputs^StatusWord"/>
+				<Link VarA="Drive^Inputs^In^nState2" VarB="Module 2 (CSP/CSV)^Inputs^StatusWord" Size="8" OffsB="8"/>
+				<Link VarA="Drive^Inputs^In^nState4" VarB="WcState^InputToggle" Size="1" OffsA="1"/>
+				<Link VarA="Drive^Inputs^In^nState4" VarB="WcState^WcState"/>
+				<Link VarA="Drive^Inputs^In^nState5" VarB="Module 2 (CSP/CSV)^Inputs^Modes of Operation Display"/>
+				<Link VarA="Drive^Outputs^Out^nCtrl1" VarB="Module 2 (CSP/CSV)^Outputs^ControlWord"/>
+				<Link VarA="Drive^Outputs^Out^nCtrl2" VarB="Module 2 (CSP/CSV)^Outputs^ControlWord" Size="8" OffsB="8"/>
+				<Link VarA="Drive^Outputs^Out^nCtrl5" VarB="Module 2 (CSP/CSV)^Outputs^Modes of Operation"/>
+				<Link VarA="Drive^Outputs^Out^nDataOut1" VarB="Module 2 (CSP/CSV)^Outputs^Target position"/>
+				<Link VarA="Drive^Outputs^Out^nDataOut2" VarB="Module 2 (CSP/CSV)^Outputs^Target velocity"/>
+				<Link VarA="Enc^Inputs^In^nDataIn1" VarB="Module 2 (CSP/CSV)^Inputs^Position actual value"/>
+				<Link VarA="Enc^Inputs^In^nDataIn3" VarB="Module 2 (CSP/CSV)^Inputs^Touch probe pos1 pos value"/>
+				<Link VarA="Enc^Inputs^In^nDataIn5" VarB="Module 2 (CSP/CSV)^Inputs^Touch probe pos2 pos value"/>
+				<Link VarA="Enc^Inputs^In^nDataIn7" VarB="Module 2 (CSP/CSV)^Inputs^ActualVelocity"/>
+				<Link VarA="Enc^Inputs^In^nDcInputTime" VarB="InfoData^DcInputShift"/>
+				<Link VarA="Enc^Inputs^In^nState4" VarB="WcState^InputToggle" Size="1" OffsA="1"/>
+				<Link VarA="Enc^Inputs^In^nState4" VarB="WcState^WcState"/>
+				<Link VarA="Enc^Inputs^In^nState5" VarB="Module 2 (CSP/CSV)^Inputs^Touch probe status"/>
+				<Link VarA="Enc^Inputs^In^nState6" VarB="Module 2 (CSP/CSV)^Inputs^Touch probe status" Size="8" OffsB="8"/>
+				<Link VarA="Enc^Outputs^Out^nCtrl5" VarB="Module 2 (CSP/CSV)^Outputs^Touch probe function"/>
+				<Link VarA="Enc^Outputs^Out^nCtrl6" VarB="Module 2 (CSP/CSV)^Outputs^Touch probe function" Size="8" OffsB="8"/>
+			</OwnerB>
+		</OwnerA>
 		<OwnerA Name="TINC^NC-Task 1 SAF^Axes^buffer_stopper">
 			<OwnerB Name="TIID^Device 4 (EtherCAT)^Box 8 (CU1128)^buffer_stopper">
 				<Link VarA="Drive^Inputs^In^nDataIn1" VarB="Inputs^Following error actual value"/>
@@ -6787,30 +8620,6 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 		</OwnerA>
 		<OwnerA Name="TINC^NC-Task 1 SAF^Axes^working_lift_motor">
 			<OwnerB Name="TIID^Device 4 (EtherCAT)^Box 8 (CU1128)^working_module^working_liftmotor">
-				<Link VarA="Drive^Inputs^In^nDataIn1" VarB="Inputs^Following error actual value"/>
-				<Link VarA="Drive^Inputs^In^nDataIn3[0]" VarB="Inputs^Torque actual value"/>
-				<Link VarA="Drive^Inputs^In^nDcOutputTime" VarB="InfoData^DcOutputShift"/>
-				<Link VarA="Drive^Inputs^In^nState1" VarB="Inputs^Statusword"/>
-				<Link VarA="Drive^Inputs^In^nState2" VarB="Inputs^Statusword" Size="8" OffsB="8"/>
-				<Link VarA="Drive^Inputs^In^nState4" VarB="WcState^InputToggle" Size="1" OffsA="1"/>
-				<Link VarA="Drive^Inputs^In^nState4" VarB="WcState^WcState"/>
-				<Link VarA="Drive^Outputs^Out^nCtrl1" VarB="Outputs^Controlword"/>
-				<Link VarA="Drive^Outputs^Out^nCtrl2" VarB="Outputs^Controlword" Size="8" OffsB="8"/>
-				<Link VarA="Drive^Outputs^Out^nDataOut1" VarB="Outputs^Target position"/>
-				<Link VarA="Enc^Inputs^In^nDataIn1" VarB="Inputs^Position actual value"/>
-				<Link VarA="Enc^Inputs^In^nDataIn3" VarB="Inputs^Touch probe pos1 pos value"/>
-				<Link VarA="Enc^Inputs^In^nDataIn5" VarB="Inputs^Touch probe pos2 pos value"/>
-				<Link VarA="Enc^Inputs^In^nDcInputTime" VarB="InfoData^DcInputShift"/>
-				<Link VarA="Enc^Inputs^In^nState4" VarB="WcState^InputToggle" Size="1" OffsA="1"/>
-				<Link VarA="Enc^Inputs^In^nState4" VarB="WcState^WcState"/>
-				<Link VarA="Enc^Inputs^In^nState5" VarB="Inputs^Touch probe status"/>
-				<Link VarA="Enc^Inputs^In^nState6" VarB="Inputs^Touch probe status" Size="8" OffsB="8"/>
-				<Link VarA="Enc^Outputs^Out^nCtrl5" VarB="Outputs^Touch probe function"/>
-				<Link VarA="Enc^Outputs^Out^nCtrl6" VarB="Outputs^Touch probe function" Size="8" OffsB="8"/>
-			</OwnerB>
-		</OwnerA>
-		<OwnerA Name="TINC^NC-Task 1 SAF^Axes^working_open_bag">
-			<OwnerB Name="TIID^Device 4 (EtherCAT)^Box 8 (CU1128)^working_module^woking_openbag">
 				<Link VarA="Drive^Inputs^In^nDataIn1" VarB="Inputs^Following error actual value"/>
 				<Link VarA="Drive^Inputs^In^nDataIn3[0]" VarB="Inputs^Torque actual value"/>
 				<Link VarA="Drive^Inputs^In^nDcOutputTime" VarB="InfoData^DcOutputShift"/>
@@ -7058,6 +8867,60 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 				<Link VarA="MianTask Outputs^G_IO.arDO[4]^Ch[8]" VarB="Channel 9^Output"/>
 				<Link VarA="MianTask Outputs^G_IO.arDO[4]^Ch[9]" VarB="Channel 10^Output"/>
 			</OwnerB>
+			<OwnerB Name="TIID^Device 4 (EtherCAT)^Box 8 (CU1128)^working_module^bag_open_dio^di7">
+				<Link VarA="MianTask Inputs^G_IO.arDI[7]^Ch[0]" VarB="Channel 1^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[7]^Ch[10]" VarB="Channel 11^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[7]^Ch[11]" VarB="Channel 12^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[7]^Ch[12]" VarB="Channel 13^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[7]^Ch[13]" VarB="Channel 14^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[7]^Ch[14]" VarB="Channel 15^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[7]^Ch[15]" VarB="Channel 16^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[7]^Ch[1]" VarB="Channel 2^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[7]^Ch[2]" VarB="Channel 3^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[7]^Ch[3]" VarB="Channel 4^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[7]^Ch[4]" VarB="Channel 5^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[7]^Ch[5]" VarB="Channel 6^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[7]^Ch[6]" VarB="Channel 7^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[7]^Ch[7]" VarB="Channel 8^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[7]^Ch[8]" VarB="Channel 9^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[7]^Ch[9]" VarB="Channel 10^Input"/>
+			</OwnerB>
+			<OwnerB Name="TIID^Device 4 (EtherCAT)^Box 8 (CU1128)^working_module^bag_open_dio^di8">
+				<Link VarA="MianTask Inputs^G_IO.arDI[8]^Ch[0]" VarB="Channel 1^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[8]^Ch[10]" VarB="Channel 11^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[8]^Ch[11]" VarB="Channel 12^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[8]^Ch[12]" VarB="Channel 13^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[8]^Ch[13]" VarB="Channel 14^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[8]^Ch[14]" VarB="Channel 15^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[8]^Ch[15]" VarB="Channel 16^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[8]^Ch[1]" VarB="Channel 2^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[8]^Ch[2]" VarB="Channel 3^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[8]^Ch[3]" VarB="Channel 4^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[8]^Ch[4]" VarB="Channel 5^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[8]^Ch[5]" VarB="Channel 6^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[8]^Ch[6]" VarB="Channel 7^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[8]^Ch[7]" VarB="Channel 8^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[8]^Ch[8]" VarB="Channel 9^Input"/>
+				<Link VarA="MianTask Inputs^G_IO.arDI[8]^Ch[9]" VarB="Channel 10^Input"/>
+			</OwnerB>
+			<OwnerB Name="TIID^Device 4 (EtherCAT)^Box 8 (CU1128)^working_module^bag_open_dio^do7">
+				<Link VarA="MianTask Outputs^G_IO.arDO[7]^Ch[0]" VarB="Channel 1^Output"/>
+				<Link VarA="MianTask Outputs^G_IO.arDO[7]^Ch[10]" VarB="Channel 11^Output"/>
+				<Link VarA="MianTask Outputs^G_IO.arDO[7]^Ch[11]" VarB="Channel 12^Output"/>
+				<Link VarA="MianTask Outputs^G_IO.arDO[7]^Ch[12]" VarB="Channel 13^Output"/>
+				<Link VarA="MianTask Outputs^G_IO.arDO[7]^Ch[13]" VarB="Channel 14^Output"/>
+				<Link VarA="MianTask Outputs^G_IO.arDO[7]^Ch[14]" VarB="Channel 15^Output"/>
+				<Link VarA="MianTask Outputs^G_IO.arDO[7]^Ch[15]" VarB="Channel 16^Output"/>
+				<Link VarA="MianTask Outputs^G_IO.arDO[7]^Ch[1]" VarB="Channel 2^Output"/>
+				<Link VarA="MianTask Outputs^G_IO.arDO[7]^Ch[2]" VarB="Channel 3^Output"/>
+				<Link VarA="MianTask Outputs^G_IO.arDO[7]^Ch[3]" VarB="Channel 4^Output"/>
+				<Link VarA="MianTask Outputs^G_IO.arDO[7]^Ch[4]" VarB="Channel 5^Output"/>
+				<Link VarA="MianTask Outputs^G_IO.arDO[7]^Ch[5]" VarB="Channel 6^Output"/>
+				<Link VarA="MianTask Outputs^G_IO.arDO[7]^Ch[6]" VarB="Channel 7^Output"/>
+				<Link VarA="MianTask Outputs^G_IO.arDO[7]^Ch[7]" VarB="Channel 8^Output"/>
+				<Link VarA="MianTask Outputs^G_IO.arDO[7]^Ch[8]" VarB="Channel 9^Output"/>
+				<Link VarA="MianTask Outputs^G_IO.arDO[7]^Ch[9]" VarB="Channel 10^Output"/>
+			</OwnerB>
 			<OwnerB Name="TIID^Device 4 (EtherCAT)^Box 8 (CU1128)^working_module^working_io^working_di5">
 				<Link VarA="MianTask Inputs^G_IO.arDI[5]^Ch[0]" VarB="Channel 1^Input"/>
 				<Link VarA="MianTask Inputs^G_IO.arDI[5]^Ch[10]" VarB="Channel 11^Input"/>
@@ -7129,6 +8992,30 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 				<Link VarA="MianTask Outputs^G_IO.arDO[6]^Ch[7]" VarB="Channel 8^Output"/>
 				<Link VarA="MianTask Outputs^G_IO.arDO[6]^Ch[8]" VarB="Channel 9^Output"/>
 				<Link VarA="MianTask Outputs^G_IO.arDO[6]^Ch[9]" VarB="Channel 10^Output"/>
+			</OwnerB>
+			<OwnerB Name="TINC^NC-Task 1 SAF^Axes^bag_open_0">
+				<Link VarA="MianTask Inputs^GVL.fb_working.AxisRef_bagOpen[0].NcToPlc" VarB="Outputs^ToPlc"/>
+				<Link VarA="MianTask Outputs^GVL.fb_working.AxisRef_bagOpen[0].PlcToNc" VarB="Inputs^FromPlc"/>
+			</OwnerB>
+			<OwnerB Name="TINC^NC-Task 1 SAF^Axes^bag_open_1">
+				<Link VarA="MianTask Inputs^GVL.fb_working.AxisRef_bagOpen[1].NcToPlc" VarB="Outputs^ToPlc"/>
+				<Link VarA="MianTask Outputs^GVL.fb_working.AxisRef_bagOpen[1].PlcToNc" VarB="Inputs^FromPlc"/>
+			</OwnerB>
+			<OwnerB Name="TINC^NC-Task 1 SAF^Axes^bag_open_2">
+				<Link VarA="MianTask Inputs^GVL.fb_working.AxisRef_bagOpen[2].NcToPlc" VarB="Outputs^ToPlc"/>
+				<Link VarA="MianTask Outputs^GVL.fb_working.AxisRef_bagOpen[2].PlcToNc" VarB="Inputs^FromPlc"/>
+			</OwnerB>
+			<OwnerB Name="TINC^NC-Task 1 SAF^Axes^bag_open_3">
+				<Link VarA="MianTask Inputs^GVL.fb_working.AxisRef_bagOpen[3].NcToPlc" VarB="Outputs^ToPlc"/>
+				<Link VarA="MianTask Outputs^GVL.fb_working.AxisRef_bagOpen[3].PlcToNc" VarB="Inputs^FromPlc"/>
+			</OwnerB>
+			<OwnerB Name="TINC^NC-Task 1 SAF^Axes^bag_open_vacuun_0">
+				<Link VarA="MianTask Inputs^GVL.fb_working.AxisRef_vacuun[0].NcToPlc" VarB="Outputs^ToPlc"/>
+				<Link VarA="MianTask Outputs^GVL.fb_working.AxisRef_vacuun[0].PlcToNc" VarB="Inputs^FromPlc"/>
+			</OwnerB>
+			<OwnerB Name="TINC^NC-Task 1 SAF^Axes^bag_open_vacuun_1">
+				<Link VarA="MianTask Inputs^GVL.fb_working.AxisRef_vacuun[1].NcToPlc" VarB="Outputs^ToPlc"/>
+				<Link VarA="MianTask Outputs^GVL.fb_working.AxisRef_vacuun[1].PlcToNc" VarB="Inputs^FromPlc"/>
 			</OwnerB>
 			<OwnerB Name="TINC^NC-Task 1 SAF^Axes^buffer_stopper">
 				<Link VarA="MianTask Inputs^GVL.fb_buffer.fb_rollers[3].AxisRef.NcToPlc" VarB="Outputs^ToPlc"/>

@@ -102,8 +102,10 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[autostore_control_command	:= FALSE; 
-IF autostore_control_cmd=AutostoreControlCommand.DO_NOTHING THEN
+IF MAIN.eState=E_SystemManager.IN_PROGRESS AND autostore_control_cmd=AutostoreControlCommand.DO_NOTHING AND MAIN.application.safety.bStop_button_unlock THEN
 	autostore_control_cmd	:= Command;
+ELSE
+	cmd	:= OrderToteCommand.DO_NOTHING;
 END_IF
 autostore_control_command	:= TRUE;]]></ST>
       </Implementation>
@@ -284,7 +286,9 @@ order_tote_action_request	:= TRUE; ]]></ST>
     </LineIds>
     <LineIds Name="FB_Tote_Subsystem.autostore_control_command">
       <LineId Id="8" Count="1" />
-      <LineId Id="12" Count="1" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="19" Count="1" />
+      <LineId Id="13" Count="0" />
       <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_Tote_Subsystem.M_Load">

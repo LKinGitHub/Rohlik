@@ -104,6 +104,7 @@ STRUCT
 	rToqueLimitSet	: LREAL	:= 350;
 	rActTorque	: LREAL;
 	xTorqueErr	: BOOL;
+	iAxis	: WORD;
 END_STRUCT
 END_TYPE
 ]]></Declaration>

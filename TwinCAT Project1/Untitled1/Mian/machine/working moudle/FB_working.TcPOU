@@ -39,19 +39,51 @@ VAR
 	mcAxis_lift 		: FB_MotionAxis_MC;
 	st_mcAxis_lift 		: ST_MotionAxis_MC;
 	AxisRef_lift		: AXIS_REF;
-	mcAxis_bag 			: FB_MotionAxis_MC;
+	
+	mcAxis_bag 		: FB_MotionAxis_MC;
 	st_mcAxis_bag		: ST_MotionAxis_MC;
-	AxisRef_bag			: AXIS_REF;	
+	AxisRef_bag		: AXIS_REF;	
+	
+	
+	mcAxis_vacuun 		: ARRAY[0..1] OF FB_MotionAxis_MC;
+	st_mcAxis_vacuun 		: ARRAY[0..1] OF ST_MotionAxis_MC;
+	AxisRef_vacuun		: ARRAY[0..1] OF AXIS_REF;	
+	mcAxis_bagOpen 		: ARRAY[0..3] OF FB_MotionAxis_MC;
+	st_mcAxis_bagOpen 		: ARRAY[0..3] OF ST_MotionAxis_MC;
+	AxisRef_bagOpen		: ARRAY[0..3] OF AXIS_REF;	
+	
+	valve_open_side		: Valve;//4 cylinders
+	valve_open_lift		: Valve;//8 cylinders
+	valve_vacuun		: ARRAY[0..3] OF Valve;
+	bag_open_detection	: ARRAY[0..3]OF FB_DigitalInput;
+
+	
+	
+	
+	
+	
+
 	event				: ST_EVENT;
 	rt_error			: R_TRIG;
 	eTransfer			: E_Transfer;
+	
+	
+	
+	
+	
 	
 	
 	bStopped				: BOOL;
 END_VAR
 VAR CONSTANT
 	rPos_lift_up			: REAL	:= 120;
-	rPos_lift_down			: REAL	:= 0;
+	rPos_lift_down			: REAL	:= 7;
+	rPos_vacuun_home		: ARRAY[0..1]OF REAL:=[0,0];
+	rPos_vacuun_working		: ARRAY[0..1]OF REAL:=[249,242];
+	rPos_bag_begin			: ARRAY[0..3]OF REAL:=[10,10,10,10];
+	rPos_bag_end			: ARRAY[0..3]OF REAL:=[95,95,95,95];
+	
+	
 	rPos_bag_opened			: REAL	:= 45;
 	rPos_bag_closed			: REAL	:= 0;
 	sComponent_name			: STRING := 'fb_working';
@@ -245,16 +277,30 @@ CASE condition OF
 			M_checkCondition	:= TRUE;
 		END_IF
 	E_Condition.TOTE_READY:
-		IF ABS(st_mcAxis_lift.mcReadActualPosition.Position-rPos_lift_down)<1 AND ABS(st_mcAxis_bag.mcReadActualPosition.Position-rPos_bag_opened)<1 
-			AND roller_inbound.photo_sensor.Q AND NOT roller_inbound.photo_sensor_mute.Q AND NOT roller_outbound.photo_sensor.Q AND valve_lift.retracted THEN
+		IF ABS(st_mcAxis_lift.mcReadActualPosition.Position-rPos_lift_down)<1 
+		AND ABS(st_mcAxis_vacuun[0].mcReadActualPosition.Position-rPos_vacuun_working[0])<1 
+		AND ABS(st_mcAxis_vacuun[1].mcReadActualPosition.Position-rPos_vacuun_working[1])<1 
+		AND ABS(st_mcAxis_bagOpen[0].mcReadActualPosition.Position-rPos_bag_end[0])<1 
+		AND ABS(st_mcAxis_bagOpen[1].mcReadActualPosition.Position-rPos_bag_end[1])<1 
+		AND ABS(st_mcAxis_bagOpen[2].mcReadActualPosition.Position-rPos_bag_end[2])<1 
+		AND ABS(st_mcAxis_bagOpen[3].mcReadActualPosition.Position-rPos_bag_end[3])<1 
+		AND roller_inbound.photo_sensor.Q AND NOT roller_inbound.photo_sensor_mute.Q 
+		AND NOT roller_outbound.photo_sensor.Q AND valve_lift.retracted THEN
 			tote_status	:= ToteStatus.READY;
 		ELSE
 			IF tote_status = ToteStatus.READY THEN
 				tote_status	:= ToteStatus.LOADED;
 			END_IF
 		END_IF
-		IF ABS(st_mcAxis_lift.mcReadActualPosition.Position-rPos_lift_up)<1 AND ABS(st_mcAxis_bag.mcReadActualPosition.Position-rPos_bag_closed)<1 
-			AND NOT roller_inbound.photo_sensor.Q AND NOT roller_inbound.photo_sensor_mute.Q AND NOT roller_outbound.photo_sensor.Q AND valve_lift.retracted THEN
+		IF ABS(st_mcAxis_lift.mcReadActualPosition.Position-rPos_lift_up)<1 
+		AND ABS(st_mcAxis_vacuun[0].mcReadActualPosition.Position-rPos_vacuun_working[0])<1 
+		AND ABS(st_mcAxis_vacuun[1].mcReadActualPosition.Position-rPos_vacuun_working[1])<1 
+		AND ABS(st_mcAxis_bagOpen[0].mcReadActualPosition.Position-rPos_bag_begin[0])<1 
+		AND ABS(st_mcAxis_bagOpen[1].mcReadActualPosition.Position-rPos_bag_begin[1])<1 
+		AND ABS(st_mcAxis_bagOpen[2].mcReadActualPosition.Position-rPos_bag_begin[2])<1 
+		AND ABS(st_mcAxis_bagOpen[3].mcReadActualPosition.Position-rPos_bag_begin[3])<1 
+		AND NOT roller_inbound.photo_sensor.Q AND NOT roller_inbound.photo_sensor_mute.Q
+	 	AND NOT roller_outbound.photo_sensor.Q AND valve_lift.retracted THEN
 			tote_status	:= ToteStatus.EMPTY;	
 		END_IF	
 		M_checkCondition	:= TRUE;
@@ -270,10 +316,22 @@ END_VAR
         <ST><![CDATA[M_init	:= FALSE;
 event.sMethod	:= 'init';
 xError	:= FALSE;
-st_mcAxis_bag.mcStop.Execute	:= FALSE;
-st_mcAxis_bag.mcReset.Execute	:= TRUE;
+
+
 st_mcAxis_lift.mcStop.Execute	:= FALSE;
-st_mcAxis_lift.mcReset.Execute	:= TRUE;
+st_mcAxis_vacuun[0].mcStop.Execute	:= FALSE;
+st_mcAxis_vacuun[1].mcStop.Execute	:= FALSE;
+st_mcAxis_bagOpen[0].mcStop.Execute	:= FALSE;
+st_mcAxis_bagOpen[1].mcStop.Execute	:= FALSE;
+st_mcAxis_bagOpen[2].mcStop.Execute	:= FALSE;
+st_mcAxis_bagOpen[3].mcStop.Execute	:= FALSE;	
+st_mcAxis_lift.mcReset.Execute			:= TRUE;
+st_mcAxis_vacuun[0].mcReset.Execute		:= TRUE;
+st_mcAxis_vacuun[1].mcReset.Execute		:= TRUE;
+st_mcAxis_bagOpen[0].mcReset.Execute	:= TRUE;
+st_mcAxis_bagOpen[1].mcReset.Execute	:= TRUE;
+st_mcAxis_bagOpen[2].mcReset.Execute	:= TRUE;
+st_mcAxis_bagOpen[3].mcReset.Execute	:= TRUE;
 error_status	:= OrderToteErrorStatus.NO_ERROR;
 
 eStates	:= E_WorkingStates.IDLE;
@@ -345,7 +403,8 @@ IF ton_timeout.Q THEN
 			event.sEvent_MSG	:= CONCAT('unknow estate ','timeout');
 			event.sStepID		:= sStateTemp;			
 	END_CASE
-	IF eStates<>E_WorkingStates.WAIT_NEW_TOTE AND eStates<>E_WorkingStates.WAIT THEN
+	IF eStates<>E_WorkingStates.WAIT_NEW_TOTE AND eStates<>E_WorkingStates.WAIT AND eStates<>E_WorkingStates.BAG_OPEN_AXIS_CYCLINDER_DOWN
+	AND eStates<>E_WorkingStates.VACUUN_ON AND eStates<>E_WorkingStates.WAIT_1 THEN
 		eStates	:= E_WorkingStates.ERROR;
 		error_status	:= OrderToteErrorStatus.MECHANICAL_ERROR;
 		Event_add(event);
@@ -355,17 +414,44 @@ END_IF
 
 CASE eStates OF 
 		E_WorkingStates.IDLE:
+			
 			ton_timeout.PT	:= T#10S;
 			xLoading	:= FALSE;
 			xUnloading	:= FALSE;
-			st_mcAxis_bag.mcPower.Enable	:= TRUE;
+
+			st_mcAxis_vacuun[0].mcPower.Enable	:= TRUE;	
+			st_mcAxis_vacuun[1].mcPower.Enable	:= TRUE;
+			st_mcAxis_bagOpen[0].mcPower.Enable	:= TRUE;
+			st_mcAxis_bagOpen[1].mcPower.Enable	:= TRUE;
+			st_mcAxis_bagOpen[2].mcPower.Enable	:= TRUE;
+			st_mcAxis_bagOpen[3].mcPower.Enable	:= TRUE;
 			st_mcAxis_lift.mcPower.Enable	:= TRUE;
-			IF st_mcAxis_bag.mcReadStatus.StandStill AND st_mcAxis_lift.mcReadStatus.StandStill THEN
+			IF st_mcAxis_vacuun[0].mcReadStatus.StandStill AND st_mcAxis_vacuun[1].mcReadStatus.StandStill AND st_mcAxis_bagOpen[0].mcReadStatus.StandStill
+			AND st_mcAxis_bagOpen[1].mcReadStatus.StandStill AND st_mcAxis_bagOpen[2].mcReadStatus.StandStill AND st_mcAxis_bagOpen[3].mcReadStatus.StandStill 
+			AND st_mcAxis_lift.mcReadStatus.StandStill THEN
 				eStates	:= E_WorkingStates.INIT;
 			END_IF			
 		E_WorkingStates.INIT:
+			ADSLOGSTR(msgCtrlMask:= ADSLOG_MSGTYPE_LOG,msgFmtStr:='load start',strArg:='');
 			xLoading	:= TRUE;		
-			st_mcAxis_bag.mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_vacuun[0].mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_vacuun[1].mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_bagOpen[0].mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_bagOpen[1].mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_bagOpen[2].mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_bagOpen[3].mcMoveAbsolute.Execute	:= FALSE;
+			valve_open_lift.extend	:= FALSE;
+			valve_open_lift.retract	:= TRUE;
+			valve_open_side.extend	:= FALSE;
+			valve_open_side.retract	:= TRUE;
+			valve_vacuun[0].extend	:= FALSE;
+			valve_vacuun[0].retract	:= TRUE;
+			valve_vacuun[1].extend	:= FALSE;
+			valve_vacuun[1].retract	:= TRUE;
+			valve_vacuun[2].extend	:= FALSE;
+			valve_vacuun[2].retract	:= TRUE;
+			valve_vacuun[3].extend	:= FALSE;
+			valve_vacuun[3].retract	:= TRUE;			
 			st_mcAxis_lift.mcMoveAbsolute.Execute	:= FALSE;
 			eStates	:= E_WorkingStates.BAG_OPEN_UP;
 		E_WorkingStates.BAG_OPEN_UP:	
@@ -374,14 +460,36 @@ CASE eStates OF
 			st_mcAxis_lift.rVelocitySet	:= 250;
 			IF st_mcAxis_lift.mcMoveAbsolute.Done THEN
 				st_mcAxis_lift.mcMoveAbsolute.Execute	:= FALSE;
-				eStates	:= E_WorkingStates.BAG_CLOSE;
+				eStates	:= E_WorkingStates.BAG_OPEN_HOME;
 			END_IF	
-		E_WorkingStates.BAG_CLOSE:	
-			st_mcAxis_bag.mcMoveAbsolute.Execute	:= TRUE;		
-			st_mcAxis_bag.rActualPosSet	:= rPos_bag_closed;
-			st_mcAxis_bag.rVelocitySet	:= 250;
-			IF st_mcAxis_bag.mcMoveAbsolute.Done THEN
-				st_mcAxis_bag.mcMoveAbsolute.Execute	:= FALSE;
+		E_WorkingStates.BAG_OPEN_HOME:	
+			st_mcAxis_vacuun[0].mcMoveAbsolute.Execute	:= TRUE;		
+			st_mcAxis_vacuun[0].rActualPosSet	:= rPos_vacuun_working[0];
+			st_mcAxis_vacuun[0].rVelocitySet	:= 450;
+			st_mcAxis_vacuun[1].mcMoveAbsolute.Execute	:= TRUE;		
+			st_mcAxis_vacuun[1].rActualPosSet	:= rPos_vacuun_working[1];
+			st_mcAxis_vacuun[1].rVelocitySet	:= 450;			
+			st_mcAxis_bagOpen[0].mcMoveAbsolute.Execute	:= TRUE;		
+			st_mcAxis_bagOpen[0].rActualPosSet	:= rPos_bag_begin[0];
+			st_mcAxis_bagOpen[0].rVelocitySet	:= 200;			
+			st_mcAxis_bagOpen[1].mcMoveAbsolute.Execute	:= TRUE;		
+			st_mcAxis_bagOpen[1].rActualPosSet	:= rPos_bag_begin[1];
+			st_mcAxis_bagOpen[1].rVelocitySet	:= 200;				
+			st_mcAxis_bagOpen[2].mcMoveAbsolute.Execute	:= TRUE;		
+			st_mcAxis_bagOpen[2].rActualPosSet	:= rPos_bag_begin[2];
+			st_mcAxis_bagOpen[2].rVelocitySet	:= 200;				
+			st_mcAxis_bagOpen[3].mcMoveAbsolute.Execute	:= TRUE;		
+			st_mcAxis_bagOpen[3].rActualPosSet	:= rPos_bag_begin[3];
+			st_mcAxis_bagOpen[3].rVelocitySet	:= 200;				
+			
+			IF st_mcAxis_vacuun[0].mcMoveAbsolute.Done AND st_mcAxis_vacuun[1].mcMoveAbsolute.Done AND st_mcAxis_bagOpen[0].mcMoveAbsolute.Done
+			AND st_mcAxis_bagOpen[1].mcMoveAbsolute.Done AND st_mcAxis_bagOpen[2].mcMoveAbsolute.Done AND st_mcAxis_bagOpen[3].mcMoveAbsolute.Done THEN
+				st_mcAxis_vacuun[0].mcMoveAbsolute.Execute	:= FALSE;
+				st_mcAxis_vacuun[1].mcMoveAbsolute.Execute	:= FALSE;
+				st_mcAxis_bagOpen[0].mcMoveAbsolute.Execute	:= FALSE;
+				st_mcAxis_bagOpen[1].mcMoveAbsolute.Execute	:= FALSE;
+				st_mcAxis_bagOpen[2].mcMoveAbsolute.Execute	:= FALSE;
+				st_mcAxis_bagOpen[3].mcMoveAbsolute.Execute	:= FALSE;
 				eStates	:= E_WorkingStates.TOTE_LIFT_DOWN;
 			END_IF					
 		E_WorkingStates.TOTE_LIFT_DOWN:			
@@ -398,40 +506,121 @@ CASE eStates OF
 			IF M_waitCondition(condition:=E_Condition.READY_LOADING_TOTE) THEN
 				eStates	:= E_WorkingStates.TOTE_LOAD;
 			END_IF
+////////////////////////////////////////////////action/////////////////////////////////////////////
 		E_WorkingStates.TOTE_LOAD:	
 			workflow_status	:= ToteSubsystemWorkflowStatus.INBOUNDING;
-			ton_timeout.PT	:= T#10S;	
+			ton_timeout.PT	:= T#5S;	
 			roller_inbound.roller.forward	:= TRUE;
 			IF roller_inbound.photo_sensor.Q THEN	
-				eStates	:= E_WorkingStates.WAIT;
-			END_IF
-		E_WorkingStates.WAIT:
-			ton_timeout.PT	:= T#300MS;
-			roller_inbound.roller.forward	:= TRUE;
-			IF ton_timeout.Q THEN
-				tote_status	:= ToteStatus.LOADED;
 				roller_inbound.roller.forward	:= FALSE;
 				eStates	:= E_WorkingStates.BAG_OPEN_DOWN;
 			END_IF
 		E_WorkingStates.BAG_OPEN_DOWN:
-			ton_timeout.PT	:= T#10S;
+			ton_timeout.PT	:= T#5S;
 			workflow_status	:= ToteSubsystemWorkflowStatus.BAG_OPENING;
 			st_mcAxis_lift.mcMoveAbsolute.Execute	:= TRUE;		
 			st_mcAxis_lift.rActualPosSet	:= rPos_lift_down;
 			st_mcAxis_lift.rVelocitySet	:= 250;
 			IF st_mcAxis_lift.mcMoveAbsolute.Done THEN
-				st_mcAxis_bag.mcMoveAbsolute.Execute	:= FALSE;
+				
+				eStates	:= E_WorkingStates.VACUUN_ON;
+			END_IF		
+			
+		E_WorkingStates.VACUUN_ON:
+			ton_timeout.PT	:=T#10MS;
+			valve_vacuun[0].extend	:= TRUE;
+			valve_vacuun[1].extend	:= TRUE;
+			valve_vacuun[2].extend	:= TRUE;
+			valve_vacuun[3].extend	:= TRUE;
+//			IF valve_vacuun[0].extended AND valve_vacuun[1].extended AND valve_vacuun[2].extended AND valve_vacuun[3].extended THEN
+//				eStates	:= E_WorkingStates.BAG_OPEN_VACUUN_BEGIN;
+//			END_IF
+			IF ton_timeout.Q THEN
+				eStates	:= E_WorkingStates.BAG_OPEN_VACUUN_BEGIN;
+			END_IF
+		E_WorkingStates.BAG_OPEN_VACUUN_BEGIN:	
+			ton_timeout.PT	:=T#5S;		
+			st_mcAxis_vacuun[0].mcMoveAbsolute.Execute	:= TRUE;		
+			st_mcAxis_vacuun[0].rActualPosSet	:= rPos_vacuun_home[0];
+			st_mcAxis_vacuun[0].rVelocitySet	:= 300;
+			st_mcAxis_vacuun[1].mcMoveAbsolute.Execute	:= TRUE;		
+			st_mcAxis_vacuun[1].rActualPosSet	:= rPos_vacuun_home[1];
+			st_mcAxis_vacuun[1].rVelocitySet	:= 300;
+			IF st_mcAxis_vacuun[0].mcMoveAbsolute.Done AND st_mcAxis_vacuun[1].mcMoveAbsolute.Done THEN
+				st_mcAxis_vacuun[0].mcMoveAbsolute.Execute	:= FALSE;
+				st_mcAxis_vacuun[1].mcMoveAbsolute.Execute	:= FALSE;
+				eStates	:= E_WorkingStates.WAIT;
+			END_IF
+		E_WorkingStates.WAIT:
+			ton_timeout.PT	:= T#2000MS;
+			//roller_inbound.roller.forward	:= TRUE;
+			IF ton_timeout.Q OR (valve_vacuun[0].extended AND valve_vacuun[1].extended AND valve_vacuun[2].extended AND valve_vacuun[3].extended) THEN
+				tote_status	:= ToteStatus.LOADED;
+				//roller_inbound.roller.forward	:= FALSE;
+				eStates	:= E_WorkingStates.WAIT_1;
+			END_IF
+		E_WorkingStates.WAIT_1:
+			ton_timeout.PT	:= T#300MS;
+			IF ton_timeout.Q THEN
+				eStates	:= E_WorkingStates.BAG_OPEN_AXIS_OPEN;
+			END_IF
+		E_WorkingStates.BAG_OPEN_AXIS_OPEN:
+			ton_timeout.PT	:=T#5S;
+			st_mcAxis_vacuun[0].mcMoveAbsolute.Execute	:= TRUE;		
+			st_mcAxis_vacuun[0].rActualPosSet	:= rPos_vacuun_working[0];
+			st_mcAxis_vacuun[0].rVelocitySet	:= 200;
+			st_mcAxis_vacuun[1].mcMoveAbsolute.Execute	:= TRUE;		
+			st_mcAxis_vacuun[1].rActualPosSet	:= rPos_vacuun_working[1];
+			st_mcAxis_vacuun[1].rVelocitySet	:= 200;
+			IF st_mcAxis_vacuun[0].mcMoveAbsolute.Done AND st_mcAxis_vacuun[1].mcMoveAbsolute.Done THEN
+				st_mcAxis_vacuun[0].mcMoveAbsolute.Execute	:= FALSE;
+				st_mcAxis_vacuun[1].mcMoveAbsolute.Execute	:= FALSE;
+				eStates	:= E_WorkingStates.BAG_OPEN_AXIS_CYCLINDER_DOWN;
+			END_IF		
+		E_WorkingStates.BAG_OPEN_AXIS_CYCLINDER_DOWN:
+			ton_timeout.PT	:=T#1S;
+			valve_open_lift.extend	:= TRUE;
+			valve_open_lift.retract	:= FALSE;
+			IF valve_open_lift.extended AND NOT valve_open_lift.retracted THEN
 				eStates	:= E_WorkingStates.BAG_OPEN;
-			END_IF			
-		E_WorkingStates.BAG_OPEN:			
-			st_mcAxis_bag.mcMoveAbsolute.Execute	:= TRUE;		
-			st_mcAxis_bag.rActualPosSet	:= rPos_bag_opened;
-			st_mcAxis_bag.rVelocitySet	:= 250;
-			IF st_mcAxis_bag.mcMoveAbsolute.Done THEN
-				st_mcAxis_bag.mcMoveAbsolute.Execute	:= FALSE;
+			END_IF
+			IF ton_timeout.Q THEN
+				eStates	:= E_WorkingStates.BAG_OPEN;
+			END_IF
+		E_WorkingStates.BAG_OPEN:
+			ton_timeout.PT	:=T#5S;
+			valve_open_side.extend	:= TRUE;
+			valve_open_side.retract	:= FALSE;
+			st_mcAxis_bagOpen[0].mcMoveAbsolute.Execute	:= TRUE;		
+			st_mcAxis_bagOpen[0].rActualPosSet	:= rPos_bag_end[0];
+			st_mcAxis_bagOpen[0].rVelocitySet	:= 150;			
+			st_mcAxis_bagOpen[1].mcMoveAbsolute.Execute	:= TRUE;		
+			st_mcAxis_bagOpen[1].rActualPosSet	:= rPos_bag_end[1];
+			st_mcAxis_bagOpen[1].rVelocitySet	:= 150;				
+			st_mcAxis_bagOpen[2].mcMoveAbsolute.Execute	:= TRUE;		
+			st_mcAxis_bagOpen[2].rActualPosSet	:= rPos_bag_end[2];
+			st_mcAxis_bagOpen[2].rVelocitySet	:= 150;				
+			st_mcAxis_bagOpen[3].mcMoveAbsolute.Execute	:= TRUE;		
+			st_mcAxis_bagOpen[3].rActualPosSet	:= rPos_bag_end[3];
+			st_mcAxis_bagOpen[3].rVelocitySet	:= 150;				
+			IF ((valve_open_side.extended AND NOT valve_open_side.retracted) OR ton_timeout.Q) AND st_mcAxis_bagOpen[0].mcMoveAbsolute.Done 
+			AND st_mcAxis_bagOpen[1].mcMoveAbsolute.Done AND st_mcAxis_bagOpen[2].mcMoveAbsolute.Done AND st_mcAxis_bagOpen[3].mcMoveAbsolute.Done THEN	
+				eStates	:= E_WorkingStates.VACUUN_OFF;
+			END_IF
+		E_WorkingStates.VACUUN_OFF:
+			ton_timeout.PT	:=T#1S;
+			valve_vacuun[0].extend	:= FALSE;
+			valve_vacuun[1].extend	:= FALSE;
+			valve_vacuun[2].extend	:= FALSE;
+			valve_vacuun[3].extend	:= FALSE;
+			IF NOT (valve_vacuun[0].extended OR valve_vacuun[1].extended OR valve_vacuun[2].extended OR valve_vacuun[3].extended) THEN
+				eStates	:= E_WorkingStates.DONE;
+			END_IF
+			IF ton_timeout.Q THEN
 				eStates	:= E_WorkingStates.DONE;
 			END_IF
 		E_WorkingStates.DONE:
+			ADSLOGSTR(msgCtrlMask:= ADSLOG_MSGTYPE_LOG,msgFmtStr:='load end',strArg:='');
 			tote_status	:= ToteStatus.READY;
 			workflow_status	:= ToteSubsystemWorkflowStatus.IDLE;	
 			M_load	:= TRUE;
@@ -441,7 +630,12 @@ CASE eStates OF
 			xError	:=	TRUE;
 			workflow_status	:= ToteSubsystemWorkflowStatus.IDLE;
 			roller_inbound.roller.forward		:= FALSE;	
-			st_mcAxis_bag.mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_vacuun[0].mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_vacuun[1].mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_bagOpen[0].mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_bagOpen[1].mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_bagOpen[2].mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_bagOpen[3].mcMoveAbsolute.Execute	:= FALSE;
 			st_mcAxis_lift.mcMoveAbsolute.Execute	:= FALSE;			
 			M_load 		:= TRUE;
 		
@@ -479,6 +673,19 @@ sensor_cover[1]						:= G_IO.arDI[6].Ch[2];
 EDM_KA10							:= G_IO.arDI[6].Ch[3];
 roller_outbound_end.roller.err		:= G_IO.arDI[6].Ch[4];
 
+bag_open_detection[0](D:=G_IO.arDI[7].Ch[9],on_ms:=,off_ms:=);
+bag_open_detection[0](D:=G_IO.arDI[7].Ch[10],on_ms:=,off_ms:=);
+bag_open_detection[0](D:=G_IO.arDI[7].Ch[11],on_ms:=,off_ms:=);
+bag_open_detection[0](D:=G_IO.arDI[7].Ch[12],on_ms:=,off_ms:=);
+
+valve_vacuun[0].extended		:= G_IO.arDI[8].Ch[6];
+valve_vacuun[1].extended		:= G_IO.arDI[8].Ch[7];
+valve_vacuun[2].extended		:= G_IO.arDI[8].Ch[8];
+valve_vacuun[3].extended		:= G_IO.arDI[8].Ch[9];
+valve_open_side.extended		:= G_IO.arDI[8].Ch[11];
+valve_open_side.retracted		:= G_IO.arDI[8].Ch[10];
+valve_open_lift.extended		:= G_IO.arDI[8].Ch[12];
+valve_open_lift.retracted		:= G_IO.arDI[8].Ch[13];
 
 /////////////////////////////////////digital output////////////////////////////////////////
 G_IO.arDO[5].Ch[0]	:= valve_lift.extend;
@@ -491,6 +698,15 @@ G_IO.arDO[5].Ch[6]	:= roller_outbound_end.roller.forward;
 G_IO.arDO[5].Ch[7]	:= roller_outbound_end.roller.backward;
 G_IO.arDO[5].Ch[8]	:= lightcurtain_mute_left;
 G_IO.arDO[5].Ch[9]	:= lightcurtain_mute_right;
+
+G_IO.arDO[7].Ch[0]	:= valve_vacuun[0].extend;
+G_IO.arDO[7].Ch[1]	:= valve_vacuun[1].extend;
+G_IO.arDO[7].Ch[2]	:= valve_vacuun[2].extend;
+G_IO.arDO[7].Ch[3]	:= valve_vacuun[3].extend;
+G_IO.arDO[7].Ch[4]	:= valve_open_side.extend;
+G_IO.arDO[7].Ch[8]	:= valve_open_side.retract;
+G_IO.arDO[7].Ch[6]	:= valve_open_lift.extend;
+
 
 
 
@@ -520,7 +736,6 @@ st_mcAxis_lift.bdirFW	:= TRUE;
 st_mcAxis_lift.sNetID := '192.168.11.159.5.1';
 st_mcAxis_lift.nSlaveAddr	:= 1026;
 
-
 mcAxis_bag
 (
 	ZSN		:=  TRUE OR st_mcAxis_bag.xHoming, //TODO link to digital input
@@ -546,8 +761,166 @@ st_mcAxis_bag.bdirFW	:= TRUE;
 st_mcAxis_bag.sNetID := '192.168.11.159.5.1';
 st_mcAxis_bag.nSlaveAddr	:= 1027;
 
+mcAxis_vacuun[0]
+(
+	ZSN		:=  TRUE OR st_mcAxis_vacuun[0].xHoming, //TODO link to digital input
+	ZSP		:=  TRUE OR st_mcAxis_vacuun[0].xHoming, //TODO link to digital input
+	IN_OUT	:= st_mcAxis_vacuun[0], 
+	AXIS	:= AxisRef_vacuun[0]	, 
+);
+st_mcAxis_vacuun[0].bPosSensorShow	:= TRUE;
+st_mcAxis_vacuun[0].bNegSensorShow	:= TRUE;
+st_mcAxis_vacuun[0].rMaxAcceleration	:= 50000;
+st_mcAxis_vacuun[0].rMaxDeceleration	:= 50000;
+st_mcAxis_vacuun[0].rMaxJerk			:= 500000;
+st_mcAxis_vacuun[0].rAcceleration	:= 2500;
+st_mcAxis_vacuun[0].rDeceleration	:= 2500;
+st_mcAxis_vacuun[0].rJerk			:= 12500;
+st_mcAxis_vacuun[0].rMaxVelocity		:= 100;
+st_mcAxis_vacuun[0].rMaxDistance		:= 50;
+st_mcAxis_vacuun[0].bPosSen	:= TRUE ;//TODO link to digital input
+st_mcAxis_vacuun[0].bNegSen	:= TRUE ;//TODO link to digital input
+st_mcAxis_vacuun[0].mcHome.bCalibrationCam	:= TRUE;//TODO link to digital input origin
+st_mcAxis_vacuun[0].bPositionSensor	:= TRUE;//TODO link to digital input origin
+st_mcAxis_vacuun[0].bdirFW	:= TRUE;
+st_mcAxis_vacuun[0].sNetID := '192.168.11.159.5.1';
+st_mcAxis_vacuun[0].nSlaveAddr	:= 1032;
+st_mcAxis_vacuun[0].iAxis	:= 0;
+
+mcAxis_vacuun[1]
+(
+	ZSN		:=  TRUE OR st_mcAxis_vacuun[1].xHoming, //TODO link to digital input
+	ZSP		:=  TRUE OR st_mcAxis_vacuun[1].xHoming, //TODO link to digital input
+	IN_OUT	:= st_mcAxis_vacuun[1]	, 
+	AXIS	:= AxisRef_vacuun[1]	, 
+);
+st_mcAxis_vacuun[1].bPosSensorShow	:= TRUE;
+st_mcAxis_vacuun[1].bNegSensorShow	:= TRUE;
+st_mcAxis_vacuun[1].rMaxAcceleration	:= 50000;
+st_mcAxis_vacuun[1].rMaxDeceleration	:= 50000;
+st_mcAxis_vacuun[1].rMaxJerk			:= 500000;
+st_mcAxis_vacuun[1].rAcceleration	:= 2500;
+st_mcAxis_vacuun[1].rDeceleration	:= 2500;
+st_mcAxis_vacuun[1].rJerk			:= 12500;
+st_mcAxis_vacuun[1].rMaxVelocity		:= 100;
+st_mcAxis_vacuun[1].rMaxDistance		:= 50;
+st_mcAxis_vacuun[1].bPosSen	:= TRUE ;//TODO link to digital input
+st_mcAxis_vacuun[1].bNegSen	:= TRUE ;//TODO link to digital input
+st_mcAxis_vacuun[1].mcHome.bCalibrationCam	:= TRUE;//TODO link to digital input origin
+st_mcAxis_vacuun[1].bPositionSensor	:= TRUE;//TODO link to digital input origin
+st_mcAxis_vacuun[1].bdirFW	:= TRUE;
+st_mcAxis_vacuun[1].sNetID := '192.168.11.159.5.1';
+st_mcAxis_vacuun[1].nSlaveAddr	:= 1032;
+st_mcAxis_vacuun[1].iAxis	:= 1;
+
+mcAxis_bagOpen[0]
+(
+	ZSN		:=  TRUE OR st_mcAxis_bagOpen[0].xHoming, //TODO link to digital input
+	ZSP		:=  TRUE OR st_mcAxis_bagOpen[0].xHoming, //TODO link to digital input
+	IN_OUT	:= st_mcAxis_bagOpen[0]	, 
+	AXIS	:= AxisRef_bagOpen[0]	, 
+);
+st_mcAxis_bagOpen[0].bPosSensorShow	:= TRUE;
+st_mcAxis_bagOpen[0].bNegSensorShow	:= TRUE;
+st_mcAxis_bagOpen[0].rMaxAcceleration	:= 50000;
+st_mcAxis_bagOpen[0].rMaxDeceleration	:= 50000;
+st_mcAxis_bagOpen[0].rMaxJerk			:= 500000;
+st_mcAxis_bagOpen[0].rAcceleration	:= 2500;
+st_mcAxis_bagOpen[0].rDeceleration	:= 2500;
+st_mcAxis_bagOpen[0].rJerk			:= 12500;
+st_mcAxis_bagOpen[0].rMaxVelocity		:= 100;
+st_mcAxis_bagOpen[0].rMaxDistance		:= 50;
+st_mcAxis_bagOpen[0].bPosSen	:= TRUE ;//TODO link to digital input
+st_mcAxis_bagOpen[0].bNegSen	:= TRUE ;//TODO link to digital input
+st_mcAxis_bagOpen[0].mcHome.bCalibrationCam	:= TRUE;//TODO link to digital input origin
+st_mcAxis_bagOpen[0].bPositionSensor	:= TRUE;//TODO link to digital input origin
+st_mcAxis_bagOpen[0].bdirFW	:= TRUE;
+st_mcAxis_bagOpen[0].sNetID := '192.168.11.159.5.1';
+st_mcAxis_bagOpen[0].nSlaveAddr	:= 1033;
+st_mcAxis_bagOpen[0].iAxis	:= 0;
+
+mcAxis_bagOpen[1]
+(
+	ZSN		:=  TRUE OR st_mcAxis_bagOpen[1].xHoming, //TODO link to digital input
+	ZSP		:=  TRUE OR st_mcAxis_bagOpen[1].xHoming, //TODO link to digital input
+	IN_OUT	:= st_mcAxis_bagOpen[1]	, 
+	AXIS	:= AxisRef_bagOpen[1]	, 
+);
+st_mcAxis_bagOpen[1].bPosSensorShow	:= TRUE;
+st_mcAxis_bagOpen[1].bNegSensorShow	:= TRUE;
+st_mcAxis_bagOpen[1].rMaxAcceleration	:= 50000;
+st_mcAxis_bagOpen[1].rMaxDeceleration	:= 50000;
+st_mcAxis_bagOpen[1].rMaxJerk			:= 500000;
+st_mcAxis_bagOpen[1].rAcceleration	:= 2500;
+st_mcAxis_bagOpen[1].rDeceleration	:= 2500;
+st_mcAxis_bagOpen[1].rJerk			:= 12500;
+st_mcAxis_bagOpen[1].rMaxVelocity		:= 100;
+st_mcAxis_bagOpen[1].rMaxDistance		:= 50;
+st_mcAxis_bagOpen[1].bPosSen	:= TRUE ;//TODO link to digital input
+st_mcAxis_bagOpen[1].bNegSen	:= TRUE ;//TODO link to digital input
+st_mcAxis_bagOpen[1].mcHome.bCalibrationCam	:= TRUE;//TODO link to digital input origin
+st_mcAxis_bagOpen[1].bPositionSensor	:= TRUE;//TODO link to digital input origin
+st_mcAxis_bagOpen[1].bdirFW	:= TRUE;
+st_mcAxis_bagOpen[1].sNetID := '192.168.11.159.5.1';
+st_mcAxis_bagOpen[1].nSlaveAddr	:= 1033;
+st_mcAxis_bagOpen[1].iAxis	:= 1;
+
+mcAxis_bagOpen[2]
+(
+	ZSN		:=  TRUE OR st_mcAxis_bagOpen[2].xHoming, //TODO link to digital input
+	ZSP		:=  TRUE OR st_mcAxis_bagOpen[2].xHoming, //TODO link to digital input
+	IN_OUT	:= st_mcAxis_bagOpen[2]	, 
+	AXIS	:= AxisRef_bagOpen[2]	, 
+);
+st_mcAxis_bagOpen[2].bPosSensorShow	:= TRUE;
+st_mcAxis_bagOpen[2].bNegSensorShow	:= TRUE;
+st_mcAxis_bagOpen[2].rMaxAcceleration	:= 50000;
+st_mcAxis_bagOpen[2].rMaxDeceleration	:= 50000;
+st_mcAxis_bagOpen[2].rMaxJerk			:= 500000;
+st_mcAxis_bagOpen[2].rAcceleration	:= 2500;
+st_mcAxis_bagOpen[2].rDeceleration	:= 2500;
+st_mcAxis_bagOpen[2].rJerk			:= 12500;
+st_mcAxis_bagOpen[2].rMaxVelocity		:= 100;
+st_mcAxis_bagOpen[2].rMaxDistance		:= 50;
+st_mcAxis_bagOpen[2].bPosSen	:= TRUE ;//TODO link to digital input
+st_mcAxis_bagOpen[2].bNegSen	:= TRUE ;//TODO link to digital input
+st_mcAxis_bagOpen[2].mcHome.bCalibrationCam	:= TRUE;//TODO link to digital input origin
+st_mcAxis_bagOpen[2].bPositionSensor	:= TRUE;//TODO link to digital input origin
+st_mcAxis_bagOpen[2].bdirFW	:= TRUE;
+st_mcAxis_bagOpen[2].sNetID := '192.168.11.159.5.1';
+st_mcAxis_bagOpen[2].nSlaveAddr	:= 1034;
+st_mcAxis_bagOpen[2].iAxis	:= 0;
+
+mcAxis_bagOpen[3]
+(
+	ZSN		:=  TRUE OR st_mcAxis_bagOpen[3].xHoming, //TODO link to digital input
+	ZSP		:=  TRUE OR st_mcAxis_bagOpen[3].xHoming, //TODO link to digital input
+	IN_OUT	:= st_mcAxis_bagOpen[3]	, 
+	AXIS	:= AxisRef_bagOpen[3]	, 
+);
+st_mcAxis_bagOpen[3].bPosSensorShow	:= TRUE;
+st_mcAxis_bagOpen[3].bNegSensorShow	:= TRUE;
+st_mcAxis_bagOpen[3].rMaxAcceleration	:= 50000;
+st_mcAxis_bagOpen[3].rMaxDeceleration	:= 50000;
+st_mcAxis_bagOpen[3].rMaxJerk			:= 500000;
+st_mcAxis_bagOpen[3].rAcceleration	:= 2500;
+st_mcAxis_bagOpen[3].rDeceleration	:= 2500;
+st_mcAxis_bagOpen[3].rJerk			:= 12500;
+st_mcAxis_bagOpen[3].rMaxVelocity		:= 100;
+st_mcAxis_bagOpen[3].rMaxDistance		:= 50;
+st_mcAxis_bagOpen[3].bPosSen	:= TRUE ;//TODO link to digital input
+st_mcAxis_bagOpen[3].bNegSen	:= TRUE ;//TODO link to digital input
+st_mcAxis_bagOpen[3].mcHome.bCalibrationCam	:= TRUE;//TODO link to digital input origin
+st_mcAxis_bagOpen[3].bPositionSensor	:= TRUE;//TODO link to digital input origin
+st_mcAxis_bagOpen[3].bdirFW	:= TRUE;
+st_mcAxis_bagOpen[3].sNetID := '192.168.11.159.5.1';
+st_mcAxis_bagOpen[3].nSlaveAddr	:= 1034;
+st_mcAxis_bagOpen[3].iAxis	:= 1;
+
+
+
 IF MAIN.firstCycle THEN
-	st_mcAxis_bag.mcPower.Enable	:= TRUE;
+//	st_mcAxis_bag.mcPower.Enable	:= TRUE;
 	st_mcAxis_lift.mcPower.Enable	:= TRUE;	
 END_IF
 ]]></ST>
@@ -564,10 +937,21 @@ ton_timeout.IN	:= FALSE;
 event.sMethod	:= 'reset';
 error_status	:= OrderToteErrorStatus.NO_ERROR;
 IF xError THEN
-	st_mcAxis_bag.mcStop.Execute	:= FALSE;
-	st_mcAxis_bag.mcReset.Execute	:= TRUE;
 	st_mcAxis_lift.mcStop.Execute	:= FALSE;
-	st_mcAxis_lift.mcReset.Execute	:= TRUE;
+	st_mcAxis_vacuun[0].mcStop.Execute	:= FALSE;
+	st_mcAxis_vacuun[1].mcStop.Execute	:= FALSE;
+	st_mcAxis_bagOpen[0].mcStop.Execute	:= FALSE;
+	st_mcAxis_bagOpen[1].mcStop.Execute	:= FALSE;
+	st_mcAxis_bagOpen[2].mcStop.Execute	:= FALSE;
+	st_mcAxis_bagOpen[3].mcStop.Execute	:= FALSE;	
+	st_mcAxis_lift.mcReset.Execute			:= TRUE;
+	st_mcAxis_vacuun[0].mcReset.Execute		:= TRUE;
+	st_mcAxis_vacuun[1].mcReset.Execute		:= TRUE;
+	st_mcAxis_bagOpen[0].mcReset.Execute	:= TRUE;
+	st_mcAxis_bagOpen[1].mcReset.Execute	:= TRUE;
+	st_mcAxis_bagOpen[2].mcReset.Execute	:= TRUE;
+	st_mcAxis_bagOpen[3].mcReset.Execute	:= TRUE;	
+	
 	IF eStates<>E_WorkingStates.IDLE THEN
 		eStates	:= eStateTemp;//continue
 	END_IF
@@ -604,16 +988,26 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[M_runStart	:= FALSE;
-st_mcAxis_bag.mcPower.Enable	:= TRUE;
+
+st_mcAxis_vacuun[0].mcPower.Enable	:= TRUE;	
+st_mcAxis_vacuun[1].mcPower.Enable	:= TRUE;
+st_mcAxis_bagOpen[0].mcPower.Enable	:= TRUE;
+st_mcAxis_bagOpen[1].mcPower.Enable	:= TRUE;
+st_mcAxis_bagOpen[2].mcPower.Enable	:= TRUE;
+st_mcAxis_bagOpen[3].mcPower.Enable	:= TRUE;
+
 st_mcAxis_lift.mcPower.Enable	:= TRUE;
 
 current_tote_status	:= ToteStatus.UNKNOWN;
+
 M_checkCondition(condition:=E_Condition.TOTE_READY);
 
-
-IF st_mcAxis_bag.mcReadStatus.StandStill AND st_mcAxis_lift.mcReadStatus.StandStill THEN
+IF st_mcAxis_vacuun[0].mcReadStatus.StandStill AND st_mcAxis_vacuun[1].mcReadStatus.StandStill AND st_mcAxis_bagOpen[0].mcReadStatus.StandStill
+AND st_mcAxis_bagOpen[1].mcReadStatus.StandStill AND st_mcAxis_bagOpen[2].mcReadStatus.StandStill AND st_mcAxis_bagOpen[3].mcReadStatus.StandStill 
+AND st_mcAxis_lift.mcReadStatus.StandStill THEN
 	M_runStart	:= TRUE;
-END_IF
+END_IF	
+
 M_runStart	:= TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -631,9 +1025,23 @@ roller_outbound.roller.forward			:= FALSE;
 roller_outbound.roller.backward			:= FALSE;
 roller_outbound_end.roller.forward		:= FALSE;	
 roller_outbound_end.roller.backward		:= FALSE;	
-st_mcAxis_bag.mcMoveAbsolute.Execute	:= FALSE;
+
+st_mcAxis_vacuun[0].mcMoveAbsolute.Execute	:= FALSE;
+st_mcAxis_vacuun[1].mcMoveAbsolute.Execute	:= FALSE;
+st_mcAxis_bagOpen[0].mcMoveAbsolute.Execute	:= FALSE;
+st_mcAxis_bagOpen[1].mcMoveAbsolute.Execute	:= FALSE;
+st_mcAxis_bagOpen[2].mcMoveAbsolute.Execute	:= FALSE;
+st_mcAxis_bagOpen[3].mcMoveAbsolute.Execute	:= FALSE;
 st_mcAxis_lift.mcMoveAbsolute.Execute	:= FALSE;	
-st_mcAxis_bag.mcStop.Execute	:= TRUE;
+
+st_mcAxis_vacuun[0].mcStop.Execute	:= TRUE;
+st_mcAxis_vacuun[1].mcStop.Execute	:= TRUE;
+st_mcAxis_bagOpen[0].mcStop.Execute	:= TRUE;
+st_mcAxis_bagOpen[1].mcStop.Execute	:= TRUE;
+st_mcAxis_bagOpen[2].mcStop.Execute	:= TRUE;
+st_mcAxis_bagOpen[3].mcStop.Execute	:= TRUE;
+
+
 st_mcAxis_lift.mcStop.Execute	:= TRUE;
 
 M_safetyEvent	:= TRUE;]]></ST>
@@ -761,7 +1169,7 @@ IF ton_timeout.Q THEN
 			event.sEvent_MSG	:= CONCAT('unknow estate ','timeout');
 			event.sStepID		:= sStateTemp;			
 	END_CASE
-	IF eStates<>E_WorkingStates.IDLE AND eStates<>E_WorkingStates.WAIT_UNLOADING THEN
+	IF eStates<>E_WorkingStates.IDLE AND eStates<>E_WorkingStates.WAIT_UNLOADING AND eStates<>E_WorkingStates.BAG_OPEN_UP THEN
 		eStates	:= E_WorkingStates.ERROR;
 		error_status	:= OrderToteErrorStatus.MECHANICAL_ERROR;
 		Event_add(event);
@@ -771,40 +1179,101 @@ END_IF
 
 CASE eStates OF 
 		E_WorkingStates.IDLE:
-			ton_timeout.PT	:= T#10S;
+			
+			ton_timeout.PT	:= T#3S;
 			xLoading	:= FALSE;
 			xUnloading	:= FALSE;
 			eStates	:= E_WorkingStates.INIT;
 		E_WorkingStates.INIT:	
+			ADSLOGSTR(msgCtrlMask:= ADSLOG_MSGTYPE_LOG,msgFmtStr:='unload start',strArg:='');
 			xUnloading	:= TRUE;
-			st_mcAxis_bag.mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_vacuun[0].mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_vacuun[1].mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_bagOpen[0].mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_bagOpen[1].mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_bagOpen[2].mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_bagOpen[3].mcMoveAbsolute.Execute	:= FALSE;			
+	
 			st_mcAxis_lift.mcMoveAbsolute.Execute	:= FALSE;
 			eStates	:= E_WorkingStates.WAIT_UNLOADING;
 		E_WorkingStates.WAIT_UNLOADING://wait signal from logtech and app to unload the tote
 			workflow_status	:= ToteSubsystemWorkflowStatus.WAITING_FOR_UNLOADING;
 			tote_status	:= ToteStatus.READY;
 			eStates	:= E_WorkingStates.BAG_OPEN_UP;	
+			
+//		E_WorkingStates.BAG_OPEN_AXIS_CYCLINDER_UP:
+//			ton_timeout.PT	:= T#1S;
+//			valve_open_lift.extend	:= FALSE;
+//			valve_open_lift.retract	:= TRUE;
+//			IF NOT valve_open_lift.extended AND valve_open_lift.retracted THEN
+//				eStates	:= E_WorkingStates.BAG_OPEN_UP;
+//			END_IF
+//			IF ton_timeout.Q THEN
+//				eStates	:= E_WorkingStates.BAG_OPEN_UP;
+//			END_IF
 		E_WorkingStates.BAG_OPEN_UP:	
+			ton_timeout.PT	:= T#1S;
+			valve_open_lift.extend	:= FALSE;
+			valve_open_lift.retract	:= TRUE;			
 			workflow_status	:= ToteSubsystemWorkflowStatus.OUTBOUNDING;	
 			tote_status	:= ToteStatus.LOADED;		
 			st_mcAxis_lift.mcMoveAbsolute.Execute	:= TRUE;		
 			st_mcAxis_lift.rActualPosSet	:= rPos_lift_up;
 			st_mcAxis_lift.rVelocitySet	:= 250;
-			IF st_mcAxis_lift.mcMoveAbsolute.Done THEN
-				eStates	:= E_WorkingStates.BAG_CLOSE;
-			END_IF		
-		E_WorkingStates.BAG_CLOSE:	
-			st_mcAxis_bag.mcMoveAbsolute.Execute	:= TRUE;		
-			st_mcAxis_bag.rActualPosSet	:= rPos_bag_closed;
-			st_mcAxis_bag.rVelocitySet	:= 250;
+			IF st_mcAxis_lift.mcMoveAbsolute.Done 
+			AND ((NOT valve_open_lift.extended AND valve_open_lift.retracted) OR ton_timeout.Q) THEN
+				eStates	:= E_WorkingStates.BAG_OPEN_HOME;
+			END_IF	
+		E_WorkingStates.BAG_OPEN_HOME:	
+			ton_timeout.PT	:= T#5S;
+			valve_open_side.extend	:= FALSE;
+			valve_open_side.retract	:= TRUE;		
+			st_mcAxis_vacuun[0].mcMoveAbsolute.Execute	:= TRUE;		
+			st_mcAxis_vacuun[0].rActualPosSet	:= rPos_vacuun_working[0];
+			st_mcAxis_vacuun[0].rVelocitySet	:= 450;
+			st_mcAxis_vacuun[1].mcMoveAbsolute.Execute	:= TRUE;		
+			st_mcAxis_vacuun[1].rActualPosSet	:= rPos_vacuun_working[1];
+			st_mcAxis_vacuun[1].rVelocitySet	:= 450;			
+			st_mcAxis_bagOpen[0].mcMoveAbsolute.Execute	:= TRUE;		
+			st_mcAxis_bagOpen[0].rActualPosSet	:= rPos_bag_begin[0];
+			st_mcAxis_bagOpen[0].rVelocitySet	:= 200;			
+			st_mcAxis_bagOpen[1].mcMoveAbsolute.Execute	:= TRUE;		
+			st_mcAxis_bagOpen[1].rActualPosSet	:= rPos_bag_begin[1];
+			st_mcAxis_bagOpen[1].rVelocitySet	:= 200;				
+			st_mcAxis_bagOpen[2].mcMoveAbsolute.Execute	:= TRUE;		
+			st_mcAxis_bagOpen[2].rActualPosSet	:= rPos_bag_begin[2];
+			st_mcAxis_bagOpen[2].rVelocitySet	:= 200;				
+			st_mcAxis_bagOpen[3].mcMoveAbsolute.Execute	:= TRUE;		
+			st_mcAxis_bagOpen[3].rActualPosSet	:= rPos_bag_begin[3];
+			st_mcAxis_bagOpen[3].rVelocitySet	:= 200;		
 			valve_lift.extend	:= TRUE;
-			valve_lift.retract	:= FALSE;
-			IF st_mcAxis_bag.mcMoveAbsolute.Done AND valve_lift.extended AND NOT valve_lift.retracted THEN
-				st_mcAxis_bag.mcMoveAbsolute.Execute	:= FALSE;
+			valve_lift.retract	:= FALSE;				
+			IF st_mcAxis_vacuun[0].mcMoveAbsolute.Done AND st_mcAxis_vacuun[1].mcMoveAbsolute.Done 
+			AND st_mcAxis_bagOpen[0].mcMoveAbsolute.Done AND st_mcAxis_bagOpen[1].mcMoveAbsolute.Done 
+			AND st_mcAxis_bagOpen[2].mcMoveAbsolute.Done AND st_mcAxis_bagOpen[3].mcMoveAbsolute.Done 
+			AND(NOT valve_open_side.extended AND valve_open_side.retracted) 
+			AND (valve_lift.extended AND NOT valve_lift.retracted) THEN
+				st_mcAxis_vacuun[0].mcMoveAbsolute.Execute	:= FALSE;
+				st_mcAxis_vacuun[1].mcMoveAbsolute.Execute	:= FALSE;
+				st_mcAxis_bagOpen[0].mcMoveAbsolute.Execute	:= FALSE;
+				st_mcAxis_bagOpen[1].mcMoveAbsolute.Execute	:= FALSE;
+				st_mcAxis_bagOpen[2].mcMoveAbsolute.Execute	:= FALSE;
+				st_mcAxis_bagOpen[3].mcMoveAbsolute.Execute	:= FALSE;
 				eStates	:= E_WorkingStates.TOTE_UNLOAD;
-			END_IF							
+			END_IF								
+	
+//		E_WorkingStates.BAG_CLOSE:	
+//			st_mcAxis_bag.mcMoveAbsolute.Execute	:= TRUE;		
+//			st_mcAxis_bag.rActualPosSet	:= rPos_bag_closed;
+//			st_mcAxis_bag.rVelocitySet	:= 250;
+//			valve_lift.extend	:= TRUE;
+//			valve_lift.retract	:= FALSE;
+//			IF st_mcAxis_bag.mcMoveAbsolute.Done AND valve_lift.extended AND NOT valve_lift.retracted THEN
+//				st_mcAxis_bag.mcMoveAbsolute.Execute	:= FALSE;
+//				eStates	:= E_WorkingStates.TOTE_UNLOAD;
+//			END_IF							
 //		E_WorkingStates.TOTE_LIFT_UP:
-//			ton_timeout.PT	:= T#5S;
+//			ton_timeout.PT	:= T#3S;
 //			valve_lift.extend	:= TRUE;
 //			valve_lift.retract	:= FALSE;
 //			IF valve_lift.extended AND NOT valve_lift.retracted THEN
@@ -826,13 +1295,14 @@ CASE eStates OF
 				eStates	:= E_WorkingStates.TOTE_LIFT_DOWN;			
 			END_IF			
 		E_WorkingStates.TOTE_LIFT_DOWN:
-			ton_timeout.PT	:= T#5S;	
+			ton_timeout.PT	:= T#3S;	
 			valve_lift.extend	:= FALSE;
 			valve_lift.retract	:= TRUE;
 			IF NOT valve_lift.extended AND valve_lift.retracted THEN
 				eStates	:= E_WorkingStates.DONE;
 			END_IF				
 		E_WorkingStates.DONE:	
+			ADSLOGSTR(msgCtrlMask:= ADSLOG_MSGTYPE_LOG,msgFmtStr:='unload end',strArg:='');
 			workflow_status	:= ToteSubsystemWorkflowStatus.IDLE;
 			tote_status	:= ToteStatus.EMPTY;			
 			M_unload	:= TRUE;
@@ -843,7 +1313,12 @@ CASE eStates OF
 			workflow_status	:= ToteSubsystemWorkflowStatus.IDLE;
 			roller_outbound.roller.forward		:= FALSE;	
 			roller_outbound_end.roller.forward	:= FALSE;
-			st_mcAxis_bag.mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_vacuun[0].mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_vacuun[1].mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_bagOpen[0].mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_bagOpen[1].mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_bagOpen[2].mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_bagOpen[3].mcMoveAbsolute.Execute	:= FALSE;			
 			st_mcAxis_lift.mcMoveAbsolute.Execute	:= FALSE;
 			M_unload 		:= TRUE;
 
@@ -871,7 +1346,7 @@ CASE condition OF
 			M_waitCondition	:= TRUE;
 		END_IF	
 	E_Condition.READY_LOADING_TOTE:
-		IF pre_tote_status=ToteStatus.READY AND GVL.fb_loading.eTransfer=E_Transfer.UNLOAD OR tote_status=ToteStatus.LOADED THEN
+		IF (pre_tote_status=ToteStatus.READY AND GVL.fb_loading.eTransfer=E_Transfer.UNLOAD) OR tote_status=ToteStatus.LOADED THEN
 			M_waitCondition	:= TRUE;
 		END_IF	
 END_CASE]]></ST>
@@ -951,12 +1426,19 @@ END_CASE]]></ST>
       <LineId Id="13" Count="0" />
       <LineId Id="16" Count="3" />
       <LineId Id="25" Count="1" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="46" Count="0" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="51" Count="2" />
       <LineId Id="30" Count="0" />
+      <LineId Id="54" Count="0" />
       <LineId Id="32" Count="0" />
       <LineId Id="29" Count="0" />
       <LineId Id="34" Count="2" />
       <LineId Id="28" Count="0" />
+      <LineId Id="55" Count="5" />
       <LineId Id="38" Count="1" />
+      <LineId Id="61" Count="0" />
       <LineId Id="37" Count="0" />
       <LineId Id="40" Count="0" />
       <LineId Id="33" Count="0" />
@@ -966,8 +1448,9 @@ END_CASE]]></ST>
       <LineId Id="9" Count="0" />
       <LineId Id="21" Count="0" />
       <LineId Id="10" Count="0" />
-      <LineId Id="16" Count="2" />
       <LineId Id="15" Count="0" />
+      <LineId Id="30" Count="13" />
+      <LineId Id="29" Count="0" />
       <LineId Id="20" Count="0" />
       <LineId Id="25" Count="0" />
       <LineId Id="19" Count="0" />
@@ -1006,29 +1489,62 @@ END_CASE]]></ST>
       <LineId Id="365" Count="0" />
       <LineId Id="367" Count="1" />
       <LineId Id="366" Count="0" />
-      <LineId Id="30" Count="2" />
+      <LineId Id="30" Count="1" />
+      <LineId Id="547" Count="0" />
+      <LineId Id="32" Count="0" />
       <LineId Id="335" Count="0" />
       <LineId Id="342" Count="0" />
       <LineId Id="33" Count="0" />
       <LineId Id="35" Count="0" />
       <LineId Id="5" Count="0" />
       <LineId Id="37" Count="2" />
+      <LineId Id="580" Count="0" />
       <LineId Id="259" Count="0" />
       <LineId Id="369" Count="1" />
       <LineId Id="358" Count="0" />
+      <LineId Id="382" Count="3" />
+      <LineId Id="391" Count="1" />
       <LineId Id="361" Count="0" />
-      <LineId Id="359" Count="1" />
+      <LineId Id="359" Count="0" />
+      <LineId Id="393" Count="1" />
+      <LineId Id="360" Count="0" />
       <LineId Id="357" Count="0" />
       <LineId Id="116" Count="0" />
+      <LineId Id="582" Count="0" />
       <LineId Id="371" Count="0" />
-      <LineId Id="117" Count="3" />
+      <LineId Id="117" Count="0" />
+      <LineId Id="395" Count="6" />
+      <LineId Id="403" Count="0" />
+      <LineId Id="402" Count="0" />
+      <LineId Id="406" Count="0" />
+      <LineId Id="405" Count="0" />
+      <LineId Id="409" Count="0" />
+      <LineId Id="407" Count="0" />
+      <LineId Id="411" Count="0" />
+      <LineId Id="410" Count="0" />
+      <LineId Id="413" Count="0" />
+      <LineId Id="412" Count="0" />
+      <LineId Id="118" Count="2" />
       <LineId Id="125" Count="3" />
       <LineId Id="159" Count="0" />
       <LineId Id="129" Count="0" />
       <LineId Id="115" Count="0" />
       <LineId Id="196" Count="0" />
       <LineId Id="198" Count="2" />
-      <LineId Id="204" Count="1" />
+      <LineId Id="420" Count="1" />
+      <LineId Id="414" Count="0" />
+      <LineId Id="422" Count="1" />
+      <LineId Id="415" Count="0" />
+      <LineId Id="424" Count="1" />
+      <LineId Id="416" Count="0" />
+      <LineId Id="426" Count="1" />
+      <LineId Id="417" Count="0" />
+      <LineId Id="428" Count="1" />
+      <LineId Id="418" Count="1" />
+      <LineId Id="204" Count="0" />
+      <LineId Id="430" Count="0" />
+      <LineId Id="205" Count="0" />
+      <LineId Id="431" Count="4" />
       <LineId Id="207" Count="0" />
       <LineId Id="195" Count="0" />
       <LineId Id="130" Count="0" />
@@ -1038,18 +1554,14 @@ END_CASE]]></ST>
       <LineId Id="373" Count="2" />
       <LineId Id="189" Count="1" />
       <LineId Id="186" Count="0" />
+      <LineId Id="511" Count="0" />
       <LineId Id="102" Count="0" />
       <LineId Id="191" Count="0" />
       <LineId Id="248" Count="0" />
       <LineId Id="143" Count="0" />
       <LineId Id="152" Count="0" />
+      <LineId Id="579" Count="0" />
       <LineId Id="150" Count="1" />
-      <LineId Id="220" Count="1" />
-      <LineId Id="362" Count="0" />
-      <LineId Id="222" Count="0" />
-      <LineId Id="231" Count="0" />
-      <LineId Id="226" Count="0" />
-      <LineId Id="223" Count="1" />
       <LineId Id="109" Count="0" />
       <LineId Id="225" Count="0" />
       <LineId Id="192" Count="0" />
@@ -1057,12 +1569,44 @@ END_CASE]]></ST>
       <LineId Id="173" Count="0" />
       <LineId Id="157" Count="0" />
       <LineId Id="110" Count="0" />
+      <LineId Id="562" Count="0" />
+      <LineId Id="551" Count="10" />
+      <LineId Id="442" Count="0" />
       <LineId Id="161" Count="0" />
+      <LineId Id="563" Count="0" />
       <LineId Id="163" Count="2" />
+      <LineId Id="437" Count="1" />
+      <LineId Id="436" Count="0" />
       <LineId Id="169" Count="1" />
+      <LineId Id="439" Count="0" />
       <LineId Id="172" Count="0" />
       <LineId Id="106" Count="0" />
+      <LineId Id="566" Count="6" />
+      <LineId Id="462" Count="0" />
+      <LineId Id="583" Count="4" />
+      <LineId Id="535" Count="0" />
+      <LineId Id="548" Count="0" />
+      <LineId Id="537" Count="9" />
+      <LineId Id="536" Count="0" />
+      <LineId Id="463" Count="0" />
+      <LineId Id="549" Count="0" />
+      <LineId Id="467" Count="1" />
+      <LineId Id="464" Count="0" />
+      <LineId Id="469" Count="1" />
+      <LineId Id="476" Count="1" />
+      <LineId Id="475" Count="0" />
+      <LineId Id="465" Count="0" />
+      <LineId Id="550" Count="0" />
+      <LineId Id="471" Count="1" />
+      <LineId Id="497" Count="10" />
+      <LineId Id="496" Count="0" />
+      <LineId Id="466" Count="0" />
+      <LineId Id="510" Count="0" />
+      <LineId Id="473" Count="1" />
+      <LineId Id="513" Count="10" />
+      <LineId Id="512" Count="0" />
       <LineId Id="138" Count="0" />
+      <LineId Id="581" Count="0" />
       <LineId Id="210" Count="0" />
       <LineId Id="193" Count="0" />
       <LineId Id="139" Count="0" />
@@ -1070,6 +1614,7 @@ END_CASE]]></ST>
       <LineId Id="140" Count="2" />
       <LineId Id="239" Count="0" />
       <LineId Id="228" Count="0" />
+      <LineId Id="530" Count="4" />
       <LineId Id="230" Count="0" />
       <LineId Id="227" Count="0" />
       <LineId Id="104" Count="0" />
@@ -1089,7 +1634,15 @@ END_CASE]]></ST>
       <LineId Id="12" Count="0" />
       <LineId Id="99" Count="0" />
       <LineId Id="91" Count="0" />
-      <LineId Id="98" Count="0" />
+      <LineId Id="322" Count="1" />
+      <LineId Id="326" Count="0" />
+      <LineId Id="328" Count="1" />
+      <LineId Id="310" Count="0" />
+      <LineId Id="309" Count="0" />
+      <LineId Id="312" Count="2" />
+      <LineId Id="317" Count="1" />
+      <LineId Id="321" Count="0" />
+      <LineId Id="320" Count="0" />
       <LineId Id="97" Count="0" />
       <LineId Id="24" Count="0" />
       <LineId Id="22" Count="0" />
@@ -1101,16 +1654,42 @@ END_CASE]]></ST>
       <LineId Id="100" Count="0" />
       <LineId Id="94" Count="1" />
       <LineId Id="92" Count="0" />
+      <LineId Id="302" Count="0" />
+      <LineId Id="299" Count="1" />
+      <LineId Id="303" Count="1" />
+      <LineId Id="306" Count="2" />
+      <LineId Id="305" Count="0" />
       <LineId Id="32" Count="0" />
       <LineId Id="31" Count="0" />
       <LineId Id="34" Count="6" />
       <LineId Id="42" Count="13" />
       <LineId Id="33" Count="0" />
       <LineId Id="86" Count="0" />
-      <LineId Id="79" Count="1" />
-      <LineId Id="57" Count="21" />
-      <LineId Id="56" Count="0" />
-      <LineId Id="87" Count="0" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="268" Count="0" />
+      <LineId Id="270" Count="22" />
+      <LineId Id="269" Count="0" />
+      <LineId Id="80" Count="0" />
+      <LineId Id="115" Count="22" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="330" Count="0" />
+      <LineId Id="144" Count="23" />
+      <LineId Id="139" Count="1" />
+      <LineId Id="331" Count="0" />
+      <LineId Id="168" Count="22" />
+      <LineId Id="141" Count="1" />
+      <LineId Id="332" Count="0" />
+      <LineId Id="191" Count="22" />
+      <LineId Id="143" Count="0" />
+      <LineId Id="333" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="220" Count="22" />
+      <LineId Id="216" Count="0" />
+      <LineId Id="334" Count="0" />
+      <LineId Id="244" Count="23" />
+      <LineId Id="243" Count="0" />
+      <LineId Id="217" Count="0" />
+      <LineId Id="138" Count="0" />
       <LineId Id="82" Count="2" />
       <LineId Id="111" Count="0" />
       <LineId Id="109" Count="1" />
@@ -1122,7 +1701,13 @@ END_CASE]]></ST>
       <LineId Id="10" Count="0" />
       <LineId Id="35" Count="0" />
       <LineId Id="22" Count="0" />
-      <LineId Id="25" Count="3" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="49" Count="4" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="60" Count="0" />
+      <LineId Id="55" Count="4" />
+      <LineId Id="54" Count="0" />
+      <LineId Id="28" Count="0" />
       <LineId Id="41" Count="2" />
       <LineId Id="23" Count="0" />
       <LineId Id="31" Count="0" />
@@ -1137,12 +1722,17 @@ END_CASE]]></ST>
     </LineIds>
     <LineIds Name="FB_working.M_runStart">
       <LineId Id="5" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="25" Count="4" />
       <LineId Id="8" Count="0" />
+      <LineId Id="20" Count="0" />
       <LineId Id="11" Count="0" />
       <LineId Id="16" Count="0" />
-      <LineId Id="13" Count="2" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="14" Count="1" />
+      <LineId Id="31" Count="3" />
       <LineId Id="12" Count="0" />
-      <LineId Id="9" Count="1" />
       <LineId Id="7" Count="0" />
       <LineId Id="6" Count="0" />
     </LineIds>
@@ -1156,8 +1746,14 @@ END_CASE]]></ST>
       <LineId Id="9" Count="0" />
       <LineId Id="21" Count="0" />
       <LineId Id="7" Count="0" />
+      <LineId Id="26" Count="4" />
+      <LineId Id="25" Count="0" />
       <LineId Id="5" Count="0" />
-      <LineId Id="12" Count="1" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="34" Count="4" />
+      <LineId Id="32" Count="1" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="13" Count="0" />
       <LineId Id="15" Count="0" />
       <LineId Id="11" Count="0" />
     </LineIds>
@@ -1228,23 +1824,45 @@ END_CASE]]></ST>
       <LineId Id="274" Count="0" />
       <LineId Id="181" Count="0" />
       <LineId Id="36" Count="4" />
+      <LineId Id="384" Count="0" />
       <LineId Id="182" Count="0" />
       <LineId Id="281" Count="0" />
       <LineId Id="280" Count="0" />
       <LineId Id="111" Count="0" />
       <LineId Id="76" Count="0" />
+      <LineId Id="386" Count="0" />
       <LineId Id="279" Count="0" />
+      <LineId Id="337" Count="4" />
+      <LineId Id="336" Count="0" />
       <LineId Id="77" Count="0" />
       <LineId Id="87" Count="1" />
       <LineId Id="134" Count="0" />
       <LineId Id="136" Count="1" />
       <LineId Id="135" Count="0" />
-      <LineId Id="42" Count="0" />
-      <LineId Id="139" Count="0" />
-      <LineId Id="249" Count="0" />
-      <LineId Id="85" Count="1" />
-      <LineId Id="84" Count="0" />
-      <LineId Id="82" Count="1" />
+      <LineId Id="293" Count="1" />
+      <LineId Id="368" Count="0" />
+      <LineId Id="296" Count="6" />
+      <LineId Id="295" Count="0" />
+      <LineId Id="343" Count="0" />
+      <LineId Id="369" Count="0" />
+      <LineId Id="382" Count="0" />
+      <LineId Id="381" Count="0" />
+      <LineId Id="344" Count="5" />
+      <LineId Id="383" Count="0" />
+      <LineId Id="350" Count="0" />
+      <LineId Id="342" Count="0" />
+      <LineId Id="306" Count="0" />
+      <LineId Id="370" Count="0" />
+      <LineId Id="364" Count="0" />
+      <LineId Id="363" Count="0" />
+      <LineId Id="307" Count="17" />
+      <LineId Id="379" Count="0" />
+      <LineId Id="378" Count="0" />
+      <LineId Id="326" Count="0" />
+      <LineId Id="365" Count="2" />
+      <LineId Id="380" Count="0" />
+      <LineId Id="328" Count="6" />
+      <LineId Id="303" Count="0" />
       <LineId Id="78" Count="0" />
       <LineId Id="114" Count="0" />
       <LineId Id="116" Count="2" />
@@ -1273,13 +1891,16 @@ END_CASE]]></ST>
       <LineId Id="103" Count="3" />
       <LineId Id="71" Count="0" />
       <LineId Id="49" Count="0" />
+      <LineId Id="385" Count="0" />
       <LineId Id="140" Count="0" />
       <LineId Id="133" Count="0" />
       <LineId Id="50" Count="0" />
       <LineId Id="282" Count="0" />
       <LineId Id="51" Count="2" />
       <LineId Id="170" Count="0" />
-      <LineId Id="158" Count="3" />
+      <LineId Id="158" Count="1" />
+      <LineId Id="358" Count="4" />
+      <LineId Id="160" Count="1" />
       <LineId Id="54" Count="0" />
       <LineId Id="67" Count="3" />
       <LineId Id="11" Count="0" />

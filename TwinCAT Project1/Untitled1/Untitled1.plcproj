@@ -18,6 +18,9 @@
     <Released>false</Released>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="02DUTs\Ads\AutostoreControlCommand.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="02DUTs\Ads\AutostoreStatus.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -88,9 +91,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="02DUTs\Ads\ToteSubsystemWorkflowStatus.TcDUT">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="02DUTs\AutostoreControlCommand.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="GVLs\GVL.TcGVL">

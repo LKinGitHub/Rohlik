@@ -335,7 +335,7 @@ IF ton_timeout.Q THEN
 			event.sEvent_MSG	:=  CONCAT('WAIT_RIGHT_MUTE_OFF ','timeout');
 			event.sStepID		:= sStateTemp;	
 	END_CASE
-	IF eStates<>E_LoadingStates.WAIT AND eStates<>E_LoadingStates.DETECTION THEN
+	IF eStates<>E_LoadingStates.WAIT AND eStates<>E_LoadingStates.DETECTION AND eStates<>E_LoadingStates.WAIT_NEXT_READY THEN
 		eStates	:= E_LoadingStates.ERROR;
 		Event_add(event);
 	END_IF
@@ -389,9 +389,13 @@ CASE eStates OF
 			st_mcAxis.rVelocitySet	:= 100;
 			IF st_mcAxis.mcMoveAbsolute.Done THEN
 				st_mcAxis.mcMoveAbsolute.Execute	:= FALSE;
-				eTransfer	:= E_Transfer.UNLOAD;
-				eStates	:= E_LoadingStates.ROLLER_UNLOAD;
+				eStates	:= E_LoadingStates.WAIT_NEXT_READY;
 			END_IF	
+		E_LoadingStates.WAIT_NEXT_READY:
+			eTransfer	:= E_Transfer.UNLOAD;
+			IF GVL.fb_working.eStates=E_WorkingStates.TOTE_LOAD THEN
+				eStates	:= E_LoadingStates.ROLLER_UNLOAD;
+			END_IF			
 		E_LoadingStates.ROLLER_UNLOAD:
 			roller_x.roller.forward	:= TRUE;
 			IF NOT photo_sensor_tote_detection.Q THEN
@@ -605,9 +609,15 @@ END_VAR
       <LineId Id="223" Count="0" />
       <LineId Id="68" Count="5" />
       <LineId Id="186" Count="0" />
-      <LineId Id="74" Count="11" />
-      <LineId Id="227" Count="0" />
-      <LineId Id="86" Count="7" />
+      <LineId Id="74" Count="10" />
+      <LineId Id="233" Count="0" />
+      <LineId Id="86" Count="1" />
+      <LineId Id="236" Count="0" />
+      <LineId Id="246" Count="0" />
+      <LineId Id="242" Count="0" />
+      <LineId Id="245" Count="0" />
+      <LineId Id="237" Count="0" />
+      <LineId Id="88" Count="5" />
       <LineId Id="195" Count="0" />
       <LineId Id="94" Count="3" />
       <LineId Id="99" Count="2" />
