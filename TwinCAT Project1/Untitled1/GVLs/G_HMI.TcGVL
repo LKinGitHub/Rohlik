@@ -7,6 +7,7 @@ VAR_GLOBAL
 	bReset			: BOOL;
 	bRun			: BOOL;
 	bStop			: BOOL;
+	bPause			: BOOL;
 	bInit			: BOOL;
 	bAging_test		: BOOL;
 END_VAR]]></Declaration>

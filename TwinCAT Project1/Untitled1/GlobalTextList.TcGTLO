@@ -211,6 +211,11 @@
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>
+              <v n="TextID">"787"</v>
+              <v n="TextDefault">"Pause"</v>
+              <l n="LanguageTexts" t="ArrayList" />
+            </o>
+            <o>
               <v n="TextID">"706"</v>
               <v n="TextDefault">"photo_sens[1]or_start"</v>
               <l n="LanguageTexts" t="ArrayList" />

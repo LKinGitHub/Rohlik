@@ -23,6 +23,9 @@ VAR
 	ton1	: TON;
 	working_tote_status	: ToteStatus;
 	p_eTransfer_working	: POINTER TO E_Transfer;
+	ton_heart_beat	: TON;
+	bReset_ads_heart_beat	: BOOL;
+	bTest	:BOOL;
 ///////////////////////////autostore mock////////////////	
 	auto_store_run		: BOOL;
 	auto_store_sensor	: BOOL;
@@ -49,10 +52,14 @@ CASE cmd OF
 		p_eTransfer_working^ := E_Transfer.LOAD;
 		IF GVL.fb_working.M_load() THEN
 			cmd	:= OrderToteCommand.DO_NOTHING;
-		END_IF			
+		END_IF
+		
 	OrderToteCommand.OPEN_BAG:		
 		;
 	OrderToteCommand.STOP:
+		IF GVL.fb_working.M_load() THEN
+			cmd	:= OrderToteCommand.DO_NOTHING;
+		END_IF	
 		;
 	OrderToteCommand.SWAP:
 		;
@@ -69,7 +76,14 @@ END_CASE
 
 
 ton1(PT:=T#1S);
-
+IF bTest THEN
+	ads_heart_beat();
+	bTest	:= FALSE;
+END_IF
+ton_heart_beat(IN:=NOT bReset_ads_heart_beat,PT:=T#3S);
+IF bReset_ads_heart_beat THEN
+	bReset_ads_heart_beat	:= FALSE;
+END_IF
 //////////////////////////mock autostore/////////////////
 rtStop_auto_store(CLK:=auto_store_sensor);
 IF MAIN.application.safety.xError THEN
@@ -93,6 +107,19 @@ CASE autostore_control_cmd OF
 END_CASE	
 ]]></ST>
     </Implementation>
+    <Method Name="ads_heart_beat" Id="{fd3aacdd-bd79-468f-b337-c73a0025f4da}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD ads_heart_beat : BOOL
+VAR_INPUT
+	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ads_heart_beat	:= FALSE; 
+bReset_ads_heart_beat	:= TRUE;
+ads_heart_beat	:= TRUE;]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="autostore_control_command" Id="{5957a64f-9f0f-4290-9a05-8528b8c728c6}">
       <Declaration><![CDATA[{attribute 'TcRpcEnable'}
 METHOD autostore_control_command : BOOL
@@ -102,7 +129,7 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[autostore_control_command	:= FALSE; 
-IF MAIN.eState=E_SystemManager.IN_PROGRESS AND autostore_control_cmd=AutostoreControlCommand.DO_NOTHING AND MAIN.application.safety.bStop_button_unlock THEN
+IF MAIN.eState=E_SystemManager.IN_PROGRESS AND autostore_control_cmd=AutostoreControlCommand.DO_NOTHING AND NOT MAIN.application.safety.bStop_button_unlock THEN
 	autostore_control_cmd	:= Command;
 ELSE
 	cmd	:= OrderToteCommand.DO_NOTHING;
@@ -235,7 +262,9 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[order_tote_action_request	:= FALSE; 
-IF MAIN.eState=E_SystemManager.IN_PROGRESS AND cmd=OrderToteCommand.DO_NOTHING AND MAIN.application.safety.bStop_button_unlock THEN
+IF MAIN.eState=E_SystemManager.IN_PROGRESS 
+AND (cmd=OrderToteCommand.DO_NOTHING OR Command=OrderToteCommand.STOP)
+AND NOT MAIN.application.safety.bStop_button_unlock THEN
 	cmd	:= Command;
 ELSE
 	error_status	:= OrderToteErrorStatus.MACHINE_NOT_RUNNING;
@@ -261,8 +290,11 @@ order_tote_action_request	:= TRUE; ]]></ST>
       <LineId Id="212" Count="0" />
       <LineId Id="217" Count="1" />
       <LineId Id="215" Count="0" />
+      <LineId Id="313" Count="0" />
       <LineId Id="23" Count="2" />
-      <LineId Id="48" Count="0" />
+      <LineId Id="315" Count="1" />
+      <LineId Id="311" Count="0" />
+      <LineId Id="308" Count="0" />
       <LineId Id="27" Count="2" />
       <LineId Id="225" Count="2" />
       <LineId Id="224" Count="0" />
@@ -274,7 +306,11 @@ order_tote_action_request	:= TRUE; ]]></ST>
       <LineId Id="231" Count="0" />
       <LineId Id="236" Count="0" />
       <LineId Id="56" Count="0" />
+      <LineId Id="347" Count="1" />
+      <LineId Id="350" Count="0" />
+      <LineId Id="349" Count="0" />
       <LineId Id="61" Count="0" />
+      <LineId Id="352" Count="2" />
       <LineId Id="251" Count="0" />
       <LineId Id="278" Count="0" />
       <LineId Id="252" Count="1" />
@@ -283,6 +319,11 @@ order_tote_action_request	:= TRUE; ]]></ST>
       <LineId Id="264" Count="13" />
       <LineId Id="263" Count="0" />
       <LineId Id="60" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Tote_Subsystem.ads_heart_beat">
+      <LineId Id="8" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_Tote_Subsystem.autostore_control_command">
       <LineId Id="8" Count="1" />
@@ -360,6 +401,8 @@ order_tote_action_request	:= TRUE; ]]></ST>
     <LineIds Name="FB_Tote_Subsystem.order_tote_action_request">
       <LineId Id="5" Count="0" />
       <LineId Id="30" Count="0" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="46" Count="0" />
       <LineId Id="34" Count="0" />
       <LineId Id="31" Count="0" />
       <LineId Id="33" Count="0" />

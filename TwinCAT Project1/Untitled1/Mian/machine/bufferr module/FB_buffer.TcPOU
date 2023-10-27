@@ -17,6 +17,7 @@ VAR
 	i	: INT;
 	event				: ST_EVENT;
 	rt_error			: R_TRIG;
+	bStopped			: BOOL;
 END_VAR
 VAR CONSTANT
 	iHas_rollers	: INT:=3;
@@ -28,8 +29,8 @@ END_VAR
 event.sTime	:= MAIN.Temp_str;
 event.sComponent_name	:= sComponent_name;
 xError	:= fb_rollers[0].xError OR fb_rollers[1].xError OR fb_rollers[2].xError  OR fb_rollers[3].xError;
-			
-				
+		
+bstopped	:= fb_rollers[0].bStopped AND fb_rollers[1].bStopped AND fb_rollers[2].bStopped AND fb_rollers[3].bStopped;
 				
 ]]></ST>
     </Implementation>

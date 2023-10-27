@@ -12,7 +12,9 @@ VAR
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[]]></ST>
+      <ST><![CDATA[IF MAIN.application.tote_subsystem.ton_heart_beat.Q THEN
+	update_light_tower(0);
+END_IF]]></ST>
     </Implementation>
     <Property Name="_lightTower" Id="{f7d870eb-4a94-4b4b-89e4-8119c420cb86}">
       <Declaration><![CDATA[PROPERTY _lightTower : ST_LightTower]]></Declaration>
@@ -54,6 +56,7 @@ update_light_tower	:= TRUE;
     </Method>
     <LineIds Name="FB_Light_tower_module">
       <LineId Id="9" Count="0" />
+      <LineId Id="19" Count="1" />
     </LineIds>
     <LineIds Name="FB_Light_tower_module._lightTower.Get">
       <LineId Id="2" Count="0" />

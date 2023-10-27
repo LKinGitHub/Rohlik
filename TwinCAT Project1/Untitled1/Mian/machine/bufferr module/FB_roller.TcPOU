@@ -30,6 +30,8 @@ VAR
 	xError	: BOOL;
 	event				: ST_EVENT;
 	rt_error			: R_TRIG;
+	bStopped				: BOOL;
+	rTrig_addEvent	:ARRAY[0..10] OF R_TRIG;
 END_VAR
 VAR CONSTANT
 	rPos_up			: REAL	:=90;
@@ -38,13 +40,7 @@ VAR CONSTANT
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[M_mapping(id_roller);
-rt_error(CLK:=(roller.err OR st_mcAxis.mcReadStatus.Error)AND MAIN.eState<>E_SystemManager.RESET_SAFETY);//roller will trig error while power on
-
-IF rt_error.Q THEN
-	xError	:= TRUE;
-	eStates	:= E_RollerStates.ERROR;
-END_IF
+      <ST><![CDATA[
 //////////////////////////////////////////////////////////timeout//////////////////////////////////////////
 iStateTemp	:= eStateTemp;
 sStateTemp	:= INT_TO_STRING(iStateTemp);
@@ -54,7 +50,7 @@ IF eStates<>E_RollerStates.IDLE AND eStates<>E_RollerStates.ERROR THEN
 		ton_timeout.IN	:=TRUE;
 	ELSE
 		ton_timeout.IN	:=FALSE;
-		IF GVL.bAck_stop THEN
+		IF GVL.bAck_pause THEN
 			RETURN;		
 		END_IF		
 		eStateTemp	:= eStates;
@@ -91,19 +87,15 @@ END_IF
 CASE eStates OF 
 		E_RollerStates.IDLE:
 			roller.forward	:= FALSE;
-			eStates	:= E_RollerStates.INIT;
-		E_RollerStates.INIT:
-//			IF id_roller=3 THEN
-//				eStates	:= E_RollerStates.STOPPER_UP;
-//			ELSE
-//				eStates	:= E_RollerStates.DETECTION;
-//			END_IF
-//avoide tote is just on the top of stopper and stopper is on the button,then if stopper lift up,will demage the tote	
+			IF NOT GVL.bAck_stop THEN
+				eStates	:= E_RollerStates.INIT;
+			END_IF
+		E_RollerStates.INIT:	
+			ton_timeout.PT	:= T#10S;
 			eStates	:= E_RollerStates.DETECTION;
 		E_RollerStates.DETECTION:
 			roller.forward	:= FALSE;
-			st_mcAxis.mcMoveAbsolute.Execute	:= FALSE;
-			ton_timeout.PT	:= T#10S;			
+			st_mcAxis.mcMoveAbsolute.Execute	:= FALSE;		
 			IF roller.sensor.Q THEN
 				current_tote_status	:= ToteStatus.READY;
 			ELSE
@@ -121,18 +113,22 @@ CASE eStates OF
 					eStates	:= E_RollerStates.UNLOADING;
 				END_IF					
 			END_IF
-			
+			IF GVL.bAck_stop THEN
+				eStates	:= E_RollerStates.IDLE;
+			END_IF
+///////////////////////////////load/////////////////////////////////			
 		E_RollerStates.LOADING:	
 			current_tote_status	:= ToteStatus.UNKNOWN;	
 			IF roller.sensor.Q THEN
-				eStates	:= E_RollerStates.DETECTION;
+				eStates	:= E_RollerStates.DONE;
 				roller.forward	:= FALSE;
 			ELSE
 				roller.forward	:= TRUE;
 			END_IF
 			IF ton_timeout.Q THEN
-				eStates	:= E_RollerStates.DETECTION;
+				eStates	:= E_RollerStates.DONE;
 			END_IF
+///////////////////////////////unload/////////////////////////////////
 		E_RollerStates.UNLOADING:
 			current_tote_status	:= ToteStatus.UNKNOWN;	
 			IF id_roller=3 THEN
@@ -141,11 +137,11 @@ CASE eStates OF
 				IF roller.sensor.Q THEN			
 					roller.forward	:= TRUE;
 				ELSE
-					eStates	:= E_RollerStates.DETECTION;
+					eStates	:= E_RollerStates.DONE;
 					roller.forward	:= FALSE;
 				END_IF	
 				IF ton_timeout.Q THEN
-					eStates	:= E_RollerStates.DETECTION;
+					eStates	:= E_RollerStates.DONE;
 				END_IF
 			END_IF	
 		E_RollerStates.STOPPER_DOWN:
@@ -172,19 +168,46 @@ CASE eStates OF
 			st_mcAxis.rVelocitySet	:= 100;
 			IF st_mcAxis.mcMoveAbsolute.Done THEN
 				st_mcAxis.mcMoveAbsolute.Execute	:= FALSE;
-				eStates	:= E_RollerStates.DETECTION;
+				eStates	:= E_RollerStates.DONE;
 			END_IF			
 		E_RollerStates.DONE:			
-			eStates	:= E_RollerStates.DETECTION;
+			eStates	:= E_RollerStates.IDLE;
 		E_RollerStates.ERROR:
 			st_mcAxis.mcMoveAbsolute.Execute	:= FALSE;
 			roller.forward	:= FALSE;
 			xError	:=	TRUE;	
 END_CASE
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+M_mapping(id_roller);
 
+IF eStates=E_RollerStates.IDLE OR MAIN.eState<>E_SystemManager.IN_PROGRESS THEN
+	bStopped	:= TRUE;
+ELSE
+	bStopped	:= FALSE;
+END_IF 
+//////////////////////////////////////////electrical error///////////////////////////////////////////////
+rt_error(CLK:=(roller.err OR st_mcAxis.mcReadStatus.Error)AND MAIN.eState<>E_SystemManager.RESET_SAFETY);//roller will trig error while power on
 
-
+IF rt_error.Q THEN
+	xError	:= TRUE;
+	eStates	:= E_RollerStates.ERROR;
+END_IF
+//////////////////////////////////////////write electrical error///////////////////////////////////////////////
+rTrig_addEvent[0](CLK:=roller.err);
+rTrig_addEvent[1](CLK:=id_roller=3 AND st_mcAxis.mcReadStatus.Error);
+IF MAIN.eState<>E_SystemManager.RESET_SAFETY AND MAIN.eState<>E_SystemManager.RESET_FB_LOADING THEN
+	IF rTrig_addEvent[0].Q THEN
+		event.sEventType	:= 'ELECTRICAL ERROR';
+		event.sEvent_MSG	:= 'roller is in error state';
+		Event_add(event);		
+	END_IF
+	IF rTrig_addEvent[1].Q THEN
+		event.sEventType	:= 'ELECTRICAL ERROR';
+		event.sEvent_MSG	:= 'axis of stopper is in error state';
+		Event_add(event);		
+	END_IF		
+END_IF
 ]]></ST>
     </Implementation>
     <Method Name="M_agingTest" Id="{6ab60c5c-f036-48dd-a94b-6ba4f861538e}">
@@ -374,7 +397,7 @@ M_safetyEvent	:= TRUE;]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="FB_roller">
-      <LineId Id="666" Count="6" />
+      <LineId Id="672" Count="0" />
       <LineId Id="675" Count="7" />
       <LineId Id="839" Count="0" />
       <LineId Id="781" Count="1" />
@@ -388,17 +411,13 @@ M_safetyEvent	:= TRUE;]]></ST>
       <LineId Id="901" Count="0" />
       <LineId Id="700" Count="8" />
       <LineId Id="825" Count="0" />
-      <LineId Id="838" Count="0" />
+      <LineId Id="983" Count="2" />
       <LineId Id="830" Count="0" />
-      <LineId Id="888" Count="1" />
-      <LineId Id="891" Count="1" />
-      <LineId Id="890" Count="0" />
-      <LineId Id="929" Count="0" />
+      <LineId Id="1063" Count="0" />
       <LineId Id="928" Count="0" />
       <LineId Id="710" Count="0" />
       <LineId Id="931" Count="0" />
       <LineId Id="933" Count="0" />
-      <LineId Id="932" Count="0" />
       <LineId Id="711" Count="4" />
       <LineId Id="719" Count="2" />
       <LineId Id="880" Count="0" />
@@ -407,17 +426,35 @@ M_safetyEvent	:= TRUE;]]></ST>
       <LineId Id="883" Count="1" />
       <LineId Id="879" Count="0" />
       <LineId Id="877" Count="0" />
+      <LineId Id="986" Count="2" />
       <LineId Id="724" Count="1" />
       <LineId Id="939" Count="0" />
       <LineId Id="726" Count="5" />
       <LineId Id="893" Count="2" />
+      <LineId Id="978" Count="0" />
       <LineId Id="732" Count="0" />
       <LineId Id="940" Count="0" />
       <LineId Id="733" Count="8" />
       <LineId Id="898" Count="1" />
       <LineId Id="897" Count="0" />
-      <LineId Id="742" Count="37" />
-      <LineId Id="263" Count="0" />
+      <LineId Id="742" Count="35" />
+      <LineId Id="1031" Count="1" />
+      <LineId Id="979" Count="3" />
+      <LineId Id="778" Count="0" />
+      <LineId Id="1025" Count="5" />
+      <LineId Id="779" Count="0" />
+      <LineId Id="1036" Count="0" />
+      <LineId Id="1060" Count="0" />
+      <LineId Id="1062" Count="0" />
+      <LineId Id="1033" Count="0" />
+      <LineId Id="1037" Count="0" />
+      <LineId Id="1044" Count="1" />
+      <LineId Id="1042" Count="1" />
+      <LineId Id="1052" Count="0" />
+      <LineId Id="1056" Count="2" />
+      <LineId Id="1053" Count="0" />
+      <LineId Id="1038" Count="0" />
+      <LineId Id="1035" Count="0" />
     </LineIds>
     <LineIds Name="FB_roller.M_agingTest">
       <LineId Id="6" Count="23" />

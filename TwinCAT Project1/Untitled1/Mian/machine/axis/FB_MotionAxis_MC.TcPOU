@@ -413,7 +413,8 @@ sysTime(cpuCntLoDW => uFinishTime);
 		IN_OUT.mcSetpoint.Execute := FALSE;
 	END_IF
 	
-    IF  IN_OUT.mcMoveAbsolute.Done OR IN_OUT.mcMoveAbsolute.Error OR IN_OUT.mcReset.Busy THEN 
+    //IF  IN_OUT.mcMoveAbsolute.Done OR IN_OUT.mcMoveAbsolute.Error OR IN_OUT.mcReset.Busy THEN 
+	IF  IN_OUT.mcMoveAbsolute.Error OR IN_OUT.mcReset.Busy THEN 	
 		IN_OUT.mcMoveAbsolute.Execute := FALSE;
 	END_IF
  
@@ -610,7 +611,9 @@ END_VAR
       <LineId Id="2027" Count="0" />
       <LineId Id="2031" Count="0" />
       <LineId Id="2029" Count="1" />
-      <LineId Id="1473" Count="7" />
+      <LineId Id="1473" Count="5" />
+      <LineId Id="3588" Count="0" />
+      <LineId Id="1479" Count="1" />
       <LineId Id="1487" Count="9" />
       <LineId Id="1499" Count="10" />
       <LineId Id="1522" Count="0" />

@@ -26,6 +26,8 @@ VAR
 	event				: ST_EVENT;
 	rt_error			: R_TRIG;
 	eTransfer			: E_Transfer;
+	bStopped				: BOOL;
+	rTrig_addEvent	:ARRAY[0..10] OF R_TRIG;
 ///////////////hardware define//////////////////	
 	roller_x					: Roller_x;
 	roller_y					: Roller_y;
@@ -44,16 +46,41 @@ END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[M_mapping();
-
-
+IF eStates=E_LoadingStates.IDLE OR MAIN.eState<>E_SystemManager.IN_PROGRESS THEN
+	bStopped	:= TRUE;
+ELSE
+	bStopped	:= FALSE;
+END_IF 
+//////////////////////////////////////////electrical error///////////////////////////////////////////////
 rt_error(CLK:=(roller_x.roller.err OR roller_y.roller.err OR st_mcAxis.mcReadStatus.Error) 
 	AND MAIN.eState<>E_SystemManager.RESET_SAFETY);//roller will trig error while power on
 IF rt_error.Q THEN
 	xError	:= TRUE;
 	eStates	:= E_LoadingStates.ERROR;
 END_IF
+//////////////////////////////////////////write electrical error///////////////////////////////////////////////
+rTrig_addEvent[0](CLK:=roller_x.roller.err);
+rTrig_addEvent[1](CLK:=roller_y.roller.err);
+rTrig_addEvent[1](CLK:=st_mcAxis.mcReadStatus.Error);
 
 
+IF MAIN.eState<>E_SystemManager.RESET_SAFETY AND MAIN.eState<>E_SystemManager.RESET_FB_LOADING THEN
+	IF rTrig_addEvent[0].Q THEN
+		event.sEventType	:= 'ELECTRICAL ERROR';
+		event.sEvent_MSG	:= 'roller_x is in error state';
+		Event_add(event);		
+	END_IF
+	IF rTrig_addEvent[1].Q THEN
+		event.sEventType	:= 'ELECTRICAL ERROR';
+		event.sEvent_MSG	:= 'roller_y is in error state';
+		Event_add(event);		
+	END_IF
+	IF rTrig_addEvent[2].Q THEN
+		event.sEventType	:= 'ELECTRICAL ERROR';
+		event.sEvent_MSG	:= 'axis of lift is in error state';
+		Event_add(event);		
+	END_IF		
+END_IF
 ]]></ST>
     </Implementation>
     <Method Name="M_agingTest" Id="{75165e62-765c-445b-bb52-8f7e914ddba8}">
@@ -290,7 +317,7 @@ IF eStates<>E_LoadingStates.IDLE AND eStates<>E_LoadingStates.ERROR THEN
 		ton_timeout.IN	:=TRUE;
 	ELSE
 		ton_timeout.IN	:=FALSE;
-		IF GVL.bAck_stop THEN
+		IF GVL.bAck_pause THEN
 			roller_x.roller.forward	:= FALSE;
 			RETURN;		
 		END_IF
@@ -343,7 +370,9 @@ END_IF
 
 CASE eStates OF 
 		E_LoadingStates.IDLE:	
-			eStates	:= E_LoadingStates.INIT;
+			IF NOT GVL.bAck_stop THEN
+				eStates	:= E_LoadingStates.INIT;
+			END_IF		
 		E_LoadingStates.INIT:
 			eStates	:= E_LoadingStates.WAIT;
 		E_LoadingStates.WAIT:
@@ -358,7 +387,11 @@ CASE eStates OF
 			END_IF
 			IF next_tote_status=ToteStatus.EMPTY AND current_tote_status=ToteStatus.READY AND MAIN.application.tote_subsystem.cmd=OrderToteCommand.LOAD THEN
 				eStates	:= E_LoadingStates.UNLOADING;
-			END_IF				
+			END_IF	
+			IF GVL.bAck_stop THEN
+				eStates	:= E_LoadingStates.IDLE;
+			END_IF
+///////////////////////////////load/////////////////////////////////			
 		E_LoadingStates.LOADING:	
 			eStates	:= E_LoadingStates.LIFT_POSITION_LOAD;
 		E_LoadingStates.LIFT_POSITION_LOAD:				
@@ -379,8 +412,9 @@ CASE eStates OF
 			roller_x.roller.forward	:= TRUE;
 			IF NOT roller_x.photo_sensor_mute_left.Q THEN
 				roller_x.roller.forward	:= FALSE;
-				eStates	:= E_LoadingStates.DETECTION;
+				eStates	:= E_LoadingStates.DONE;
 			END_IF	
+///////////////////////////////unload/////////////////////////////////			
 		E_LoadingStates.UNLOADING:	
 			eStates	:= E_LoadingStates.LIFT_POSITION_UNLOAD;
 		E_LoadingStates.LIFT_POSITION_UNLOAD:
@@ -405,7 +439,7 @@ CASE eStates OF
 			roller_x.roller.forward	:= TRUE;
 			IF NOT roller_x.photo_sensor_mute_right.Q THEN
 				roller_x.roller.forward	:= FALSE;
-				eStates	:= E_LoadingStates.DETECTION;
+				eStates	:= E_LoadingStates.DONE;
 			END_IF				
 		E_LoadingStates.DONE:			
 			eStates	:= E_LoadingStates.IDLE;
@@ -460,13 +494,21 @@ END_VAR
     </Method>
     <LineIds Name="FB_loading">
       <LineId Id="9" Count="0" />
+      <LineId Id="334" Count="3" />
       <LineId Id="201" Count="0" />
       <LineId Id="203" Count="0" />
       <LineId Id="205" Count="0" />
       <LineId Id="247" Count="0" />
       <LineId Id="207" Count="2" />
       <LineId Id="129" Count="1" />
+      <LineId Id="356" Count="0" />
+      <LineId Id="358" Count="2" />
+      <LineId Id="357" Count="0" />
       <LineId Id="37" Count="0" />
+      <LineId Id="340" Count="4" />
+      <LineId Id="351" Count="3" />
+      <LineId Id="345" Count="5" />
+      <LineId Id="339" Count="0" />
       <LineId Id="14" Count="0" />
     </LineIds>
     <LineIds Name="FB_loading.M_agingTest">
@@ -599,17 +641,23 @@ END_VAR
       <LineId Id="35" Count="2" />
       <LineId Id="172" Count="0" />
       <LineId Id="38" Count="4" />
-      <LineId Id="185" Count="0" />
+      <LineId Id="247" Count="2" />
       <LineId Id="44" Count="6" />
       <LineId Id="148" Count="0" />
       <LineId Id="225" Count="0" />
-      <LineId Id="52" Count="13" />
+      <LineId Id="52" Count="5" />
+      <LineId Id="253" Count="1" />
+      <LineId Id="252" Count="0" />
+      <LineId Id="251" Count="0" />
+      <LineId Id="58" Count="7" />
       <LineId Id="226" Count="0" />
       <LineId Id="66" Count="0" />
       <LineId Id="223" Count="0" />
       <LineId Id="68" Count="5" />
       <LineId Id="186" Count="0" />
-      <LineId Id="74" Count="10" />
+      <LineId Id="74" Count="3" />
+      <LineId Id="250" Count="0" />
+      <LineId Id="78" Count="6" />
       <LineId Id="233" Count="0" />
       <LineId Id="86" Count="1" />
       <LineId Id="236" Count="0" />

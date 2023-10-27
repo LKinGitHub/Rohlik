@@ -67,19 +67,17 @@ VAR
 	rt_error			: R_TRIG;
 	eTransfer			: E_Transfer;
 	
-	
-	
-	
-	
-	
-	
 	bStopped				: BOOL;
+	
+	
+	
+	rTrig_addEvent	:ARRAY[0..10] OF R_TRIG;
 END_VAR
 VAR CONSTANT
 	rPos_lift_up			: REAL	:= 120;
 	rPos_lift_down			: REAL	:= 7;
-	rPos_vacuun_home		: ARRAY[0..1]OF REAL:=[0,0];
-	rPos_vacuun_working		: ARRAY[0..1]OF REAL:=[249,242];
+	rPos_vacuun_home		: ARRAY[0..1]OF REAL:=[1,1];
+	rPos_vacuun_working		: ARRAY[0..1]OF REAL:=[242,242];
 	rPos_bag_begin			: ARRAY[0..3]OF REAL:=[10,10,10,10];
 	rPos_bag_end			: ARRAY[0..3]OF REAL:=[95,95,95,95];
 	
@@ -91,14 +89,11 @@ END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[M_mapping();
-
-rt_error(CLK:=(roller_inbound.roller.err OR roller_outbound.roller.err OR roller_outbound_end.roller.err OR st_mcAxis_lift.mcReadStatus.Error 
-				OR st_mcAxis_bag.mcReadStatus.Error) AND MAIN.eState<>E_SystemManager.RESET_SAFETY);//roller will trig error while power on
-IF rt_error.Q THEN
-	xError	:= TRUE;
-	eStates	:= E_WorkingStates.ERROR;
+IF eStates=E_WorkingStates.IDLE OR MAIN.eState<>E_SystemManager.IN_PROGRESS THEN
+	bStopped	:= TRUE;
+ELSE
+	bStopped	:= FALSE;
 END_IF
-
 IF NOT(roller_inbound.photo_sensor_mute.Q OR roller_inbound.photo_sensor.Q OR roller_outbound.photo_sensor.Q) THEN
 	current_tote_status	:= ToteStatus.EMPTY;
 END_IF
@@ -106,13 +101,98 @@ IF NOT roller_inbound.photo_sensor_mute.Q AND roller_inbound.photo_sensor.Q AND 
 	current_tote_status	:= ToteStatus.READY;
 END_IF
 
-
-
-IF eStates=E_WorkingStates.IDLE THEN
-	bStopped	:= TRUE;
-ELSE
-	bStopped	:= FALSE;
+//////////////////////////////////////////electrical error///////////////////////////////////////////////
+rt_error(CLK:=	(roller_inbound.roller.err 
+				OR roller_outbound.roller.err 
+				OR roller_outbound_end.roller.err 
+				OR st_mcAxis_lift.mcReadStatus.Error 
+				OR st_mcAxis_bag.mcReadStatus.Error 
+				OR st_mcAxis_vacuun[0].mcReadStatus.Error 
+				OR st_mcAxis_vacuun[1].mcReadStatus.Error
+				OR st_mcAxis_bagOpen[0].mcReadStatus.Error
+				OR st_mcAxis_bagOpen[1].mcReadStatus.Error
+				OR st_mcAxis_bagOpen[2].mcReadStatus.Error
+				OR st_mcAxis_bagOpen[3].mcReadStatus.Error) 
+				AND MAIN.eState<>E_SystemManager.RESET_SAFETY);//roller will trig error while power on
+IF rt_error.Q THEN
+	xError	:= TRUE;
+	eStates	:= E_WorkingStates.ERROR;
 END_IF
+//////////////////////////////////////////write electrical error///////////////////////////////////////////////
+rTrig_addEvent[0](CLK:=roller_inbound.roller.err);
+rTrig_addEvent[1](CLK:=roller_outbound.roller.err);
+rTrig_addEvent[2](CLK:=roller_outbound_end.roller.err);
+rTrig_addEvent[3](CLK:=st_mcAxis_lift.mcReadStatus.Error);
+rTrig_addEvent[4](CLK:=st_mcAxis_bag.mcReadStatus.Error);
+rTrig_addEvent[5](CLK:=st_mcAxis_vacuun[0].mcReadStatus.Error);
+rTrig_addEvent[6](CLK:=st_mcAxis_vacuun[1].mcReadStatus.Error);
+rTrig_addEvent[7](CLK:=st_mcAxis_bagOpen[0].mcReadStatus.Error);
+rTrig_addEvent[8](CLK:=st_mcAxis_bagOpen[1].mcReadStatus.Error);
+rTrig_addEvent[9](CLK:=st_mcAxis_bagOpen[2].mcReadStatus.Error);
+rTrig_addEvent[10](CLK:=st_mcAxis_bagOpen[3].mcReadStatus.Error);
+
+
+IF MAIN.eState<>E_SystemManager.RESET_SAFETY AND MAIN.eState<>E_SystemManager.RESET_FB_LOADING THEN
+	IF rTrig_addEvent[0].Q THEN
+		event.sEventType	:= 'ELECTRICAL ERROR';
+		event.sEvent_MSG	:= 'roller_inbound is in error state';
+		Event_add(event);		
+	END_IF
+	IF rTrig_addEvent[1].Q THEN
+		event.sEventType	:= 'ELECTRICAL ERROR';
+		event.sEvent_MSG	:= 'roller_outbound is in error state';
+		Event_add(event);		
+	END_IF
+	IF rTrig_addEvent[2].Q THEN
+		event.sEventType	:= 'ELECTRICAL ERROR';
+		event.sEvent_MSG	:= 'roller_outbound_end is in error state';
+		Event_add(event);		
+	END_IF
+	IF rTrig_addEvent[3].Q THEN
+		event.sEventType	:= 'ELECTRICAL ERROR';
+		event.sEvent_MSG	:= 'axis of lift is in error state';
+		Event_add(event);		
+	END_IF	
+	IF rTrig_addEvent[4].Q THEN
+		event.sEventType	:= 'ELECTRICAL ERROR';
+		event.sEvent_MSG	:= 'axis of bagopen is in error state';
+		Event_add(event);		
+	END_IF	
+	IF rTrig_addEvent[5].Q THEN
+		event.sEventType	:= 'ELECTRICAL ERROR';
+		event.sEvent_MSG	:= 'axis of vacuun[0]_open is in error state';
+		Event_add(event);		
+	END_IF
+	IF rTrig_addEvent[6].Q THEN
+		event.sEventType	:= 'ELECTRICAL ERROR';
+		event.sEvent_MSG	:= 'axis of vacuun[1]_open is in error state';
+		Event_add(event);		
+	END_IF
+	IF rTrig_addEvent[7].Q THEN
+		event.sEventType	:= 'ELECTRICAL ERROR';
+		event.sEvent_MSG	:= 'axis of bagopen[0] is in error state';
+		Event_add(event);		
+	END_IF
+	IF rTrig_addEvent[8].Q THEN
+		event.sEventType	:= 'ELECTRICAL ERROR';
+		event.sEvent_MSG	:= 'axis of bagopen[1] is in error state';
+		Event_add(event);		
+	END_IF
+	IF rTrig_addEvent[9].Q THEN
+		event.sEventType	:= 'ELECTRICAL ERROR';
+		event.sEvent_MSG	:= 'axis of bagopen[2] is in error state';
+		Event_add(event);		
+	END_IF
+	IF rTrig_addEvent[10].Q THEN
+		event.sEventType	:= 'ELECTRICAL ERROR';
+		event.sEvent_MSG	:= 'axis of bagopen[3] is in error state';
+		Event_add(event);		
+	END_IF	
+END_IF
+
+
+
+
 CASE iMethod_test OF
 	0:
 	;
@@ -358,7 +438,7 @@ IF eStates<>E_WorkingStates.IDLE AND eStates<>E_WorkingStates.ERROR THEN
 		ton_timeout.IN	:=TRUE;
 	ELSE
 		ton_timeout.IN	:=FALSE;
-		IF GVL.bAck_stop THEN
+		IF GVL.bAck_pause THEN
 			roller_inbound.roller.forward	:= FALSE;
 			RETURN;			
 		END_IF
@@ -403,8 +483,12 @@ IF ton_timeout.Q THEN
 			event.sEvent_MSG	:= CONCAT('unknow estate ','timeout');
 			event.sStepID		:= sStateTemp;			
 	END_CASE
-	IF eStates<>E_WorkingStates.WAIT_NEW_TOTE AND eStates<>E_WorkingStates.WAIT AND eStates<>E_WorkingStates.BAG_OPEN_AXIS_CYCLINDER_DOWN
-	AND eStates<>E_WorkingStates.VACUUN_ON AND eStates<>E_WorkingStates.WAIT_1 THEN
+	IF  eStates<>E_WorkingStates.IDLE 
+	AND eStates<>E_WorkingStates.WAIT_NEW_TOTE 
+	AND eStates<>E_WorkingStates.WAIT 
+	AND eStates<>E_WorkingStates.BAG_OPEN_AXIS_CYCLINDER_DOWN
+	AND eStates<>E_WorkingStates.VACUUN_ON 
+	AND eStates<>E_WorkingStates.WAIT_1 THEN
 		eStates	:= E_WorkingStates.ERROR;
 		error_status	:= OrderToteErrorStatus.MECHANICAL_ERROR;
 		Event_add(event);
@@ -428,11 +512,11 @@ CASE eStates OF
 			st_mcAxis_lift.mcPower.Enable	:= TRUE;
 			IF st_mcAxis_vacuun[0].mcReadStatus.StandStill AND st_mcAxis_vacuun[1].mcReadStatus.StandStill AND st_mcAxis_bagOpen[0].mcReadStatus.StandStill
 			AND st_mcAxis_bagOpen[1].mcReadStatus.StandStill AND st_mcAxis_bagOpen[2].mcReadStatus.StandStill AND st_mcAxis_bagOpen[3].mcReadStatus.StandStill 
-			AND st_mcAxis_lift.mcReadStatus.StandStill THEN
+			AND st_mcAxis_lift.mcReadStatus.StandStill AND NOT GVL.bAck_stop THEN
 				eStates	:= E_WorkingStates.INIT;
 			END_IF			
 		E_WorkingStates.INIT:
-			ADSLOGSTR(msgCtrlMask:= ADSLOG_MSGTYPE_LOG,msgFmtStr:='load start',strArg:='');
+			//ADSLOGSTR(msgCtrlMask:= ADSLOG_MSGTYPE_LOG,msgFmtStr:='load start',strArg:='');
 			xLoading	:= TRUE;		
 			st_mcAxis_vacuun[0].mcMoveAbsolute.Execute	:= FALSE;
 			st_mcAxis_vacuun[1].mcMoveAbsolute.Execute	:= FALSE;
@@ -502,10 +586,17 @@ CASE eStates OF
 			workflow_status	:= ToteSubsystemWorkflowStatus.WAITING_FOR_NEW_TOTE;
 			IF NOT(roller_inbound.photo_sensor_mute.Q OR roller_inbound.photo_sensor.Q OR roller_outbound.photo_sensor.Q) THEN
 				tote_status	:= ToteStatus.EMPTY;
+			ELSE
+				tote_status	:= ToteStatus.LOADED;
 			END_IF
 			IF M_waitCondition(condition:=E_Condition.READY_LOADING_TOTE) THEN
 				eStates	:= E_WorkingStates.TOTE_LOAD;
 			END_IF
+			IF GVL.bAck_stop OR MAIN.application.tote_subsystem.cmd=OrderToteCommand.STOP THEN
+				workflow_status	:= ToteSubsystemWorkflowStatus.IDLE;
+				M_load	:= TRUE;
+				eStates	:= E_WorkingStates.IDLE;
+			END_IF			
 ////////////////////////////////////////////////action/////////////////////////////////////////////
 		E_WorkingStates.TOTE_LOAD:	
 			workflow_status	:= ToteSubsystemWorkflowStatus.INBOUNDING;
@@ -568,10 +659,10 @@ CASE eStates OF
 			ton_timeout.PT	:=T#5S;
 			st_mcAxis_vacuun[0].mcMoveAbsolute.Execute	:= TRUE;		
 			st_mcAxis_vacuun[0].rActualPosSet	:= rPos_vacuun_working[0];
-			st_mcAxis_vacuun[0].rVelocitySet	:= 200;
+			st_mcAxis_vacuun[0].rVelocitySet	:= 300;
 			st_mcAxis_vacuun[1].mcMoveAbsolute.Execute	:= TRUE;		
 			st_mcAxis_vacuun[1].rActualPosSet	:= rPos_vacuun_working[1];
-			st_mcAxis_vacuun[1].rVelocitySet	:= 200;
+			st_mcAxis_vacuun[1].rVelocitySet	:= 300;
 			IF st_mcAxis_vacuun[0].mcMoveAbsolute.Done AND st_mcAxis_vacuun[1].mcMoveAbsolute.Done THEN
 				st_mcAxis_vacuun[0].mcMoveAbsolute.Execute	:= FALSE;
 				st_mcAxis_vacuun[1].mcMoveAbsolute.Execute	:= FALSE;
@@ -620,7 +711,7 @@ CASE eStates OF
 				eStates	:= E_WorkingStates.DONE;
 			END_IF
 		E_WorkingStates.DONE:
-			ADSLOGSTR(msgCtrlMask:= ADSLOG_MSGTYPE_LOG,msgFmtStr:='load end',strArg:='');
+			//ADSLOGSTR(msgCtrlMask:= ADSLOG_MSGTYPE_LOG,msgFmtStr:='load end',strArg:='');
 			tote_status	:= ToteStatus.READY;
 			workflow_status	:= ToteSubsystemWorkflowStatus.IDLE;	
 			M_load	:= TRUE;
@@ -659,7 +750,7 @@ roller_inbound.photo_sensor_mute(D:= G_IO.arDI[5].Ch[4],on_ms:=10,off_ms:=100);
 roller_inbound.roller.err			:= G_IO.arDI[5].Ch[5];
 roller_inbound.photo_sensor(D:= G_IO.arDI[5].Ch[6],on_ms:=100,off_ms:=100);
 roller_outbound.roller.err			:= G_IO.arDI[5].Ch[7];
-roller_outbound.photo_sensor(D:= G_IO.arDI[5].Ch[8],on_ms:=100,off_ms:=500);		
+roller_outbound.photo_sensor(D:= G_IO.arDI[5].Ch[8],on_ms:=50,off_ms:=100);		
 sensor_openbag_detection[0]			:= G_IO.arDI[5].Ch[9];
 sensor_openbag_detection[1]			:= G_IO.arDI[5].Ch[10];
 sensor_openbag_detection[2]			:= G_IO.arDI[5].Ch[11];
@@ -1123,7 +1214,7 @@ IF eStates<>E_WorkingStates.IDLE AND eStates<>E_WorkingStates.ERROR  THEN
 		ton_timeout.IN	:=TRUE;
 	ELSE
 		ton_timeout.IN	:=FALSE;
-		IF GVL.bAck_stop THEN
+		IF GVL.bAck_pause THEN
 			roller_outbound.roller.forward	:= FALSE;
 			roller_outbound_end.roller.forward	:= FALSE;
 			RETURN;		
@@ -1183,9 +1274,11 @@ CASE eStates OF
 			ton_timeout.PT	:= T#3S;
 			xLoading	:= FALSE;
 			xUnloading	:= FALSE;
-			eStates	:= E_WorkingStates.INIT;
+			IF NOT GVL.bAck_stop THEN
+				eStates	:= E_WorkingStates.INIT;
+			END_IF		
 		E_WorkingStates.INIT:	
-			ADSLOGSTR(msgCtrlMask:= ADSLOG_MSGTYPE_LOG,msgFmtStr:='unload start',strArg:='');
+			//ADSLOGSTR(msgCtrlMask:= ADSLOG_MSGTYPE_LOG,msgFmtStr:='unload start',strArg:='');
 			xUnloading	:= TRUE;
 			st_mcAxis_vacuun[0].mcMoveAbsolute.Execute	:= FALSE;
 			st_mcAxis_vacuun[1].mcMoveAbsolute.Execute	:= FALSE;
@@ -1302,7 +1395,7 @@ CASE eStates OF
 				eStates	:= E_WorkingStates.DONE;
 			END_IF				
 		E_WorkingStates.DONE:	
-			ADSLOGSTR(msgCtrlMask:= ADSLOG_MSGTYPE_LOG,msgFmtStr:='unload end',strArg:='');
+			//ADSLOGSTR(msgCtrlMask:= ADSLOG_MSGTYPE_LOG,msgFmtStr:='unload end',strArg:='');
 			workflow_status	:= ToteSubsystemWorkflowStatus.IDLE;
 			tote_status	:= ToteStatus.EMPTY;			
 			M_unload	:= TRUE;
@@ -1354,19 +1447,49 @@ END_CASE]]></ST>
     </Method>
     <LineIds Name="FB_working">
       <LineId Id="70" Count="0" />
+      <LineId Id="564" Count="3" />
       <LineId Id="304" Count="0" />
+      <LineId Id="570" Count="4" />
+      <LineId Id="569" Count="0" />
+      <LineId Id="576" Count="0" />
+      <LineId Id="575" Count="0" />
       <LineId Id="248" Count="0" />
+      <LineId Id="475" Count="2" />
       <LineId Id="301" Count="0" />
+      <LineId Id="478" Count="1" />
+      <LineId Id="472" Count="0" />
+      <LineId Id="480" Count="2" />
+      <LineId Id="474" Count="0" />
       <LineId Id="242" Count="0" />
       <LineId Id="246" Count="0" />
       <LineId Id="245" Count="0" />
       <LineId Id="243" Count="0" />
-      <LineId Id="124" Count="1" />
-      <LineId Id="123" Count="0" />
-      <LineId Id="132" Count="3" />
+      <LineId Id="124" Count="0" />
+      <LineId Id="656" Count="1" />
+      <LineId Id="659" Count="8" />
+      <LineId Id="658" Count="0" />
+      <LineId Id="655" Count="0" />
+      <LineId Id="577" Count="10" />
+      <LineId Id="594" Count="3" />
+      <LineId Id="593" Count="0" />
+      <LineId Id="588" Count="4" />
+      <LineId Id="602" Count="3" />
+      <LineId Id="599" Count="0" />
+      <LineId Id="606" Count="3" />
+      <LineId Id="600" Count="0" />
+      <LineId Id="635" Count="3" />
+      <LineId Id="610" Count="0" />
+      <LineId Id="616" Count="3" />
+      <LineId Id="615" Count="0" />
+      <LineId Id="639" Count="3" />
+      <LineId Id="630" Count="0" />
+      <LineId Id="643" Count="3" />
+      <LineId Id="601" Count="0" />
+      <LineId Id="647" Count="3" />
+      <LineId Id="598" Count="0" />
+      <LineId Id="135" Count="0" />
       <LineId Id="360" Count="1" />
       <LineId Id="363" Count="0" />
-      <LineId Id="381" Count="3" />
       <LineId Id="369" Count="0" />
       <LineId Id="71" Count="3" />
       <LineId Id="76" Count="0" />
@@ -1490,7 +1613,10 @@ END_CASE]]></ST>
       <LineId Id="367" Count="1" />
       <LineId Id="366" Count="0" />
       <LineId Id="30" Count="1" />
+      <LineId Id="598" Count="0" />
+      <LineId Id="595" Count="1" />
       <LineId Id="547" Count="0" />
+      <LineId Id="597" Count="0" />
       <LineId Id="32" Count="0" />
       <LineId Id="335" Count="0" />
       <LineId Id="342" Count="0" />
@@ -1551,9 +1677,15 @@ END_CASE]]></ST>
       <LineId Id="132" Count="3" />
       <LineId Id="94" Count="0" />
       <LineId Id="187" Count="1" />
-      <LineId Id="373" Count="2" />
+      <LineId Id="373" Count="1" />
+      <LineId Id="588" Count="1" />
+      <LineId Id="375" Count="0" />
       <LineId Id="189" Count="1" />
       <LineId Id="186" Count="0" />
+      <LineId Id="591" Count="0" />
+      <LineId Id="593" Count="1" />
+      <LineId Id="592" Count="0" />
+      <LineId Id="590" Count="0" />
       <LineId Id="511" Count="0" />
       <LineId Id="102" Count="0" />
       <LineId Id="191" Count="0" />
@@ -1828,7 +1960,7 @@ END_CASE]]></ST>
       <LineId Id="182" Count="0" />
       <LineId Id="281" Count="0" />
       <LineId Id="280" Count="0" />
-      <LineId Id="111" Count="0" />
+      <LineId Id="387" Count="2" />
       <LineId Id="76" Count="0" />
       <LineId Id="386" Count="0" />
       <LineId Id="279" Count="0" />

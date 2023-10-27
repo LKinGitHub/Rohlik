@@ -178,6 +178,13 @@ CASE eState OF
 		IF G_HMI.bAging_test THEN
 			eState	:= E_SystemManager.AGAING_TEST;
 		END_IF
+		IF M_checkError() THEN
+			GVL.fb_buffer.M_safetyEvent();
+			GVL.fb_loading.M_safetyEvent();
+			GVL.fb_working.M_safetyEvent();
+			eState	:= E_SystemManager.ERROR;
+		END_IF		
+
 	E_SystemManager.BUSY:
 		;
 	E_SystemManager.RUN_START:
@@ -190,15 +197,26 @@ CASE eState OF
 		pMachine_status^ := MachineStatus.RUNNING;
 		GVL.fb_buffer.M_run();
 		GVL.fb_loading.M_run();
+		////////////////////stop/////////////////////////////
 		IF pMachine_control_cmd^=MachineControlCommand.STOP OR G_HMI.bStop THEN
-			GVL.bRunning	:= FALSE;
 			GVL.bAck_stop	:= TRUE;
-			pMachine_control_cmd^	:= MachineControlCommand.DO_NOTHING;
 		END_IF
 		IF GVL.bAck_stop THEN
+			IF GVL.fb_buffer.bStopped AND GVL.fb_loading.bStopped AND GVL.fb_working.bStopped THEN
+				eState	:= E_SystemManager.READY;
+			END_IF
+		END_IF
+		////////////////////pause/////////////////////////////
+		IF G_HMI.bPause THEN
+			GVL.bRunning	:= FALSE;
+			GVL.bAck_pause	:= TRUE;
+			pMachine_control_cmd^	:= MachineControlCommand.DO_NOTHING;
+		END_IF
+		////////////////////continue/////////////////////////////
+		IF GVL.bAck_pause THEN
 			IF pMachine_control_cmd^=MachineControlCommand.START OR G_HMI.bRun THEN
 				GVL.bRunning	:= TRUE;
-				GVL.bAck_stop	:= FALSE;
+				GVL.bAck_pause	:= FALSE;
 				pMachine_control_cmd^	:= MachineControlCommand.DO_NOTHING;
 			END_IF
 		END_IF		
@@ -237,6 +255,7 @@ CASE eState OF
 END_CASE
 
 IF eState<>E_SystemManager.IN_PROGRESS THEN
+	GVL.bAck_pause	:= FALSE;
 	GVL.bAck_stop	:= FALSE;
 	GVL.bRunning	:= FALSE;
 END_IF
@@ -412,6 +431,9 @@ END_CASE]]></ST>
       <LineId Id="855" Count="0" />
       <LineId Id="605" Count="1" />
       <LineId Id="674" Count="2" />
+      <LineId Id="1056" Count="4" />
+      <LineId Id="1052" Count="0" />
+      <LineId Id="1055" Count="0" />
       <LineId Id="493" Count="0" />
       <LineId Id="502" Count="0" />
       <LineId Id="871" Count="1" />
@@ -422,11 +444,18 @@ END_CASE]]></ST>
       <LineId Id="747" Count="0" />
       <LineId Id="503" Count="0" />
       <LineId Id="610" Count="0" />
+      <LineId Id="1002" Count="0" />
+      <LineId Id="998" Count="2" />
+      <LineId Id="1004" Count="1" />
+      <LineId Id="1007" Count="1" />
+      <LineId Id="1006" Count="0" />
+      <LineId Id="1001" Count="0" />
       <LineId Id="805" Count="0" />
       <LineId Id="853" Count="0" />
       <LineId Id="806" Count="0" />
       <LineId Id="808" Count="0" />
       <LineId Id="807" Count="0" />
+      <LineId Id="1003" Count="0" />
       <LineId Id="810" Count="1" />
       <LineId Id="854" Count="0" />
       <LineId Id="815" Count="0" />
@@ -463,6 +492,7 @@ END_CASE]]></ST>
       <LineId Id="404" Count="0" />
       <LineId Id="608" Count="0" />
       <LineId Id="821" Count="0" />
+      <LineId Id="1010" Count="0" />
       <LineId Id="863" Count="0" />
       <LineId Id="818" Count="0" />
       <LineId Id="607" Count="0" />
