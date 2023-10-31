@@ -54,7 +54,7 @@
               <v>FB_Reinit</v>
               <v>7341bdde-4fc0-493c-bbc3-e80940bc7996</v>
             </d>
-            <v n="FbName">"NotImportant"</v>
+            <v n="FbName">"__VisuInitInstantiation_Fb"</v>
             <v n="FbGuid">{0aed3d5c-a089-4dd2-a9e1-ecf8c15105c8}</v>
           </o>
           <o n="TargetProperties" t="VisualizationTargetProperties">
