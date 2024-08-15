@@ -1,0 +1,657 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <FileVersion>1.0.0.0</FileVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{6d202d54-030c-410d-b649-c97c3ee97249}</ProjectGuid>
+    <SubObjectsSortedByName>True</SubObjectsSortedByName>
+    <DownloadApplicationInfo>true</DownloadApplicationInfo>
+    <WriteProductVersion>true</WriteProductVersion>
+    <GenerateTpy>false</GenerateTpy>
+    <Name>Rohlik_Expansion</Name>
+    <ProgramVersion>3.1.4024.0</ProgramVersion>
+    <Application>{0842fd14-e2e7-4a2d-9261-6cf74ed7de12}</Application>
+    <TypeSystem>{0057b6d9-a73e-428c-a7ee-6f6c00faea79}</TypeSystem>
+    <Implicit_Task_Info>{4a628429-8a09-4308-83a5-7cfff534c80d}</Implicit_Task_Info>
+    <Implicit_KindOfTask>{06888319-c328-4f56-ab00-db476d31542f}</Implicit_KindOfTask>
+    <Implicit_Jitter_Distribution>{b299099c-29ae-4bb9-8356-c784b561c475}</Implicit_Jitter_Distribution>
+    <LibraryReferences>{91455895-0585-4368-b0b4-530997f6b1f1}</LibraryReferences>
+    <Released>false</Released>
+    <CompilerDefines />
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="02DUTs\E_PMLUserUnitMode.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="02DUTs\E_UnitName.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="02DUTs\ModuleID.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="02DUTs\ST_ChangeIntoProduction.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="02DUTs\ST_UnitInfo.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\AbortToteRequestParams.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\Ads\BagOpeningStatus.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\Ads\ST_LightTowerAction.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\BarcodeValidationRequestParams.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\BarcodeVerificationResult.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\ButtonStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\AirPressureStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\DigitalInputStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\DigitalOutputStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\EStopStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\E_SAFETYDOOR.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\E_SafetyStates.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\FB_AirPressure_Subsystem.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\FB_HeartBeat_Subsystem.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\FB_Light_tower_module.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\FB_MachineControl_Subsystem.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\FB_Safety_Subsystem.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\FB_Tote_Subsystem.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\GeneralStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\HeartbeatParams.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\InboundToteParams.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\InitToteRequestParams.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\LightCurtainStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\MachineCommandStructure.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\MachineControlCommand.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\MachineControlCommand_1.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\MachineStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\MethodCallReturnValue.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\ModelIdentifier.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\OrderToteCommand.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\OutboundToteParams.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\PerturbToteParams.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\SafetyDoorStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\SafetyStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\SensorStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\StationMode.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\ST_BagOpen.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\ST_LightTower.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\SwapToteParams.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\ToteData.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\UpdateLightTowerParams.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Ads\UpdateStationModeParams.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\GVL.TcGVL">
+      <SubType>Code</SubType>
+      <LinkAlways>true</LinkAlways>
+    </Compile>
+    <Compile Include="GVLs\GVL_SAFETY.TcGVL">
+      <SubType>Code</SubType>
+      <LinkAlways>true</LinkAlways>
+    </Compile>
+    <Compile Include="GVLs\G_HMI.TcGVL">
+      <SubType>Code</SubType>
+      <LinkAlways>true</LinkAlways>
+    </Compile>
+    <Compile Include="GVLs\G_IO.TcGVL">
+      <SubType>Code</SubType>
+      <LinkAlways>true</LinkAlways>
+    </Compile>
+    <Compile Include="EtherCAT_Task.TcTTO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GlobalTextList.TcGTLO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\ST_Ifm_Qualifier.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\ST_Ifm_RX.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\ST_Ifm_TX.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\ST_IO_16.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\ST_SafetyIO.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="LogTECH\LogTechControlCmd.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="LogTECH\LogTechStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="LogTECH\LogTechTransferStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MianTask.TcTTO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\axis\AxisHMI_Ex.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>VisualizationManager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="Mian\axis\E_HomingSteps.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\axis\FB_MotionAxis_MC.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\axis\MC_HomeAxis.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\axis\ST_MotionAxis_MC.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\DUTs\BagStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\DUTs\Buffer_roller.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\DUTs\E_Condition.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\DUTs\E_LoadingStates.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\DUTs\E_SampleStates.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\DUTs\E_RollerStates.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\DUTs\E_topic_sample.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\DUTs\E_Transfer.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\DUTs\E_WorkingStates.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\DUTs\FB_DigitalInput.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\DUTs\FB_GPWM.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\DUTs\Inbound.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\DUTs\I_Common.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\DUTs\OrderToteErrorStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\DUTs\Outbound.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\DUTs\Prepare_Date_Time.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\DUTs\Roller.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\DUTs\Roller_x.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\DUTs\Roller_y.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\DUTs\ServerityLevelType.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\DUTs\ST_Alarm_Hmi.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\DUTs\ST_control_pannel.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\DUTs\ST_EVENT.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\DUTs\ST_safetyDoor.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\DUTs\ToteStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\DUTs\ToteSubsystemWorkflowStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\DUTs\Valve.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\FB_Generic.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\FB_Machine.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\FB_mcp.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\FB_Sample.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\FB_loading_tote.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\FB_StateMachine.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\FB_working_tote.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\FB_Visu.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\FB_WriteLog.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Mian\MAIN.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PubSub\E_Topics.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PubSub\I_PubSubService.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PubSub\I_SubCallback.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PubSub\KeyAndValue.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PubSub\PubSubData.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PubSub\PubSubService.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PubSub\ST_TracePublish.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PubSub\SubscriberCell.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="VisualizationManager.TcVMO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="VISUs\ImagePool.TcIPO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="VISUs\Templates\VIS_TemplateCommand.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>VisualizationManager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\Templates\VIS_TemplateKeys.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>VisualizationManager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\Templates\VIS_TemplateMachine.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>VisualizationManager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\Templates\VIS_TemplatePMLStateModel.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>VisualizationManager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\Templates\VIS_TemplateToProduction.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>VisualizationManager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\VISUs\Menu.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>VisualizationManager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\VISUs\visu_2sys.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>VisualizationManager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\VISUs\visu_loading.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>VisualizationManager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\VISUs\visu_operation.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>VisualizationManager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\VISUs\visu_sample.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>VisualizationManager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\VISUs\visu_manual.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>VisualizationManager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\VISUs\visu_working1.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>VisualizationManager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\VISUs\visu_working2.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>VisualizationManager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\VISUs\v_alarm.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>VisualizationManager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\VISUs\v_io_loading.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>VisualizationManager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\VISUs\v_io_working1.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>VisualizationManager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\VISUs\v_io_working2.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>VisualizationManager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\visu_main.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>VisualizationManager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISU_TASK.TcTTO">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="02DUTs" />
+    <Folder Include="Ads" />
+    <Folder Include="Ads\Ads" />
+    <Folder Include="GVLs" />
+    <Folder Include="LogTECH" />
+    <Folder Include="Mian\axis" />
+    <Folder Include="Mian\DUTs" />
+    <Folder Include="Mian\00_Other" />
+    <Folder Include="PubSub" />
+    <Folder Include="VISUs" />
+    <Folder Include="Mian" />
+    <Folder Include="VISUs\Templates" />
+    <Folder Include="VISUs\VISUs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PlaceholderReference Include="CmpBitmapPool">
+      <DefaultResolution>CmpBitmapPool, * (System)</DefaultResolution>
+      <Namespace>CmpBitmapPool</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="System_VisuElemMeter">
+      <DefaultResolution>VisuElemMeter, 3.5.13.0 (System)</DefaultResolution>
+      <Namespace>VisuElemMeter</Namespace>
+      <SystemLibrary>true</SystemLibrary>
+      <ResolverGuid>2717eb6a-dd07-4c66-8d8d-cacebd7b18ae</ResolverGuid>
+    </PlaceholderReference>
+    <PlaceholderReference Include="System_VisuElems">
+      <DefaultResolution>VisuElems, 3.5.13.40 (System)</DefaultResolution>
+      <Namespace>VisuElems</Namespace>
+      <SystemLibrary>true</SystemLibrary>
+      <ResolverGuid>2717eb6a-dd07-4c66-8d8d-cacebd7b18ae</ResolverGuid>
+    </PlaceholderReference>
+    <PlaceholderReference Include="System_VisuElemsSpecialControls">
+      <DefaultResolution>VisuElemsSpecialControls, 3.5.13.0 (System)</DefaultResolution>
+      <Namespace>VisuElemsSpecialControls</Namespace>
+      <SystemLibrary>true</SystemLibrary>
+      <ResolverGuid>2717eb6a-dd07-4c66-8d8d-cacebd7b18ae</ResolverGuid>
+    </PlaceholderReference>
+    <PlaceholderReference Include="System_VisuElemsWinControls">
+      <DefaultResolution>VisuElemsWinControls, 3.5.13.20 (System)</DefaultResolution>
+      <Namespace>VisuElemsWinControls</Namespace>
+      <SystemLibrary>true</SystemLibrary>
+      <ResolverGuid>2717eb6a-dd07-4c66-8d8d-cacebd7b18ae</ResolverGuid>
+    </PlaceholderReference>
+    <PlaceholderReference Include="System_VisuElemTextEditor">
+      <DefaultResolution>VisuElemTextEditor, 3.5.13.0 (System)</DefaultResolution>
+      <Namespace>VisuElemTextEditor</Namespace>
+      <SystemLibrary>true</SystemLibrary>
+      <ResolverGuid>2717eb6a-dd07-4c66-8d8d-cacebd7b18ae</ResolverGuid>
+    </PlaceholderReference>
+    <PlaceholderReference Include="system_visuinputs">
+      <DefaultResolution>visuinputs, 3.5.13.0 (system)</DefaultResolution>
+      <Namespace>visuinputs</Namespace>
+      <SystemLibrary>true</SystemLibrary>
+      <ResolverGuid>2717eb6a-dd07-4c66-8d8d-cacebd7b18ae</ResolverGuid>
+    </PlaceholderReference>
+    <PlaceholderReference Include="System_VisuNativeControl">
+      <DefaultResolution>VisuNativeControl, 3.5.13.0 (System)</DefaultResolution>
+      <Namespace>VisuNativeControl</Namespace>
+      <SystemLibrary>true</SystemLibrary>
+      <ResolverGuid>2717eb6a-dd07-4c66-8d8d-cacebd7b18ae</ResolverGuid>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_EtherCAT">
+      <DefaultResolution>Tc2_EtherCAT, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_EtherCAT</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_IoFunctions">
+      <DefaultResolution>Tc2_IoFunctions, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_IoFunctions</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_MC2">
+      <DefaultResolution>Tc2_MC2, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_MC2</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_ModbusSrv">
+      <DefaultResolution>Tc2_ModbusSrv, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_ModbusSrv</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_Standard">
+      <DefaultResolution>Tc2_Standard, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_Standard</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_SUPS">
+      <DefaultResolution>Tc2_SUPS, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_SUPS</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_System">
+      <DefaultResolution>Tc2_System, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_System</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_Utilities">
+      <DefaultResolution>Tc2_Utilities, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_Utilities</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc3_Module">
+      <DefaultResolution>Tc3_Module, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc3_Module</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc3_PackML_V2">
+      <DefaultResolution>Tc3_PackML_V2, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc3_PackML_V2</Namespace>
+      <Parameters>
+        <Parameter ListName="GLOBALPARAMETERS">
+          <Key>MAXADMINPARAMETERS</Key>
+          <Value>20</Value>
+        </Parameter>
+        <Parameter ListName="GLOBALPARAMETERS">
+          <Key>MAXALARMS</Key>
+          <Value>20</Value>
+        </Parameter>
+        <Parameter ListName="GLOBALPARAMETERS">
+          <Key>MAXHISTORYALARMS</Key>
+          <Value>20</Value>
+        </Parameter>
+      </Parameters>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Util">
+      <DefaultResolution>Util, * (System)</DefaultResolution>
+      <Namespace>Util</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="VisuDialogs">
+      <DefaultResolution>VisuDialogs, * (System)</DefaultResolution>
+      <Namespace>VisuDialogs</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="VisuUserManagement">
+      <DefaultResolution>VisuUserMgmt, * (System)</DefaultResolution>
+      <Namespace>VisuUserManagement</Namespace>
+      <SystemLibrary>true</SystemLibrary>
+    </PlaceholderReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Rohlik_Expansion.tmc">
+      <SubType>Content</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <SubObject Include="FB_Light_tower_module.update_light_tower" />
+    <SubObject Include="FB_Safety_Subsystem.M_mapping" />
+    <SubObject Include="FB_Safety_Subsystem.M_reset" />
+    <SubObject Include="FB_Safety_Subsystem.M_safetyDoor" />
+    <SubObject Include="FB_Safety_Subsystem._stationMode" />
+    <SubObject Include="FB_Safety_Subsystem._stationMode.Get" />
+    <SubObject Include="FB_Safety_Subsystem._stationMode.Set" />
+    <SubObject Include="FB_WriteLog.Act01_CallFB" />
+    <SubObject Include="FB_WriteLog.NT" />
+    <SubObject Include="ToteData._status" />
+    <SubObject Include="ToteData._status.Get" />
+    <SubObject Include="ToteData._status.Set" />
+  </ItemGroup>
+  <ProjectExtensions>
+    <PlcProjectOptions>
+      <XmlArchive>
+        <Data>
+          <o xml:space="preserve" t="OptionKey">
+      <v n="Name">"&lt;ProjectRoot&gt;"</v>
+      <d n="SubKeys" t="Hashtable" ckt="String" cvt="OptionKey">
+        <v>{192FAD59-8248-4824-A8DE-9177C94C195A}</v>
+        <o>
+          <v n="Name">"{192FAD59-8248-4824-A8DE-9177C94C195A}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" />
+        </o>
+        <v>{246001F4-279D-43AC-B241-948EB31120E1}</v>
+        <o>
+          <v n="Name">"{246001F4-279D-43AC-B241-948EB31120E1}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" ckt="String" cvt="Boolean">
+            <v>UnicodeStrings</v>
+            <v>False</v>
+          </d>
+        </o>
+        <v>{29BD8D0C-3586-4548-BB48-497B9A01693F}</v>
+        <o>
+          <v n="Name">"{29BD8D0C-3586-4548-BB48-497B9A01693F}"</v>
+          <d n="SubKeys" t="Hashtable" ckt="String" cvt="OptionKey">
+            <v>Rules</v>
+            <o>
+              <v n="Name">"Rules"</v>
+              <d n="SubKeys" t="Hashtable" />
+              <d n="Values" t="Hashtable" />
+            </o>
+          </d>
+          <d n="Values" t="Hashtable" />
+        </o>
+        <v>{8F99A816-E488-41E4-9FA3-846536012284}</v>
+        <o>
+          <v n="Name">"{8F99A816-E488-41E4-9FA3-846536012284}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" />
+        </o>
+        <v>{40450F57-0AA3-4216-96F3-5444ECB29763}</v>
+        <o>
+          <v n="Name">"{40450F57-0AA3-4216-96F3-5444ECB29763}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" ckt="String" cvt="String">
+            <v>ActiveVisuProfile</v>
+            <v>IR0whWr8bwfwBwAAiD2qpQAAAABVAgAA37x72QAAAAABAAAAAAAAAAEaUwB5AHMAdABlAG0ALgBTAHQAcgBpAG4AZwACTHsAZgA5ADUAYgBiADQAMgA2AC0ANQA1ADIANAAtADQAYgA0ADUALQA5ADQAMAAwAC0AZgBiADAAZgAyAGUANwA3AGUANQAxAGIAfQADCE4AYQBtAGUABDBUAHcAaQBuAEMAQQBUACAAMwAuADEAIABCAHUAaQBsAGQAIAA0ADAAMgA0AC4ANwAFFlAAcgBvAGYAaQBsAGUARABhAHQAYQAGTHsAMQA2AGUANQA1AGIANgAwAC0ANwAwADQAMwAtADQAYQA2ADMALQBiADYANQBiAC0ANgAxADQANwAxADMAOAA3ADgAZAA0ADIAfQAHEkwAaQBiAHIAYQByAGkAZQBzAAhMewAzAGIAZgBkADUANAA1ADkALQBiADAANwBmAC0ANABkADYAZQAtAGEAZQAxAGEALQBhADgAMwAzADUANgBhADUANQAxADQAMgB9AAlMewA5AGMAOQA1ADgAOQA2ADgALQAyAGMAOAA1AC0ANAAxAGIAYgAtADgAOAA3ADEALQA4ADkANQBmAGYAMQBmAGUAZABlADEAYQB9AAoOVgBlAHIAcwBpAG8AbgALBmkAbgB0AAwKVQBzAGEAZwBlAA0KVABpAHQAbABlAA4aVgBpAHMAdQBFAGwAZQBtAE0AZQB0AGUAcgAPDkMAbwBtAHAAYQBuAHkAEAxTAHkAcwB0AGUAbQARElYAaQBzAHUARQBsAGUAbQBzABIwVgBpAHMAdQBFAGwAZQBtAHMAUwBwAGUAYwBpAGEAbABDAG8AbgB0AHIAbwBsAHMAEyhWAGkAcwB1AEUAbABlAG0AcwBXAGkAbgBDAG8AbgB0AHIAbwBsAHMAFCRWAGkAcwB1AEUAbABlAG0AVABlAHgAdABFAGQAaQB0AG8AcgAVIlYAaQBzAHUATgBhAHQAaQB2AGUAQwBvAG4AdAByAG8AbAAWFHYAaQBzAHUAaQBuAHAAdQB0AHMAFwxzAHkAcwB0AGUAbQAYGFYAaQBzAHUARQBsAGUAbQBCAGEAcwBlABkmRABlAHYAUABsAGEAYwBlAGgAbwBsAGQAZQByAHMAVQBzAGUAZAAaCGIAbwBvAGwAGyJQAGwAdQBnAGkAbgBDAG8AbgBzAHQAcgBhAGkAbgB0AHMAHEx7ADQAMwBkADUAMgBiAGMAZQAtADkANAAyAGMALQA0ADQAZAA3AC0AOQBlADkANAAtADEAYgBmAGQAZgAzADEAMABlADYAMwBjAH0AHRxBAHQATABlAGEAcwB0AFYAZQByAHMAaQBvAG4AHhRQAGwAdQBnAGkAbgBHAHUAaQBkAB8WUwB5AHMAdABlAG0ALgBHAHUAaQBkACBIYQBmAGMAZAA1ADQANAA2AC0ANAA5ADEANAAtADQAZgBlADcALQBiAGIANwA4AC0AOQBiAGYAZgBlAGIANwAwAGYAZAAxADcAIRRVAHAAZABhAHQAZQBJAG4AZgBvACJMewBiADAAMwAzADYANgBhADgALQBiADUAYwAwAC0ANABiADkAYQAtAGEAMAAwAGUALQBlAGIAOAA2ADAAMQAxADEAMAA0AGMAMwB9ACMOVQBwAGQAYQB0AGUAcwAkTHsAMQA4ADYAOABmAGYAYwA5AC0AZQA0AGYAYwAtADQANQAzADIALQBhAGMAMAA2AC0AMQBlADMAOQBiAGIANQA1ADcAYgA2ADkAfQAlTHsAYQA1AGIAZAA0ADgAYwAzAC0AMABkADEANwAtADQAMQBiADUALQBiADEANgA0AC0ANQBmAGMANgBhAGQAMgBiADkANgBiADcAfQAmFk8AYgBqAGUAYwB0AHMAVAB5AHAAZQAnVFUAcABkAGEAdABlAEwAYQBuAGcAdQBhAGcAZQBNAG8AZABlAGwARgBvAHIAQwBvAG4AdgBlAHIAdABpAGIAbABlAEwAaQBiAHIAYQByAGkAZQBzACgQTABpAGIAVABpAHQAbABlACkUTABpAGIAQwBvAG0AcABhAG4AeQAqHlUAcABkAGEAdABlAFAAcgBvAHYAaQBkAGUAcgBzACs4UwB5AHMAdABlAG0ALgBDAG8AbABsAGUAYwB0AGkAbwBuAHMALgBIAGEAcwBoAHQAYQBiAGwAZQAsEnYAaQBzAHUAZQBsAGUAbQBzAC1INgBjAGIAMQBjAGQAZQAxAC0AZAA1AGQAYwAtADQAYQAzAGIALQA5ADAANQA0AC0AMgAxAGYAYQA3ADUANgBhADMAZgBhADQALihJAG4AdABlAHIAZgBhAGMAZQBWAGUAcgBzAGkAbwBuAEkAbgBmAG8AL0x7AGMANgAxADEAZQA0ADAAMAAtADcAZgBiADkALQA0AGMAMwA1AC0AYgA5AGEAYwAtADQAZQAzADEANABiADUAOQA5ADYANAAzAH0AMBhNAGEAagBvAHIAVgBlAHIAcwBpAG8AbgAxGE0AaQBuAG8AcgBWAGUAcgBzAGkAbwBuADIMTABlAGcAYQBjAHkAMzBMAGEAbgBnAHUAYQBnAGUATQBvAGQAZQBsAFYAZQByAHMAaQBvAG4ASQBuAGYAbwA0MEwAbwBhAGQATABpAGIAcgBhAHIAaQBlAHMASQBuAHQAbwBQAHIAbwBqAGUAYwB0ADUaQwBvAG0AcABhAHQAaQBiAGkAbABpAHQAeQDQAAIaA9ADAS0E0AUGGgfQBwgaAUUHCQjQAAkaBEUKCwQDAAAABQAAAA0AAAAAAAAA0AwLrQIAAADQDQEtDtAPAS0Q0AAJGgRFCgsEAwAAAAUAAAANAAAAKAAAANAMC60BAAAA0A0BLRHQDwEtENAACRoERQoLBAMAAAAFAAAADQAAAAAAAADQDAutAgAAANANAS0S0A8BLRDQAAkaBEUKCwQDAAAABQAAAA0AAAAUAAAA0AwLrQIAAADQDQEtE9APAS0Q0AAJGgRFCgsEAwAAAAUAAAANAAAAAAAAANAMC60CAAAA0A0BLRTQDwEtENAACRoERQoLBAMAAAAFAAAADQAAAAAAAADQDAutAgAAANANAS0V0A8BLRDQAAkaBEUKCwQDAAAABQAAAA0AAAAAAAAA0AwLrQIAAADQDQEtFtAPAS0X0AAJGgRFCgsEAwAAAAUAAAANAAAAKAAAANAMC60EAAAA0A0BLRjQDwEtENAZGq0BRRscAdAAHBoCRR0LBAMAAAAFAAAADQAAAAAAAADQHh8tINAhIhoCRSMkAtAAJRoFRQoLBAMAAAADAAAAAAAAAAoAAADQJgutAAAAANADAS0n0CgBLRHQKQEtENAAJRoFRQoLBAMAAAADAAAAAAAAAAoAAADQJgutAQAAANADAS0n0CgBLRHQKQEtEJoqKwFFAAEC0AABLSzQAAEtF9AAHy0t0C4vGgPQMAutAQAAANAxC60XAAAA0DIarQDQMy8aA9AwC60CAAAA0DELrQMAAADQMhqtANA0Gq0A0DUarQA=</v>
+          </d>
+        </o>
+      </d>
+      <d n="Values" t="Hashtable" />
+    </o>
+        </Data>
+        <TypeList>
+          <Type n="Boolean">System.Boolean</Type>
+          <Type n="Hashtable">System.Collections.Hashtable</Type>
+          <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
+          <Type n="String">System.String</Type>
+        </TypeList>
+      </XmlArchive>
+    </PlcProjectOptions>
+  </ProjectExtensions>
+</Project>

@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_Topics" Id="{87ba00ba-dac7-44ae-b312-6cedb0810b04}">
+    <Declaration><![CDATA[TYPE E_Topics :
+(
+	UNKNOWN 							:= 0, 
+	WORKING1_INBOUND_TOTE				:= 1, //publish from inbound_tote_request	
+	WORKING1_OUTBOUND_TOTE				:= 2, //publish from outbound_tote_request
+	LOADING_BEGIN_OUTBOUND_WOKING1		:= 3, 
+	LOADING_END_OUTBOUND_WOKING1		:= 4,
+	WORKING1_BEGIN_INBOUND				:= 5,
+	WORKING1_ABORT_INBOUND				:= 6,
+	WORKING1_ABORT_OUTBOUND				:= 7,
+	WORKING2_INBOUND_TOTE				:= 8, //publish from inbound_tote_request
+	WORKING2_OUTBOUND_TOTE				:= 9, //publish from outbound_tote_request
+	LOADING_BEGIN_OUTBOUND_WOKING2		:= 10,
+	LOADING_END_OUTBOUND_WOKING2		:= 11,
+	WORKING2_BEGIN_INBOUND				:= 12,
+	WORKING2_ABORT_INBOUND				:= 13,
+	WORKING2_ABORT_OUTBOUND				:= 14,
+	RESET_WAITING_FOR_NEW_SPACE			:= 15,//publish from loding module while wait new tote from logtech too long
+	SAMPLE_SUBSCRRIBE_1,
+	SAMPLE_SUBSCRRIBE_2,
+	SAMPLE_SUBSCRRIBE_3,
+	NUMBER_OF_TOPICS
+);
+END_TYPE
+  ]]></Declaration>
+  </DUT>
+</TcPlcObject>

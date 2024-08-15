@@ -1,0 +1,2093 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_working_tote" Id="{0c084729-6241-4ed5-8f89-fa65b00e221f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_working_tote EXTENDS FB_Generic
+VAR_IN_OUT
+	
+END_VAR
+VAR_INPUT
+
+	
+END_VAR
+VAR_OUTPUT
+	error_status	: OrderToteErrorStatus := OrderToteErrorStatus.UNKNOWN;	
+	
+	bag_opening_status	:ARRAY[0..1]OF BagOpeningStatus;
+END_VAR
+VAR
+	eStates				: E_WorkingStates	:= E_WorkingStates.IDLE;
+	eStateTemp			: E_WorkingStates	:= E_WorkingStates.IDLE;
+	tote_status			: ToteStatus;
+	outboundTote_status	: ToteStatus;
+	
+
+//	bag_opening_status_0	: REFERENCE TO BagOpeningStatus;
+//	bag_opening_status_1	: REFERENCE TO BagOpeningStatus;
+	bagOpen_Status			: ARRAY[0..1] OF ST_BagOpen;
+	bagOpenInit_Status		: ARRAY[0..1] OF ST_BagOpen;
+	
+	iCount_sensor_detection	: ARRAY [0..1] OF INT;
+	strLog_bagopen_detection	: STRING;
+	
+//	bOpen_bag_detection		: BOOL	:= TRUE;
+//	bOpen_bag_detection_0	: BOOL	:= TRUE;
+//	bOpen_bag_detection_1	: BOOL	:= TRUE;
+	
+	logtech_control_command	: LogTechControlCmd;
+	logtech_status	:LogTechStatus;
+	logtech_transfer_status	: LogTechTransferStatus;
+	//rPos_bag_closed_step_0	: REAL;  //半开袋位置设定
+	bRobot_in_safety_place	: BOOL:=TRUE;
+///////
+
+	valve_lift			: Valve;
+	roller_inbound		: Inbound;
+	roller_outbound		: Outbound;
+	roller_outbound_assist	: Outbound;
+	photo_sensor_tote_detection: FB_DigitalInput;
+	
+    BagOpening_Detection	: ARRAY[0..7] OF BOOL;
+	sensor_cover			: ARRAY[0..1] OF BOOL;
+	EDM_KM			    : BOOL;
+	
+	mcAxis_lift 		: FB_MotionAxis_MC;
+	st_mcAxis_lift 		: ST_MotionAxis_MC;
+	AxisRef_lift		: AXIS_REF;
+	
+	mcAxis_bag 			: FB_MotionAxis_MC;
+	st_mcAxis_bag		: ST_MotionAxis_MC;
+	AxisRef_bag			: AXIS_REF;		
+	
+//	xLoading : BOOL;
+//	xUnloading : BOOL;
+	xInbound	: BOOL;
+	xOutbound	: BOOL;
+	rPos_bag_closed_step_0	: REAL;
+	
+	
+	xBeginInbound	: BOOL;
+	xAbortInbound	: BOOL;
+	xAbortOutbound	: BOOL;
+	
+	rTrig1	: R_TRIG;
+	fTrig1	: F_TRIG;
+	str4debug	: STRING;
+	eState_temp1	: STRING;
+	state_track		: STRING(255);
+	
+	
+	
+	
+END_VAR
+
+VAR CONSTANT
+	rMax_lift	: REAL	:= 135;
+	rMin_lift	: REAL	:= -0.5;
+	rMax_bag	: REAL	:= 56;
+	rMin_bag	: REAL	:= -0.5;	
+	
+END_VAR
+
+VAR PERSISTENT
+	rPos_lift_up				: REAL;
+	rPos_lift_down				: REAL;
+	rPos_bag_opened				: REAL;
+	rPos_bag_closed				: REAL;	
+	rPos_bag_preopen			: REAL;
+	iDelay_sensor_detection		: INT;
+	iSensor_detection_setting	: ARRAY [0..1] OF INT;
+	bUsingOpenBag				: BOOL;
+END_VAR
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[SUPER^();
+infoLevel	:= ServerityLevelType.WARNING;
+IF sInstanceName='working1' THEN
+	IF NOT subscribed THEN
+		GVL.PubSubService.Subscribe(E_Topics.WORKING1_INBOUND_TOTE,sInstanceName,THIS^);
+		GVL.PubSubService.Subscribe(E_Topics.WORKING1_OUTBOUND_TOTE,sInstanceName,THIS^);
+		GVL.PubSubService.Subscribe(E_Topics.WORKING1_BEGIN_INBOUND,sInstanceName,THIS^);
+		GVL.PubSubService.Subscribe(E_Topics.WORKING1_ABORT_INBOUND,sInstanceName,THIS^);
+		GVL.PubSubService.Subscribe(E_Topics.WORKING1_ABORT_OUTBOUND,sInstanceName,THIS^);
+		subscribed	:= TRUE;
+	END_IF
+END_IF
+IF sInstanceName='working2' THEN
+	IF NOT subscribed THEN
+		GVL.PubSubService.Subscribe(E_Topics.WORKING2_INBOUND_TOTE,sInstanceName,THIS^);
+		GVL.PubSubService.Subscribe(E_Topics.WORKING2_OUTBOUND_TOTE,sInstanceName,THIS^);	
+		GVL.PubSubService.Subscribe(E_Topics.WORKING2_BEGIN_INBOUND,sInstanceName,THIS^);
+		GVL.PubSubService.Subscribe(E_Topics.WORKING2_ABORT_INBOUND,sInstanceName,THIS^);
+		GVL.PubSubService.Subscribe(E_Topics.WORKING2_ABORT_OUTBOUND,sInstanceName,THIS^);
+
+		subscribed	:= TRUE;
+	END_IF
+END_IF
+
+
+//bag_opening_status_0	REF= MAIN.tote_1.working1_tote.bag_opening_status_0;
+//bag_opening_status_1	REF= MAIN.tote_1.working2_tote.bag_opening_status_1;
+
+bagOpenInit_Status[0].bag_status				:=BagStatus.UNOPENED;
+bagOpenInit_Status[0].iCnt_sensor_detection		:=0;
+bagOpenInit_Status[0].sensor_status				:='';
+bagOpenInit_Status[1].bag_status				:=BagStatus.UNOPENED;
+bagOpenInit_Status[1].iCnt_sensor_detection		:=0;
+bagOpenInit_Status[1].sensor_status				:='';
+////////////////////////////////////////////////mechanical error///////////////////////////////////////////////////
+IF GVL.fb_loading.tote_status=ToteStatus.MECHANICAL_ERROR THEN
+	tote_status	:= ToteStatus.MECHANICAL_ERROR;
+END_IF
+////////////////////////////////////////////////electrical error///////////////////////////////////////////////////
+rTrig_electricalError[1](CLK:= st_mcAxis_lift.mcReadStatus.Error);
+rTrig_electricalError[2](CLK:= st_mcAxis_bag.mcReadStatus.Error);
+rTrig_electricalError[3](CLK:= roller_inbound.roller.err.Q);
+rTrig_electricalError[4](CLK:= roller_outbound.roller.err.Q);
+rTrig_electricalError[5](CLK:= roller_outbound_assist.roller.err.Q);
+IF sInstanceName='working1' THEN
+	IF GVL.PackTags1.Status.StateCurrent<>E_PMLState.ePMLState_Resetting THEN
+		FOR i:=1 TO 10 DO
+			IF rTrig_electricalError[i].Q THEN
+				THIS^.packTags.Admin.Alarm[i].ID	:= i;
+				CASE i OF
+					1:
+						THIS^.packTags.Admin.Alarm[1].Message	:= GenerateErrorMsg(errorType:='E',iState := i,errorMsg:='lift axis is in error state.');
+					2:
+						THIS^.packTags.Admin.Alarm[2].Message	:= GenerateErrorMsg(errorType:='E',iState := i,errorMsg:='open bag axis of working is in error state.');
+					3:
+						THIS^.packTags.Admin.Alarm[3].Message	:= GenerateErrorMsg(errorType:='E',iState := i,errorMsg:='inbound roller is in error state.');
+					4:
+						THIS^.packTags.Admin.Alarm[4].Message	:= GenerateErrorMsg(errorType:='E',iState := i,errorMsg:='outbound roller is in error state.');
+					5:
+						THIS^.packTags.Admin.Alarm[5].Message	:= GenerateErrorMsg(errorType:='E',iState := i,errorMsg:='outbound assist roller is in error state.');
+				END_CASE
+					tote_status	:= ToteStatus.ELECTRICAL_ERROR;
+					GVL.pml_adminAlarm.M_SetAlarm(stAdmin:=GVL.PackTags1.Admin,stAlarm := THIS^.packTags.Admin.Alarm[i]);			
+			END_IF
+		END_FOR
+	END_IF	
+END_IF
+IF sInstanceName='working2' THEN
+	IF GVL.PackTags2.Status.StateCurrent<>E_PMLState.ePMLState_Resetting THEN
+		FOR i:=1 TO 10 DO
+			IF rTrig_electricalError[i].Q THEN
+				THIS^.packTags.Admin.Alarm[i].ID	:= i;
+				CASE i OF
+					1:
+						THIS^.packTags.Admin.Alarm[1].Message	:= GenerateErrorMsg(errorType:='E',iState := i,errorMsg:='lift axis is in error state.');
+					2:
+						THIS^.packTags.Admin.Alarm[2].Message	:= GenerateErrorMsg(errorType:='E',iState := i,errorMsg:='open bag axis of working is in error state.');
+					3:
+						THIS^.packTags.Admin.Alarm[3].Message	:= GenerateErrorMsg(errorType:='E',iState := i,errorMsg:='inbound roller is in error state.');
+					4:
+						THIS^.packTags.Admin.Alarm[4].Message	:= GenerateErrorMsg(errorType:='E',iState := i,errorMsg:='outbound roller is in error state.');
+					5:
+						THIS^.packTags.Admin.Alarm[5].Message	:= GenerateErrorMsg(errorType:='E',iState := i,errorMsg:='outbound assist roller is in error state.');
+				END_CASE	
+				GVL.pml_adminAlarm.M_SetAlarm(stAdmin:=GVL.PackTags2.Admin,stAlarm := THIS^.packTags.Admin.Alarm[i]);			
+			END_IF
+		END_FOR
+	END_IF	
+END_IF
+
+
+//rTrig1(CLK:=xInbound);
+//IF rTrig1.Q THEN
+//	eState_temp1	:= '';
+//	str4debug:='';
+//	str4debug	:= CONCAT(STR1:=sInstanceName,STR2:='-');
+//	str4debug	:= CONCAT(STR1:=str4debug,STR2:=DINT_TO_STRING(eState));
+//	str4debug	:= CONCAT(STR1:=str4debug,STR2:='-');
+//	str4debug	:= CONCAT(STR1:=str4debug,STR2:=strState);
+//	str4debug	:= CONCAT(STR1:=str4debug,STR2:='-');
+//	str4debug	:= CONCAT(STR1:=str4debug,STR2:='inbound');
+//	str4debug	:= CONCAT(STR1:=str4debug,STR2:='-');
+//	str4debug	:= CONCAT(STR1:=str4debug,STR2:='ON');
+//	ADSLOGSTR(msgCtrlMask:=ADSLOG_MSGTYPE_LOG,msgFmtStr:=str4debug,strArg:='');
+//END_IF
+//fTrig1(CLK:=xInbound);
+//IF eState_temp1<>strState THEN
+//	eState_temp1	:= strState;
+//	state_track	:= CONCAT(STR1:=state_track,STR2:=eState_temp1);
+//	state_track	:= CONCAT(STR1:=state_track,STR2:='->');
+//END_IF
+//IF fTrig1.Q THEN
+//	str4debug:='';
+//	str4debug	:= CONCAT(STR1:=sInstanceName,STR2:='-');
+//	str4debug	:= CONCAT(STR1:=str4debug,STR2:=DINT_TO_STRING(eState));
+//	str4debug	:= CONCAT(STR1:=str4debug,STR2:='-');
+//	str4debug	:= CONCAT(STR1:=str4debug,STR2:=state_track);
+//	str4debug	:= CONCAT(STR1:=str4debug,STR2:='-');
+//	str4debug	:= CONCAT(STR1:=str4debug,STR2:='inbound');
+//	str4debug	:= CONCAT(STR1:=str4debug,STR2:='-');	
+//	str4debug	:= CONCAT(STR1:=str4debug,STR2:='OFF');
+//	ADSLOGSTR(msgCtrlMask:=ADSLOG_MSGTYPE_LOG,msgFmtStr:=str4debug,strArg:='');
+//END_IF
+
+]]></ST>
+    </Implementation>
+    <Folder Name="methods" Id="{8bc87918-8563-4692-8444-34bb90973d43}" />
+    <Method Name="Callback" Id="{57de051f-9cdc-4d76-89c1-6c8bc23eec59}">
+      <Declaration><![CDATA[(*
+Description: 
+the callback that will be invoked when there is a publish for what the subscriber was subscribed to.
+*)
+METHOD Callback
+VAR_INPUT
+	data : PubSubData;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+IF sInstanceName='working1' THEN
+	CASE data.Topic OF	
+		E_Topics.WORKING1_INBOUND_TOTE:
+			IF NOT xInbound AND NOT xOutbound THEN
+				xInbound	:= TRUE;
+			END_IF
+		E_Topics.WORKING1_OUTBOUND_TOTE:
+			IF NOT xInbound AND NOT xOutbound THEN
+				xOutbound	:= TRUE;
+			END_IF
+		E_Topics.WORKING1_BEGIN_INBOUND:
+			xBeginInbound	:= TRUE;	
+		E_Topics.WORKING1_ABORT_INBOUND:
+			IF eStates=E_WorkingStates.WAIT_NEW_TOTE THEN
+				subData.Topic	:= E_Topics.LOADING_END_OUTBOUND_WOKING1;
+				GVL.PubSubService.Publish(topic:=E_Topics.LOADING_END_OUTBOUND_WOKING1,data:= subData);		
+				xAbortInbound	:= TRUE;
+			END_IF	
+		E_Topics.WORKING1_ABORT_OUTBOUND:
+			xAbortOutbound	:= TRUE;			
+
+	END_CASE
+END_IF
+IF sInstanceName='working2' THEN
+	CASE data.Topic OF	
+		E_Topics.WORKING2_INBOUND_TOTE:
+			IF NOT xInbound AND NOT xOutbound THEN
+				xInbound	:= TRUE;
+			END_IF
+		E_Topics.WORKING2_OUTBOUND_TOTE:
+			IF NOT xInbound AND NOT xOutbound THEN
+				xOutbound	:= TRUE;
+			END_IF
+		E_Topics.WORKING2_BEGIN_INBOUND:
+			xBeginInbound	:= TRUE;	
+		E_Topics.WORKING2_ABORT_INBOUND:
+			IF eStates=E_WorkingStates.WAIT_NEW_TOTE THEN
+				subData.Topic	:= E_Topics.LOADING_END_OUTBOUND_WOKING2;
+				GVL.PubSubService.Publish(topic:=E_Topics.LOADING_END_OUTBOUND_WOKING2,data:= subData);				
+				xAbortInbound	:= TRUE;
+			END_IF
+		E_Topics.WORKING2_ABORT_OUTBOUND:
+			xAbortOutbound	:= TRUE;	
+		
+	END_CASE
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Aborting" Id="{8d7e715e-ea05-4f68-8cbf-86e8395a6935}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Aborting'}
+METHOD M_Aborting
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE fbUnitModeManager.eModeStatus OF	
+	ePMLProtUnitMode_Production, ePMLProtUnitMode_Manual:		
+		roller_inbound.roller.forward	:= FALSE;
+		roller_outbound.roller.forward		:= FALSE;
+		roller_outbound_assist.roller.forward	:= FALSE;	
+		xInbound	:= FALSE;
+		xOutbound	:= FALSE;
+		iAging_test	:= 0;
+		CASE tote_status OF
+			ToteStatus.AWAITING_INBOUND_AVAILABILITY:
+			//
+			ToteStatus.AWAITING_OUTBOUND_AVAILABILITY:
+			//
+			ToteStatus.BAG_OPEN_FAILED:
+			//
+			ToteStatus.DOWNSTREAM_NOT_READY:
+			//
+			ToteStatus.ELECTRICAL_ERROR:
+			//
+			ToteStatus.INBOUNDING:
+			//
+			ToteStatus.LOADED:
+			//
+			ToteStatus.MECHANICAL_ERROR:
+			//
+			ToteStatus.OUTBOUNDING:
+			//
+			ToteStatus.PERTURBING:
+			//
+		END_CASE
+		M_StateComplete();
+			
+	ePMLProtUnitMode_Maintenance, ePMLUnitMode_Service:
+		
+		M_StateComplete();
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_agingTest" Id="{8f6133d7-06b2-4691-9ebd-455120c8a393}">
+      <Declaration><![CDATA[METHOD M_agingTest : BOOL
+VAR_INPUT
+	rVelocity_percent	: REAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ton_aging_test();
+CASE iAging_test OF
+	0://
+	
+	1://run forward
+		ton_aging_test.PT	:= T#5S;
+		ton_aging_test.IN	:= TRUE;
+		st_mcAxis_lift.mcMoveAbsolute.Execute	:= TRUE;						
+		st_mcAxis_lift.rActualPosSet	:= rPos_lift_up;
+		st_mcAxis_lift.rVelocitySet	:= rVelocity_percent*200;
+		st_mcAxis_bag.mcMoveAbsolute.Execute	:= TRUE;						
+		st_mcAxis_bag.rActualPosSet	:= rPos_bag_closed;
+		st_mcAxis_bag.rVelocitySet	:= rVelocity_percent*50;		
+		roller_inbound.roller.forward	:= TRUE;
+		roller_outbound.roller.forward	:= TRUE;
+		roller_outbound_assist.roller.forward	:= TRUE;		
+		valve_lift.extend 		:= TRUE;
+		valve_lift.retract		:= FALSE;
+		IF st_mcAxis_lift.mcMoveAbsolute.Done AND st_mcAxis_bag.mcMoveAbsolute.Done AND ton_aging_test.Q THEN
+			st_mcAxis_lift.mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_bag.mcMoveAbsolute.Execute	:= FALSE;
+			roller_inbound.roller.forward	:= FALSE;
+			roller_outbound.roller.forward	:= FALSE;
+			roller_outbound_assist.roller.forward	:= FALSE;			
+			ton_aging_test.IN	:= FALSE;			
+			iAging_test	:= 2;
+		END_IF	
+	2:	
+		ton_aging_test.PT	:= T#2S;
+		ton_aging_test.IN	:= TRUE;
+		IF ton_aging_test.Q THEN
+			ton_aging_test.IN	:= FALSE;
+			iAging_test	:= 3;				
+		END_IF
+	3://run backward
+		ton_aging_test.PT	:= T#5S;
+		ton_aging_test.IN	:= TRUE;
+		st_mcAxis_lift.mcMoveAbsolute.Execute	:= TRUE;						
+		st_mcAxis_lift.rActualPosSet	:= rPos_lift_down;
+		st_mcAxis_lift.rVelocitySet	:= rVelocity_percent*200;
+		st_mcAxis_bag.mcMoveAbsolute.Execute	:= TRUE;						
+		st_mcAxis_bag.rActualPosSet	:= rPos_bag_opened;
+		st_mcAxis_bag.rVelocitySet	:= rVelocity_percent*50;		
+		roller_inbound.roller.forward	:= TRUE;
+		roller_inbound.roller.backward	:= TRUE;
+		roller_outbound.roller.backward	:= TRUE;
+		roller_outbound_assist.roller.forward	:= TRUE;
+		roller_outbound_assist.roller.backward	:= TRUE;
+		
+		valve_lift.extend 		:= FALSE;
+		valve_lift.retract		:= TRUE;
+		IF st_mcAxis_lift.mcMoveAbsolute.Done AND st_mcAxis_bag.mcMoveAbsolute.Done AND ton_aging_test.Q THEN
+			st_mcAxis_lift.mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_bag.mcMoveAbsolute.Execute	:= FALSE;
+			roller_inbound.roller.forward	:= FALSE;
+			roller_inbound.roller.backward	:= FALSE;
+			roller_outbound.roller.backward	:= FALSE;
+			roller_outbound_assist.roller.forward	:= FALSE;
+			roller_outbound_assist.roller.backward	:= FALSE;		
+			ton_aging_test.IN	:= FALSE;			
+			iAging_test	:= 4;
+		END_IF	
+	4:
+		ton_aging_test.PT	:= T#2S;
+		ton_aging_test.IN	:= TRUE;
+		IF ton_aging_test.Q THEN
+			diCnt_aging	:= diCnt_aging+1;
+			ton_aging_test.IN	:= FALSE;
+			ADSLOGSTR(msgCtrlMask:=Tc2_System.ADSLOG_MSGTYPE_LOG,msgFmtStr:=CONCAT(STR1:=sInstanceName,STR2:=DINT_TO_STRING(diCnt_aging)),strArg:='');
+			iAging_test	:= 1;				
+		END_IF
+	
+		
+		
+		
+	10://stop
+		st_mcAxis_lift.mcMoveAbsolute.Execute	:= FALSE;
+		st_mcAxis_bag.mcMoveAbsolute.Execute	:= FALSE;
+		roller_inbound.roller.forward	:= FALSE;
+		roller_outbound.roller.forward	:= FALSE;
+		roller_outbound_assist.roller.forward	:= FALSE;		
+		roller_inbound.roller.backward	:= FALSE;
+		roller_outbound.roller.backward	:= FALSE;
+		roller_outbound_assist.roller.backward	:= FALSE;	
+		valve_lift.extend 		:= FALSE;
+		valve_lift.retract		:= TRUE;
+		ton_aging_test.IN	:= FALSE;	
+		iAging_test	:= 0;
+
+	END_CASE	]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_checkCondition" Id="{6f724530-74fa-47be-a455-8ce1fecc37ac}" FolderPath="methods\">
+      <Declaration><![CDATA[METHOD M_checkCondition : BOOL
+VAR_INPUT
+	condition	: E_Condition;
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+M_checkCondition	:= FALSE;
+CASE condition OF
+	E_Condition.NO_TOTE:
+	 	IF NOT roller_inbound.photo_sensor[0].Q 
+				OR NOT roller_inbound.photo_sensor[1].Q 
+		THEN
+			M_checkCondition	:= TRUE;
+		END_IF
+	E_Condition.TOTE_IN:
+	 	IF  NOT roller_inbound.photo_sensor[0].Q
+			AND  roller_inbound.photo_sensor[1].Q 
+		THEN
+			M_checkCondition	:= TRUE;
+		END_IF	
+	
+	E_Condition.READY_LOADING_TOTE:
+		//
+		
+	E_Condition.TOTE_READY:
+		IF  ABS(AxisRef_lift.NcToPlc.ActPos-rPos_lift_down)<1 AND
+			ABS(AxisRef_bag.NcToPlc.ActPos-rPos_bag_opened)<1 AND
+			roller_inbound.photo_sensor[1].Q AND 
+			photo_sensor_tote_detection.Q AND
+			NOT roller_inbound.photo_sensor[0].Q AND 
+			NOT roller_outbound.photo_sensor.Q AND
+			valve_lift.retracted (*AND
+			bag_opening_status_0.bag_status = BagStatus.OPENED AND 
+			bag_opening_status_1._bagStatus = BagStatus.OPENED *)
+		THEN
+			tote_status	:= ToteStatus.LOADED;		
+		ELSE
+			IF tote_status = ToteStatus.LOADED THEN
+				tote_status	:= ToteStatus.INBOUNDING;
+			END_IF
+		END_IF
+		
+		IF ABS(AxisRef_lift.NcToPlc.ActPos-rPos_lift_up)<1  
+			AND NOT photo_sensor_tote_detection.Q
+			AND NOT roller_inbound.photo_sensor[0].Q AND NOT roller_inbound.photo_sensor[1].Q 
+			AND NOT roller_outbound.photo_sensor.Q AND valve_lift.retracted 
+		THEN
+			tote_status	:= ToteStatus.VACANT;	
+		END_IF	
+		
+		IF NOT roller_inbound.photo_sensor[0].Q AND roller_inbound.photo_sensor[1].Q 
+			AND photo_sensor_tote_detection.Q AND NOT roller_outbound.photo_sensor.Q 
+		THEN
+			IF tote_status=ToteStatus.VACANT THEN
+				tote_status	:= ToteStatus.INBOUNDING;
+			END_IF
+		END_IF		
+
+		M_checkCondition	:= TRUE;
+END_CASE
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Completing" Id="{bc05d940-cbba-4e4c-8e12-6a966ef76b4d}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Completing'}
+METHOD M_Completing
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE fbUnitModeManager.eModeStatus OF
+	ePMLProtUnitMode_Production:
+		;
+END_CASE
+
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Execute" Id="{ad0dba31-42c2-46c8-aab8-e76b231e4f6c}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Execute'}
+METHOD M_Execute
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE fbUnitModeManager.eModeStatus OF
+	ePMLProtUnitMode_Production:		//Mode Production
+		
+//////////////////////////unloading///////////////////////	
+				IF xOutbound THEN	
+					IF M_unload() THEN
+					 	xOutbound := FALSE;
+					END_IF		
+					RETURN;
+				END_IF	
+//////////////////////////loading///////////////////////
+				IF xInbound THEN	
+					IF M_load() THEN
+						xInbound := FALSE;
+					END_IF
+				END_IF	
+
+				
+	ePMLProtUnitMode_Maintenance, ePMLUnitMode_Service:		
+		;
+	ePMLProtUnitMode_Manual:		//Manaul
+	
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Holding" Id="{16d130dd-379f-460a-bb2f-88eea1caee28}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Holding'}
+METHOD M_Holding
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE fbUnitModeManager.eModeStatus OF
+	ePMLProtUnitMode_Production:		//Mode Production
+		//Finisch the actual seperationstep	
+		
+
+	ePMLProtUnitMode_Maintenance:
+		M_StateComplete();
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Idle" Id="{7866f5f3-7089-498a-b29c-fd6e213a5bf1}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Idle'}
+METHOD M_Idle
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ftrig_agingTest(CLK	:= bAging_test);
+IF 	ftrig_agingTest.Q THEN
+	iAging_test	:= 10;
+END_IF
+IF bAging_test THEN
+	IF iAging_test=0 THEN
+		iAging_test	:= 1;
+	END_IF	
+END_IF
+M_agingTest(0.8);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_load" Id="{a82e5460-f832-4561-bda1-b7bec48f7818}" FolderPath="methods\">
+      <Declaration><![CDATA[METHOD  M_load : BOOL
+VAR_INPUT
+END_VAR
+
+VAR
+	
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_load := FALSE;
+
+//////////////////////////////////////////////////////////timeout//////////////////////////////////////////
+		iStateTemp	:= eStateTemp;
+//		ton_timeout();
+		IF eStateTemp=eStates THEN
+			ton_timeout.IN	:=TRUE;
+		ELSE
+			ton_timeout.IN	:=FALSE;
+			eStateTemp	:= eStates;	
+			M_Log(eLogType:=ServerityLevelType.INFO,sTextLog:='');
+			IF ton_timeout.Q THEN
+				RETURN;
+			END_IF
+		END_IF
+		IF ton_timeout.Q THEN	
+			ton_timeout.IN	:=FALSE;
+			CASE eStates OF	
+				E_LoadingStates.ERROR:	
+					alarm_temp.Message	:= GenerateErrorMsg(errorType:='M',iState := iStateTemp,errorMsg:='in error state.');
+				ELSE
+					alarm_temp.Message	:= GenerateErrorMsg(errorType:='M',iState := iStateTemp,errorMsg:='time out');
+			END_CASE
+//////////////////////////////////////////////////////////states don't want to timeout and trig error//////////////////////////////////////////				
+			IF  eStates<>E_WorkingStates.IDLE AND
+				eStates<>E_WorkingStates.WAIT_NEW_TOTE AND
+				eStates<>E_WorkingStates.WAIT AND
+				eStates<>E_WorkingStates.BAG_OPEN_DETECTION AND
+				eStates<>E_WorkingStates.WAIT_1 
+			THEN
+				tote_status	:= ToteStatus.MECHANICAL_ERROR;
+				IF sInstanceName='working1' THEN					
+					THIS^.pml_adminAlarm.M_SetAlarm(stAdmin:=GVL.PackTags1.Admin,stAlarm:=THIS^.alarm_temp);
+				END_IF			
+				IF sInstanceName='working2' THEN
+					THIS^.pml_adminAlarm.M_SetAlarm(stAdmin:=GVL.PackTags2.Admin,stAlarm:=THIS^.alarm_temp);
+				END_IF					
+			END_IF
+		END_IF
+//////////////////////////////////////////////////////////conditions//////////////////////////////////////////
+
+//////////////////////////////////////////////////////////excute//////////////////////////////////////////
+CASE eStates OF 
+		E_WorkingStates.IDLE:
+			tote_status	:= ToteStatus.UNKNOWN;
+//			xLoading	:= TRUE;
+//			ton_timeout.PT	:= T#20MS;		
+			st_mcAxis_lift.mcPower.Enable	:= TRUE;
+			st_mcAxis_bag.mcPower.Enable	:= TRUE;
+			st_mcAxis_lift.mcReset.Execute	:= TRUE;
+			st_mcAxis_bag.mcReset.Execute	:= TRUE;
+			IF st_mcAxis_lift.mcReadStatus.StandStill AND st_mcAxis_bag.mcReadStatus.StandStill  THEN
+				eStates	:= E_WorkingStates.INIT;
+			END_IF
+
+		E_WorkingStates.INIT:
+//			ADSLOGSTR(msgCtrlMask:= ADSLOG_MSGTYPE_LOG,msgFmtStr:='load start',strArg:='');
+			ton_timeout.PT	:= T#3S;		
+			st_mcAxis_lift.mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_bag.mcMoveAbsolute.Execute	:= FALSE;			
+			IF M_checkCondition(condition:=E_Condition.TOTE_READY) THEN///////////avoid recieve load signal from app many times
+				IF tote_status=ToteStatus.LOADED  THEN
+					IF sInstanceName='working1' THEN
+						eStates	:= E_WorkingStates.DONE;
+					END_IF
+					IF sInstanceName='working2' THEN
+						eStates	:= E_WorkingStates.DONE;
+					END_IF					
+				ELSE
+					bagOpen_Status	:= bagOpenInit_Status;
+					tote_status	:= ToteStatus.VACANT;					
+					strLog_bagopen_detection	:= '';
+					eStates	:= E_WorkingStates.BAG_OPEN_UP;
+				END_IF
+			END_IF		
+
+		E_WorkingStates.BAG_OPEN_UP:	
+			st_mcAxis_lift.mcMoveAbsolute.Execute	:= TRUE;		
+			st_mcAxis_lift.rActualPosSet	:= rPos_lift_up;
+			st_mcAxis_lift.rVelocitySet	:= 250;
+			IF st_mcAxis_lift.mcMoveAbsolute.Done THEN
+				st_mcAxis_lift.mcMoveAbsolute.Execute	:= FALSE;
+				eStates	:= E_WorkingStates.BAG_OPEN_INIT;
+			END_IF		
+		E_WorkingStates.BAG_OPEN_INIT:	
+			st_mcAxis_bag.mcMoveAbsolute.Execute	:= TRUE;
+			st_mcAxis_bag.rVelocitySet	:= 250;
+			IF bUsingOpenBag THEN
+				st_mcAxis_bag.rActualPosSet	:= rPos_bag_closed;
+			ELSE
+				st_mcAxis_bag.rActualPosSet	:= rPos_bag_opened;
+			END_IF
+			IF st_mcAxis_bag.mcMoveAbsolute.Done THEN
+				st_mcAxis_bag.bTouchTorque := FALSE;
+				st_mcAxis_bag.mcMoveAbsolute.Execute	:= FALSE;
+				eStates	:= E_WorkingStates.TOTE_LIFT_DOWN;
+			END_IF				
+			
+		E_WorkingStates.TOTE_LIFT_DOWN:			
+			valve_lift.extend	:= FALSE;
+			valve_lift.retract	:= TRUE;
+			IF NOT valve_lift.extended AND valve_lift.retracted THEN
+				eStates	:= E_WorkingStates.WAIT_NEW_TOTE;
+			END_IF	
+			
+//		E_WorkingStates.NOTIFY_LOADING_OUTBOUND:
+//			ton_timeout.PT	:= T#1S;
+//			///////////////there is no tote in working position/////////////
+//			IF NOT(roller_inbound.photo_sensor[0].Q OR roller_inbound.photo_sensor[1].Q OR photo_sensor_tote_detection.Q OR roller_outbound.photo_sensor.Q) THEN
+//				IF sInstanceName='working1' THEN
+//					subData.Topic	:= E_Topics.LOADING_BEGIN_OUTBOUND_WOKING1;
+//					GVL.PubSubService.Publish(topic:=E_Topics.LOADING_BEGIN_OUTBOUND_WOKING1,data:= subData);				
+//				END_IF
+//				IF sInstanceName='working2' THEN
+//					subData.Topic	:= E_Topics.LOADING_BEGIN_OUTBOUND_WOKING2;
+//					GVL.PubSubService.Publish(topic:=E_Topics.LOADING_BEGIN_OUTBOUND_WOKING2,data:= subData);				
+//				END_IF
+//				eStates	:= E_WorkingStates.WAIT_NEW_TOTE;
+//			END_IF	
+//			///////////////there is a tote in working position/////////////
+//			IF NOT roller_inbound.photo_sensor[0].Q AND roller_inbound.photo_sensor[1].Q AND photo_sensor_tote_detection.Q AND NOT roller_outbound.photo_sensor.Q THEN
+//				eStates	:= E_WorkingStates.BAG_OPEN_DOWN;
+//			END_IF					
+			
+		E_WorkingStates.WAIT_NEW_TOTE:	
+			///////////////there is a tote in working position/////////////
+			IF NOT roller_inbound.photo_sensor[0].Q AND roller_inbound.photo_sensor[1].Q AND photo_sensor_tote_detection.Q AND NOT roller_outbound.photo_sensor.Q THEN
+				eStates	:= E_WorkingStates.BAG_OPEN_DOWN;
+			END_IF			
+		/////////////////////////abort inbound command from app///////////////////
+			IF xAbortInbound THEN
+				xAbortInbound	:= FALSE;
+				tote_status	:= ToteStatus.VACANT;
+				M_load	:= TRUE;
+				eStates	:= E_WorkingStates.IDLE;				
+			ELSE
+				tote_status	:= ToteStatus.AWAITING_INBOUND_AVAILABILITY;
+			END_IF
+		//////////////////////////normal process///////////////////////
+			IF sInstanceName='working1' THEN
+				IF xBeginInbound AND GVL.fb_loading.valve_left_door.retracted THEN
+					xBeginInbound	:=FALSE;
+					eStates	:= E_WorkingStates.WAIT_MUTE_SENSOR_ON;
+				END_IF					
+			END_IF
+			IF sInstanceName='working2' THEN
+				IF xBeginInbound AND GVL.fb_loading.valve_right_door.retracted THEN
+					xBeginInbound	:=FALSE;
+					eStates	:= E_WorkingStates.WAIT_MUTE_SENSOR_ON;
+				END_IF					
+			END_IF
+		/////////////////////////////while in stopping/////////////////////			
+			IF  THIS^.eState = ePMLState_Stopping THEN
+				IF sInstanceName='working1' THEN//publish to loading for loading might be not in stopping
+					subData.Topic	:= E_Topics.LOADING_END_OUTBOUND_WOKING1;
+					GVL.PubSubService.Publish(topic:=E_Topics.LOADING_END_OUTBOUND_WOKING1,data:= subData);				
+				END_IF
+				IF sInstanceName='working2' THEN
+					subData.Topic	:= E_Topics.LOADING_END_OUTBOUND_WOKING2;
+					GVL.PubSubService.Publish(topic:=E_Topics.LOADING_END_OUTBOUND_WOKING2,data:= subData);				
+				END_IF
+				M_load	:= TRUE;
+				eStates	:= E_WorkingStates.IDLE;
+			END_IF						
+////////////////////////////////////////////////action/////////////////////////////////////////////
+			
+		E_WorkingStates.WAIT_MUTE_SENSOR_ON:	
+			tote_status	:= ToteStatus.INBOUNDING;
+			ton_timeout.PT	:= T#2S;	
+			roller_inbound.roller.forward	:= TRUE;
+			IF  roller_inbound.photo_sensor[0].Q THEN
+				eStates	:= E_WorkingStates.WAIT_TOTE_DETECTION_ON;
+			END_IF			
+		E_WorkingStates.WAIT_TOTE_DETECTION_ON:
+			roller_inbound.roller.forward	:= TRUE;
+			IF photo_sensor_tote_detection.Q THEN
+				eStates	:= E_WorkingStates.WAIT_MUTE_SENSOR_OFF;
+			END_IF
+		E_WorkingStates.WAIT_MUTE_SENSOR_OFF:
+			roller_inbound.roller.forward	:= TRUE;
+			IF NOT roller_inbound.photo_sensor[0].Q THEN
+				eStates	:= E_WorkingStates.WAIT_LOAD_SENSOR_ON;
+			END_IF
+		E_WorkingStates.WAIT_LOAD_SENSOR_ON:
+			roller_inbound.roller.forward	:= TRUE;
+			IF roller_inbound.photo_sensor[1].Q THEN	
+				roller_inbound.roller.forward	:= FALSE;
+				eStates	:= E_WorkingStates.BAG_OPEN_DOWN;
+			END_IF
+		E_WorkingStates.BAG_OPEN_DOWN:
+			st_mcAxis_lift.mcMoveAbsolute.Execute	:= TRUE;		
+			st_mcAxis_lift.rActualPosSet	:= rPos_lift_down;
+			st_mcAxis_lift.rVelocitySet	:= 250;
+			IF st_mcAxis_lift.mcMoveAbsolute.Done THEN	
+				eStates	:= E_WorkingStates.BAG_OPEN;
+			END_IF		
+		E_WorkingStates.BAG_OPEN:	
+			ton_timeout.PT	:= T#3S;		
+			st_mcAxis_bag.mcMoveAbsolute.Execute	:= TRUE;		
+			st_mcAxis_bag.rActualPosSet	:= rPos_bag_opened;
+			st_mcAxis_bag.rVelocitySet	:= 50;
+			IF st_mcAxis_bag.mcMoveAbsolute.Done OR st_mcAxis_bag.bTouchTorque THEN			
+				st_mcAxis_bag.mcMoveAbsolute.Execute	:= FALSE;
+				eStates	:= E_WorkingStates.BAG_OPEN_DETECTION;
+			END_IF	
+		E_WorkingStates.BAG_OPEN_DETECTION:	
+			IF ABS(st_mcAxis_bag.rActualPos-rPos_bag_opened)>5 THEN
+				bagOpen_Status[0].bag_status	:= BagStatus.ERROR;
+				bagOpen_Status[1].bag_status	:= BagStatus.ERROR;
+				tote_status	:= ToteStatus.BAG_OPEN_FAILED;
+				eStates	:= E_WorkingStates.DONE;
+				RETURN;
+			END_IF
+			ton_timeout.PT	:= INT_TO_TIME(iDelay_sensor_detection);
+			IF ton_timeout.Q THEN
+				/////////////////////////////////////////////bag openner1/////////////////////////////////////////					
+				FOR i:=0 TO 3 DO
+					IF BagOpening_Detection[i] THEN
+						bagOpen_Status[0].sensor_status	:=CONCAT(STR1:=bagOpen_Status[0].sensor_status,STR2:='1');
+						bagOpen_Status[0].iCnt_sensor_detection	:=bagOpen_Status[0].iCnt_sensor_detection+1;
+					ELSE
+						bagOpen_Status[0].sensor_status	:=CONCAT(STR1:=bagOpen_Status[0].sensor_status,STR2:='0');
+					END_IF
+				END_FOR	
+				IF bagOpen_Status[0].iCnt_sensor_detection>=iSensor_detection_setting[0] THEN
+					bagOpen_Status[0].bag_status	:= BagStatus.OPENED;
+					strLog_bagopen_detection	:= CONCAT(STR1:=bag_opening_status[0].sensor_status,STR2:='->OPENED;');
+				ELSE
+					bagOpen_Status[0].bag_status	:= BagStatus.ERROR;
+					strLog_bagopen_detection	:= CONCAT(STR1:=bag_opening_status[0].sensor_status,STR2:='->ERROR;');
+				END_IF			
+				/////////////////////////////////////////////bag openner2/////////////////////////////////////////	
+				FOR i:=4 TO 7 DO
+					IF BagOpening_Detection[i] THEN
+						bagOpen_Status[1].sensor_status	:=CONCAT(STR1:=bagOpen_Status[1].sensor_status,STR2:='1');
+						bagOpen_Status[1].iCnt_sensor_detection	:=bagOpen_Status[1].iCnt_sensor_detection+1;
+					ELSE
+						bagOpen_Status[1].sensor_status	:=CONCAT(STR1:=bagOpen_Status[1].sensor_status,STR2:='0');
+					END_IF
+				END_FOR		
+				IF bagOpen_Status[1].iCnt_sensor_detection>=iSensor_detection_setting[1] THEN
+					bagOpen_Status[1].bag_status	:= BagStatus.OPENED;
+					strLog_bagopen_detection	:= CONCAT(STR1:=bag_opening_status[1].sensor_status,STR2:='->OPENED');
+				ELSE
+					bagOpen_Status[1].bag_status	:= BagStatus.ERROR;
+					strLog_bagopen_detection	:= CONCAT(STR1:=bag_opening_status[1].sensor_status,STR2:='->ERROR');
+				END_IF				
+
+	
+				eStates	:= E_WorkingStates.TOTE_STATUS_DETECTION;	
+			END_IF
+		E_WorkingStates.TOTE_STATUS_DETECTION:
+			IF bUsingOpenBag THEN
+				IF bagOpen_Status[0].bag_status=BagStatus.OPENED AND bagOpen_Status[1].bag_status=BagStatus.OPENED THEN
+					tote_status	:= ToteStatus.LOADED;
+				ELSE
+					tote_status	:= ToteStatus.BAG_OPEN_FAILED;
+				END_IF
+			ELSE
+				tote_status	:= ToteStatus.LOADED;
+			END_IF
+			/////////////////////////////////////////writelog////////////////////////////////////////
+			IF bagOpen_Status[0].bag_status=BagStatus.OPENED THEN
+				strLog_bagopen_detection	:= CONCAT(STR1:=bagOpen_Status[0].sensor_status,STR2:='->OPENED;');
+			ELSE	
+				strLog_bagopen_detection	:= CONCAT(STR1:=bagOpen_Status[0].sensor_status,STR2:='->ERROR;');
+			END_IF
+			IF bagOpen_Status[1].bag_status=BagStatus.OPENED THEN
+				strLog_bagopen_detection	:= CONCAT(STR1:=strLog_bagopen_detection,STR2:=bagOpen_Status[1].sensor_status);
+				strLog_bagopen_detection	:= CONCAT(STR1:=strLog_bagopen_detection,STR2:='->OPENED;');
+			ELSE	
+				strLog_bagopen_detection	:= CONCAT(STR1:=strLog_bagopen_detection,STR2:=bagOpen_Status[1].sensor_status);
+				strLog_bagopen_detection	:= CONCAT(STR1:=strLog_bagopen_detection,STR2:='->ERROR;');
+			END_IF					
+			eStates	:= E_WorkingStates.DONE;		
+		E_WorkingStates.DONE:
+			ADSLOGSTR(msgCtrlMask:= ADSLOG_MSGTYPE_LOG,msgFmtStr:=strLog_bagopen_detection,strArg:='');
+			M_load	:= TRUE;
+			eStates	:= E_WorkingStates.IDLE;
+			
+
+		
+		
+END_CASE
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_mapping" Id="{fb37435b-0147-483a-a8a8-883e765b450c}">
+      <Declaration><![CDATA[METHOD M_mapping : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF sInstanceName='working1' THEN
+	
+	/////////////////////////////////////digital input-2024.5.25////////////////////////////////////////
+
+	roller_inbound.roller.err(D:= G_IO.arDI[4].Ch[0],on_ms:=500,off_ms:=80);	
+	roller_inbound.photo_sensor[0](D:= arIOLinkQualifier_Place1.CH[3].1,on_ms:=200,off_ms:=300);  //入口料框检测
+	roller_inbound.photo_sensor[1](D:= arIOLinkQualifier_Place1.CH[3].0,on_ms:=100,off_ms:=100);  //X向到位感应
+	
+	roller_outbound.roller.err(D:= G_IO.arDI[4].Ch[1],on_ms:=500,off_ms:=80);	
+	roller_outbound.photo_sensor(D:= arIOLinkQualifier_Place1.CH[4].0,on_ms:=100,off_ms:=80);   //Y向出料口感应
+
+	roller_outbound_assist.roller.err(D:= G_IO.arDI[4].Ch[2],on_ms:=500,off_ms:=80);	
+	EDM_KM            							:= G_IO.arDI[4].Ch[3];       //P24_sto反馈  
+				  
+	photo_sensor_tote_detection(D:= arIOLinkQualifier_Place1.CH[4].1,on_ms:=100,off_ms:=100);  //XY对角料框感应
+		
+	BagOpening_Detection[0]:= arIOLinkTx_Place1[7].	InputByte[1].0;
+	BagOpening_Detection[1]:= arIOLinkTx_Place1[7].	InputByte[0].0;
+	BagOpening_Detection[2]:= arIOLinkTx_Place1[7].	InputByte[1].1;
+	BagOpening_Detection[3]:= arIOLinkTx_Place1[7].	InputByte[0].1;
+	BagOpening_Detection[4]:= arIOLinkTx_Place1[7].	InputByte[1].2;
+	BagOpening_Detection[5]:= arIOLinkTx_Place1[7].	InputByte[0].2;
+	BagOpening_Detection[6]:= arIOLinkTx_Place1[7].	InputByte[1].3;
+	BagOpening_Detection[7]:= arIOLinkTx_Place1[7].	InputByte[0].3;
+		
+	valve_lift.extended		:= arIOLinkQualifier_Place1.CH[0].1 AND arIOLinkQualifier_Place1.CH[1].1;
+	valve_lift.retracted	:= arIOLinkQualifier_Place1.CH[2].1 AND arIOLinkQualifier_Place1.CH[2].0;
+		
+	(****************************axis_lift*******************************************************)
+		
+	st_mcAxis_lift.limit_sensor_positive:= arIOLinkQualifier_Place1.CH[5].0	 ;
+	st_mcAxis_lift.limit_sensor_negative:= arIOLinkQualifier_Place1.CH[5].1  ;
+	st_mcAxis_lift.limit_sensor_home	:= arIOLinkQualifier_Place1.CH[6].1  ;
+		
+		
+		
+		
+	(****************************axis_bagopener***************************************************)
+	st_mcAxis_bag.limit_sensor_positive:= 	arIOLinkTx_Place1[7].InputByte[0].4 ;
+	st_mcAxis_bag.limit_sensor_negative:= 	arIOLinkTx_Place1[7].InputByte[0].5 ;
+	//using software limit position for
+		
+		
+		
+		
+		
+	/////////////////////////////////////digital output-2024.5.25////////////////////////////////////////
+	G_IO.arDO[6].Ch[0]	:= valve_lift.extend;
+	G_IO.arDO[6].Ch[1]	:= valve_lift.retract;
+		
+	G_IO.arDO[4].Ch[2]	:= roller_inbound.roller.forward;
+	G_IO.arDO[4].Ch[3]	:= roller_inbound.roller.backward;		
+	G_IO.arDO[4].Ch[4]	:= roller_outbound.roller.backward;
+	G_IO.arDO[4].Ch[5]	:= roller_outbound.roller.forward;		
+	G_IO.arDO[4].Ch[6]	:= roller_outbound_assist.roller.forward;
+	G_IO.arDO[4].Ch[7]	:= roller_outbound_assist.roller.backward;
+			
+	/////////////////////////////////////axis config////////////////////////////////////////
+	mcAxis_lift
+	(
+		ZSN		:=   st_mcAxis_lift.limit_sensor_negative OR st_mcAxis_lift.xHoming, //TODO link to digital input
+		ZSP		:=   st_mcAxis_lift.limit_sensor_positive  OR st_mcAxis_lift.xHoming, //TODO link to digital input
+		IN_OUT	:= st_mcAxis_lift	, 
+		AXIS	:= AxisRef_lift	, 
+	);
+	st_mcAxis_lift.bPosSensorShow	:= TRUE;
+	st_mcAxis_lift.bNegSensorShow	:= TRUE;
+	st_mcAxis_lift.bStopButtonShow	:= TRUE;
+	st_mcAxis_lift.rMaxAcceleration	:= 50000;
+	st_mcAxis_lift.rMaxDeceleration	:= 50000;
+	st_mcAxis_lift.rMaxJerk			:= 500000;
+	st_mcAxis_lift.rAcceleration	:= 2500;
+	st_mcAxis_lift.rDeceleration	:= 2500;
+	st_mcAxis_lift.rJerk			:= 12500;
+	st_mcAxis_lift.rMaxVelocity		:= 100;
+	st_mcAxis_lift.rMaxDistance		:= 50;
+	st_mcAxis_lift.bPosSen	:=  st_mcAxis_lift.limit_sensor_positive ;//TODO link to digital input
+	st_mcAxis_lift.bNegSen	:=  st_mcAxis_lift.limit_sensor_negative ;//TODO link to digital input
+	st_mcAxis_lift.mcHome.bCalibrationCam	:= TRUE;//TODO link to digital input origin
+	st_mcAxis_lift.bPositionSensor	:= TRUE;//TODO link to digital input origin
+	st_mcAxis_lift.bdirFW	:= TRUE;
+	st_mcAxis_lift.sNetID := '192.168.17.27.6.1';
+	st_mcAxis_lift.nSlaveAddr	:= 1009;
+	st_mcAxis_lift.rToqueLimitSet	:= 80;
+		
+	mcAxis_bag
+	(
+		ZSN		:=   st_mcAxis_bag.limit_sensor_negative OR st_mcAxis_bag.xHoming, //TODO link to digital input
+		ZSP		:=   st_mcAxis_bag.limit_sensor_positive OR st_mcAxis_bag.xHoming, //TODO link to digital input
+		IN_OUT	:= st_mcAxis_bag	, 
+		AXIS	:= AxisRef_bag	, 
+	);
+	st_mcAxis_bag.bPosSensorShow	:= TRUE;
+	st_mcAxis_bag.bNegSensorShow	:= TRUE;
+	st_mcAxis_bag.bStopButtonShow	:= TRUE;
+	st_mcAxis_bag.rMaxAcceleration	:= 50000;
+	st_mcAxis_bag.rMaxDeceleration	:= 50000;
+	st_mcAxis_bag.rMaxJerk			:= 500000;
+	st_mcAxis_bag.rAcceleration	:= 500;
+	st_mcAxis_bag.rDeceleration	:= 500;
+	st_mcAxis_bag.rJerk			:= 2000;
+	st_mcAxis_bag.rMaxVelocity		:= 300;
+	st_mcAxis_bag.rMaxDistance		:= 50;
+	st_mcAxis_bag.bPosSen	:=  st_mcAxis_bag.limit_sensor_positive ;//TODO link to digital input
+	st_mcAxis_bag.bNegSen	:=  st_mcAxis_bag.limit_sensor_negative ;//TODO link to digital input
+	st_mcAxis_bag.mcHome.bCalibrationCam	:= TRUE;//TODO link to digital input origin
+	st_mcAxis_bag.bPositionSensor	:= TRUE;//TODO link to digital input origin
+	st_mcAxis_bag.bdirFW	:= TRUE;
+	st_mcAxis_bag.sNetID := '192.168.17.27.6.1';
+	st_mcAxis_bag.nSlaveAddr	:= 1010;
+	st_mcAxis_bag.rToqueLimitSet	:= 80;
+	st_mcAxis_bag.rToqueSet	:= 25;
+		//st_mcAxis_bag.rActTorque	:= actTorque;
+//		st_mcAxis_bag.bTouque_control_enable	:=ABS(st_mcAxis_bag.rActualPos-rPos_bag_opened)>10 AND xLoading;
+		
+		rPos_bag_closed_step_0	:= rPos_bag_opened-rPos_bag_preopen;
+END_IF
+IF sInstanceName='working2' THEN
+	/////////////////////////////////////digital input-2024.5.25////////////////////////////////////////
+
+	roller_inbound.roller.err(D:= G_IO.arDI[6].Ch[0],on_ms:=500,off_ms:=80); 
+	roller_inbound.photo_sensor[0](D:= arIOLinkQualifier_Place2.CH[3].1,on_ms:=100,off_ms:=80);  //入口料框检测
+	roller_inbound.photo_sensor[1](D:= arIOLinkQualifier_Place2.CH[3].0,on_ms:=100,off_ms:=80);  //X向到位感应
+	
+	roller_outbound.roller.err(D:= G_IO.arDI[6].Ch[1],on_ms:=500,off_ms:=80); 
+	roller_outbound.photo_sensor(D:= arIOLinkQualifier_Place2.CH[4].0,on_ms:=100,off_ms:=80);   //Y向出料口感应
+	
+	roller_outbound_assist.roller.err(D:= G_IO.arDI[6].Ch[2],on_ms:=500,off_ms:=80); 
+	EDM_KM            							:= G_IO.arDI[6].Ch[3];       //P24_sto反馈  
+			  
+	photo_sensor_tote_detection(D:= arIOLinkQualifier_Place2.CH[4].1,on_ms:=100,off_ms:=100);  //XY对角料框感应
+	
+	BagOpening_Detection[0]:= arIOLinkTx_Place2[7].	InputByte[1].0;
+	BagOpening_Detection[1]:= arIOLinkTx_Place2[7].	InputByte[0].0;
+	BagOpening_Detection[2]:= arIOLinkTx_Place2[7].	InputByte[1].1;
+	BagOpening_Detection[3]:= arIOLinkTx_Place2[7].	InputByte[0].1;
+	BagOpening_Detection[4]:= arIOLinkTx_Place2[7].	InputByte[1].2;
+	BagOpening_Detection[5]:= arIOLinkTx_Place2[7].	InputByte[0].2;
+	BagOpening_Detection[6]:= arIOLinkTx_Place2[7].	InputByte[1].3;
+	BagOpening_Detection[7]:= arIOLinkTx_Place2[7].	InputByte[0].3;
+	
+	
+	valve_lift.extended     := arIOLinkQualifier_Place2.CH[0].1 AND arIOLinkQualifier_Place2.CH[2].1;
+	valve_lift.retracted    := arIOLinkQualifier_Place2.CH[1].1 AND arIOLinkQualifier_Place2.CH[2].0 ;
+	
+	(****************************axis_lift*******************************************************)
+	
+	st_mcAxis_lift.limit_sensor_positive:=  arIOLinkQualifier_Place2.CH[5].0;
+	st_mcAxis_lift.limit_sensor_negative:=  arIOLinkQualifier_Place2.CH[5].1;
+	st_mcAxis_lift.limit_sensor_home:= 		arIOLinkQualifier_Place2.CH[6].1;
+	
+	(****************************axis_bagopener***************************************************)
+	st_mcAxis_bag.limit_sensor_positive	:= arIOLinkTx_Place2[7].	InputByte[0].4 ;
+	st_mcAxis_bag.limit_sensor_negative	:= arIOLinkTx_Place2[7].	InputByte[0].5 ;
+	st_mcAxis_bag.limit_sensor_home		:= arIOLinkTx_Place2[7].	InputByte[1].5 ;
+	
+	
+	/////////////////////////////////////digital output-2024.5.25////////////////////////////////////////
+	G_IO.arDO[7].Ch[0]	:= valve_lift.extend;
+	G_IO.arDO[7].Ch[1]	:= valve_lift.retract;
+	
+	G_IO.arDO[5].Ch[2]	:= roller_inbound.roller.forward;
+	G_IO.arDO[5].Ch[3]	:= roller_inbound.roller.backward;	
+	G_IO.arDO[5].Ch[4]	:= roller_outbound.roller.forward;
+	G_IO.arDO[5].Ch[5]	:= roller_outbound.roller.backward;
+	G_IO.arDO[5].Ch[6]	:= roller_outbound_assist.roller.forward;
+	G_IO.arDO[5].Ch[7]	:= roller_outbound_assist.roller.backward;
+	
+	/////////////////////////////////////axis config////////////////////////////////////////
+	mcAxis_lift
+	(
+		ZSN		:=   st_mcAxis_lift.limit_sensor_negative OR st_mcAxis_lift.xHoming, //TODO link to digital input
+		ZSP		:=   st_mcAxis_lift.limit_sensor_positive OR st_mcAxis_lift.xHoming, //TODO link to digital input
+		IN_OUT	:= st_mcAxis_lift	, 
+		AXIS	:= AxisRef_lift	, 
+	);
+	st_mcAxis_lift.bPosSensorShow	:= TRUE;
+	st_mcAxis_lift.bNegSensorShow	:= TRUE;
+	st_mcAxis_lift.bStopButtonShow	:= TRUE;
+	st_mcAxis_lift.rMaxAcceleration	:= 50000;
+	st_mcAxis_lift.rMaxDeceleration	:= 50000;
+	st_mcAxis_lift.rMaxJerk			:= 500000;
+	st_mcAxis_lift.rAcceleration	:= 2500;
+	st_mcAxis_lift.rDeceleration	:= 2500;
+	st_mcAxis_lift.rJerk			:= 12500;
+	st_mcAxis_lift.rMaxVelocity		:= 100;
+	st_mcAxis_lift.rMaxDistance		:= 50;
+	st_mcAxis_lift.bPosSen	:=  st_mcAxis_lift.limit_sensor_positive ;//TODO link to digital input
+	st_mcAxis_lift.bNegSen	:=  st_mcAxis_lift.limit_sensor_negative ;//TODO link to digital input
+	st_mcAxis_lift.mcHome.bCalibrationCam	:= TRUE;//TODO link to digital input origin
+	st_mcAxis_lift.bPositionSensor	:= TRUE;//TODO link to digital input origin
+	st_mcAxis_lift.bdirFW	:= TRUE;
+	st_mcAxis_lift.sNetID := '192.168.17.27.7.1';
+	st_mcAxis_lift.nSlaveAddr	:= 1009;
+	st_mcAxis_lift.rToqueLimitSet	:= 80;
+	
+	mcAxis_bag
+	(
+		ZSN		:=   st_mcAxis_bag.limit_sensor_negative OR st_mcAxis_bag.xHoming, //TODO link to digital input
+		ZSP		:=   st_mcAxis_bag.limit_sensor_positive OR st_mcAxis_bag.xHoming, //TODO link to digital input
+		IN_OUT	:= st_mcAxis_bag	, 
+		AXIS	:= AxisRef_bag	, 
+	);
+	st_mcAxis_bag.bPosSensorShow	:= TRUE;
+	st_mcAxis_bag.bNegSensorShow	:= TRUE;
+	st_mcAxis_bag.bStopButtonShow	:= TRUE;
+	st_mcAxis_bag.rMaxAcceleration	:= 50000;
+	st_mcAxis_bag.rMaxDeceleration	:= 50000;
+	st_mcAxis_bag.rMaxJerk			:= 500000;
+	st_mcAxis_bag.rAcceleration	:= 500;
+	st_mcAxis_bag.rDeceleration	:= 500;
+	st_mcAxis_bag.rJerk			:= 2000;
+	st_mcAxis_bag.rMaxVelocity		:= 300;
+	st_mcAxis_bag.rMaxDistance		:= 50;
+	st_mcAxis_bag.bPosSen	:=  st_mcAxis_bag.limit_sensor_positive ;//TODO link to digital input
+	st_mcAxis_bag.bNegSen	:=  st_mcAxis_bag.limit_sensor_negative ;//TODO link to digital input
+	st_mcAxis_bag.mcHome.bCalibrationCam	:= TRUE;//TODO link to digital input origin
+	st_mcAxis_bag.bPositionSensor	:= TRUE;//TODO link to digital input origin
+	st_mcAxis_bag.bdirFW	:= TRUE;
+	st_mcAxis_bag.sNetID := '192.168.17.27.7.1';
+	st_mcAxis_bag.nSlaveAddr	:= 1010;
+	st_mcAxis_bag.rToqueLimitSet	:= 80;
+	st_mcAxis_bag.rToqueSet	:= 25;
+	//st_mcAxis_bag.rActTorque	:= actTorque;
+	//st_mcAxis_bag.bTouque_control_enable	:=ABS(st_mcAxis_bag.rActualPos-rPos_bag_opened)>10 AND xLoading;
+	
+	rPos_bag_closed_step_0	:= rPos_bag_opened-8;
+
+END_IF
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Reset" Id="{2225dc5b-c96e-486e-99ac-996246944617}">
+      <Declaration><![CDATA[METHOD M_Reset
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//Take away all commands
+IF GVL.stChangeIntoProduction.bYesReset THEN
+;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Resetting" Id="{78b27490-a02a-49e4-90fc-834a54f29224}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Resetting'}
+METHOD M_Resetting
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE fbUnitModeManager.eModeStatus OF
+	ePMLProtUnitMode_Production:		//Production, Mantainance, Manual
+		valve_lift.extend	:= FALSE;
+		valve_lift.retract	:= TRUE;
+		st_mcAxis_lift.mcStop.Execute	:= FALSE;
+		st_mcAxis_bag.mcStop.Execute	:= FALSE;
+		st_mcAxis_lift.mcReset.Execute			:= TRUE;
+		st_mcAxis_bag.mcReset.Execute			:= TRUE;		
+		error_status	:= OrderToteErrorStatus.NO_ERROR;	
+		ton_timeout.IN	:= FALSE;
+		M_StateComplete();
+	
+	ePMLProtUnitMode_Maintenance, ePMLProtUnitMode_Manual, ePMLUnitMode_Service:
+		M_StateComplete();
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Starting" Id="{4eb21644-e29c-4d04-8a54-fad4656a9bca}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Starting'}
+METHOD M_Starting
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE fbUnitModeManager.eModeStatus OF
+	ePMLProtUnitMode_Production:		//Production, Mantainance, Manual
+		ton_timeout.IN	:=FALSE;
+		st_mcAxis_bag.mcPower.Enable	:= TRUE;
+		st_mcAxis_lift.mcPower.Enable	:= TRUE;
+		IF logtech_control_command=LogTechControlCmd.TRANSFER_TOTE_FINISHED THEN		
+			logtech_control_command	:= LogTechControlCmd.DO_NOTHING;	
+		END_IF
+		IF M_checkCondition(condition:=E_Condition.TOTE_READY) THEN
+			IF tote_status = ToteStatus.LOADED OR tote_status = ToteStatus.VACANT THEN
+				eStates	:= E_WorkingStates.IDLE;
+				xInbound	:= FALSE;
+				xOutbound	:= FALSE;
+			END_IF
+			IF tote_status=ToteStatus.MECHANICAL_ERROR THEN
+				IF xInbound THEN
+					tote_status	:= ToteStatus.INBOUNDING;
+				END_IF
+				IF xOutbound THEN
+					tote_status	:= ToteStatus.OUTBOUNDING;
+				END_IF
+			END_IF			
+			IF st_mcAxis_bag.mcPower.Status AND st_mcAxis_lift.mcPower.Status THEN
+				M_StateComplete();
+			END_IF
+		END_IF
+		
+		
+	ePMLProtUnitMode_Maintenance, ePMLProtUnitMode_Manual, ePMLUnitMode_Service:
+		M_StateComplete();
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Stopping" Id="{4a45b042-112f-4988-a7c1-c00763b1f3c2}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Stopping'}
+METHOD M_Stopping
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE fbUnitModeManager.eModeStatus OF
+	ePMLProtUnitMode_Production, ePMLProtUnitMode_Manual:
+/////////////////////////////////////////////////////////	
+		IF NOT xInbound AND NOT xOutbound THEN
+			M_StateComplete();
+			RETURN;
+		END_IF
+//////////////////////////unloading///////////////////////	
+		IF xOutbound THEN	
+			IF M_unload() THEN
+			 	xOutbound := FALSE;						
+				M_StateComplete();
+			END_IF	
+			RETURN;
+		END_IF	
+//////////////////////////loading///////////////////////
+		IF xInbound THEN
+			IF PreviousState=ePMLState_Idle THEN
+				M_StateComplete();
+				RETURN;	
+			END_IF
+				
+			IF M_load() THEN
+				xInbound	:= FALSE;						
+				M_StateComplete();
+			END_IF
+		END_IF		
+	
+
+				
+	ePMLProtUnitMode_Maintenance, ePMLUnitMode_Service:
+		M_StateComplete();	
+			//not defined
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Undefined" Id="{85f28817-59c5-4f36-98c8-b9998fe78a43}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Undefined'}
+METHOD M_Undefined
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+bUndefinedDone					:= TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_unload" Id="{9915bafa-1245-4056-9c08-27dbc1a0db10}" FolderPath="methods\">
+      <Declaration><![CDATA[METHOD M_unload : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+M_unload := FALSE;
+//event.sMethod	:= 'unload';
+
+//////////////////////////////////////////////////////////timeout//////////////////////////////////////////
+		iStateTemp	:= eStateTemp;
+//		ton_timeout();
+		IF eStateTemp=eStates THEN
+			ton_timeout.IN	:=TRUE;
+		ELSE
+			ton_timeout.IN	:=FALSE;
+			eStateTemp	:= eStates;	
+			M_Log(eLogType:=ServerityLevelType.INFO,sTextLog:='');
+			IF ton_timeout.Q THEN
+				RETURN;
+			END_IF
+		END_IF
+		IF ton_timeout.Q THEN	
+			ton_timeout.IN	:=FALSE;
+			CASE eStates OF	
+				E_LoadingStates.ERROR:	
+					alarm_temp.Message	:= GenerateErrorMsg(errorType:='M',iState := iStateTemp,errorMsg:='in error state.');
+				ELSE
+					alarm_temp.Message	:= GenerateErrorMsg(errorType:='M',iState := iStateTemp,errorMsg:='time out');
+			END_CASE
+//////////////////////////////////////////////////////////states don't want to timeout and trig error//////////////////////////////////////////				
+			IF  eStates<>E_WorkingStates.IDLE AND 
+				eStates<>E_WorkingStates.WAIT_UNLOADING AND 
+				eStates<>E_WorkingStates.BAG_OPEN_UP AND
+				eStates<>E_WorkingStates.WAIT_LOGTECH_OUTBOUND 
+			THEN
+				IF sInstanceName='working1' THEN
+					tote_status	:= ToteStatus.MECHANICAL_ERROR;	
+					THIS^.pml_adminAlarm.M_SetAlarm(stAdmin:=GVL.PackTags1.Admin,stAlarm:=THIS^.alarm_temp);					
+				END_IF
+				IF sInstanceName='working2' THEN
+					tote_status	:= ToteStatus.MECHANICAL_ERROR;	
+					THIS^.pml_adminAlarm.M_SetAlarm(stAdmin:=GVL.PackTags2.Admin,stAlarm:=THIS^.alarm_temp);					
+				END_IF						
+
+			END_IF
+		END_IF
+		
+
+CASE eStates OF 
+		E_WorkingStates.IDLE:
+			st_mcAxis_lift.mcReset.Execute	:= TRUE;
+			st_mcAxis_bag.mcReset.Execute	:= TRUE;			
+			IF ton_timeout.Q THEN
+				eStates	:= E_WorkingStates.INIT;
+			END_IF		
+		E_WorkingStates.INIT:	
+			ton_timeout.PT	:= T#3S;
+			bagOpen_Status	:= bagOpenInit_Status;			
+			st_mcAxis_lift.mcMoveAbsolute.Execute	:= FALSE;
+			st_mcAxis_bag.mcMoveAbsolute.Execute	:= FALSE;
+			IF M_checkCondition(condition:=E_Condition.TOTE_READY) THEN///////////check tote status
+				IF tote_status=ToteStatus.VACANT THEN
+					eStates	:= E_WorkingStates.DONE;
+				ELSE
+					eStates	:= E_WorkingStates.WAIT_UNLOADING;
+				END_IF
+			END_IF		
+		E_WorkingStates.WAIT_UNLOADING://wait signal from logtech and app to unload the tote
+			logtech_status	:= LogTechStatus.RUNNING;//todo:remove while on site
+			IF logtech_status=LogTechStatus.RUNNING THEN
+				tote_status	:= ToteStatus.AWAITING_OUTBOUND_AVAILABILITY;
+				IF bUsingOpenBag THEN
+					eStates	:= E_WorkingStates.BAG_CLOSE_STEP_0;
+				ELSE
+					eStates	:= E_WorkingStates.BAG_OPEN_UP;
+				END_IF				
+			ELSE
+				tote_status	:= ToteStatus.DOWNSTREAM_NOT_READY;
+			END_IF	
+		E_WorkingStates.BAG_CLOSE_STEP_0:
+			IF error_status=OrderToteErrorStatus.BAG_OPEN_FAILED THEN
+				st_mcAxis_bag.mcMoveAbsolute.Execute	:= TRUE;		
+				st_mcAxis_bag.rActualPosSet	:= rPos_bag_closed;
+				st_mcAxis_bag.rVelocitySet	:= 250;				
+			ELSE
+				IF NOT (ABS(st_mcAxis_bag.rActualPos-rPos_bag_closed_step_0)<0.1) THEN
+					st_mcAxis_bag.mcMoveAbsolute.Execute	:= TRUE;		
+					st_mcAxis_bag.rActualPosSet	:= rPos_bag_closed_step_0;
+					st_mcAxis_bag.rVelocitySet	:= 250;				
+				END_IF
+			END_IF
+			IF st_mcAxis_bag.mcMoveAbsolute.Done OR (ABS(st_mcAxis_bag.rActualPos-rPos_bag_closed_step_0)<0.1) THEN
+				st_mcAxis_bag.mcMoveAbsolute.Execute	:= FALSE;
+				eStates	:= E_WorkingStates.BAG_OPEN_UP;
+			END_IF	
+		E_WorkingStates.BAG_OPEN_UP:
+			ton_timeout.PT	:= T#3S;
+			IF bRobot_in_safety_place THEN		
+				st_mcAxis_lift.mcMoveAbsolute.Execute	:= TRUE;		
+				st_mcAxis_lift.rActualPosSet	:= rPos_lift_up;
+				st_mcAxis_lift.rVelocitySet	:= 250;
+				IF st_mcAxis_lift.mcMoveAbsolute.Done THEN
+					st_mcAxis_lift.mcMoveAbsolute.Execute	:= FALSE;
+					eStates	:= E_WorkingStates.TOTE_LIFT_UP;
+				END_IF	
+			END_IF
+		E_WorkingStates.TOTE_LIFT_UP:
+			valve_lift.extend	:= TRUE;
+			valve_lift.retract	:= FALSE;
+			IF valve_lift.extended AND NOT valve_lift.retracted THEN
+				eStates	:= E_WorkingStates.WAIT_LOGTECH_OUTBOUND;
+			END_IF										
+		E_WorkingStates.WAIT_LOGTECH_OUTBOUND:			
+			/////////////////////////abort outbound command from app///////////////////
+			IF xAbortOutbound THEN
+				xAbortOutbound	:= FALSE;
+				tote_status	:= ToteStatus.LOADED;
+				outboundTote_status	:= ToteStatus.VACANT;
+				M_unload	:= TRUE;
+				eStates	:= E_WorkingStates.IDLE;				
+			ELSE
+			//////////////////////////normal process///////////////////////
+				tote_status	:= ToteStatus.AWAITING_OUTBOUND_AVAILABILITY;
+				outboundTote_status	:= ToteStatus.AWAITING_INBOUND_AVAILABILITY;
+				logtech_control_command	:= LogTechControlCmd.READY_TO_TRANSFER;
+				logtech_transfer_status	:= LogTechTransferStatus.READY_TO_RECEIVE;//todo:remove while onsite
+				IF logtech_transfer_status=LogTechTransferStatus.READY_TO_RECEIVE THEN
+					eStates	:= E_WorkingStates.TOTE_UNLOAD;
+				END_IF	
+			END_IF			
+			/////////////////////////////while in stopping/////////////////////	
+			IF  eState = ePMLState_Stopping THEN
+				tote_status	:= ToteStatus.LOADED;
+				outboundTote_status	:= ToteStatus.VACANT;
+				M_unload	:= TRUE;
+				xOutbound	:= FALSE;
+				eStates	:= E_WorkingStates.IDLE;
+			END_IF
+		E_WorkingStates.TOTE_UNLOAD:
+			tote_status	:= ToteStatus.OUTBOUNDING;
+			outboundTote_status	:= ToteStatus.INBOUNDING;
+			logtech_control_command	:= LogTechControlCmd.TRANSFERRING_TOTE;
+			valve_lift.extend	:= TRUE;
+			valve_lift.retract	:= FALSE;		
+			ton_timeout.PT	:= T#2S;
+			roller_outbound.roller.forward		:= TRUE;
+			roller_outbound_assist.roller.forward	:= TRUE;
+			IF roller_outbound.photo_sensor.Q THEN
+				eStates	:= E_WorkingStates.WAIT_TOTE_DETECTION_OFF;			
+			END_IF	
+		E_WorkingStates.WAIT_TOTE_DETECTION_OFF:	
+			valve_lift.extend	:= TRUE;
+			valve_lift.retract	:= FALSE;				
+			roller_outbound.roller.forward		:= TRUE;
+			roller_outbound_assist.roller.forward	:= TRUE;
+			IF NOT photo_sensor_tote_detection.Q THEN
+				eStates	:= E_WorkingStates.WAIT_SENSOR_OFF;	
+			END_IF
+		E_WorkingStates.WAIT_SENSOR_OFF:
+			valve_lift.extend	:= TRUE;
+			valve_lift.retract	:= FALSE;		
+			roller_outbound.roller.forward		:= TRUE;
+			roller_outbound_assist.roller.forward	:= TRUE;	
+			IF NOT roller_outbound.photo_sensor.Q THEN
+				eStates	:= E_WorkingStates.WAIT_RECEIVE_TOTE_FINISHED;			
+			END_IF			
+		E_WorkingStates.WAIT_RECEIVE_TOTE_FINISHED:
+			valve_lift.extend	:= TRUE;
+			valve_lift.retract	:= FALSE;			
+			roller_outbound.roller.forward		:= TRUE;
+			roller_outbound_assist.roller.forward	:= TRUE;
+			logtech_control_command	:= LogTechControlCmd.TRANSFER_TOTE_FINISHED;
+			logtech_transfer_status	:= LogTechTransferStatus.RECEIVE_TOTE_FINISHED;//todo:remove while onsite
+			IF	logtech_transfer_status=LogTechTransferStatus.RECEIVE_TOTE_FINISHED THEN
+				roller_outbound.roller.forward		:= FALSE;	
+				roller_outbound_assist.roller.forward	:= FALSE;
+				logtech_control_command	:= LogTechControlCmd.DO_NOTHING;
+				eStates	:= E_WorkingStates.TOTE_LIFT_DOWN;
+			END_IF
+		E_WorkingStates.TOTE_LIFT_DOWN:
+			roller_outbound.roller.forward		:= FALSE;	
+			roller_outbound_assist.roller.forward	:= FALSE;	
+			st_mcAxis_bag.mcMoveAbsolute.Execute	:= TRUE;		
+			st_mcAxis_bag.rVelocitySet	:= 250;
+			IF bUsingOpenBag THEN
+				st_mcAxis_bag.rActualPosSet	:= rPos_bag_closed;
+			ELSE
+				st_mcAxis_bag.rActualPosSet	:= rPos_bag_opened;
+			END_IF
+			valve_lift.extend	:= FALSE;
+			valve_lift.retract	:= TRUE;
+			IF st_mcAxis_bag.mcMoveAbsolute.Done AND NOT valve_lift.extended AND valve_lift.retracted THEN
+				st_mcAxis_bag.mcMoveAbsolute.Execute	:= FALSE;
+				eStates	:= E_WorkingStates.DONE;
+			END_IF				
+		E_WorkingStates.DONE:	
+			logtech_control_command	:= LogTechControlCmd.DO_NOTHING;
+			tote_status	:= ToteStatus.VACANT;
+			outboundTote_status	:= ToteStatus.LOADED;		
+			M_unload	:= TRUE;
+			eStates	:= E_WorkingStates.IDLE;
+
+
+
+		
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_waitCondition" Id="{c4a045f6-539f-4680-8050-53ad706d0ffd}" FolderPath="methods\">
+      <Declaration><![CDATA[METHOD M_waitCondition : BOOL
+VAR_INPUT
+	condition	: E_Condition;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_waitCondition	:= FALSE;
+CASE condition OF
+	E_Condition.NO_TOTE:
+	 	IF NOT roller_inbound.photo_sensor[1].Q THEN
+			M_waitCondition	:= TRUE;
+		END_IF
+	E_Condition.TOTE_IN:
+	 	IF roller_inbound.photo_sensor[1].Q THEN
+			M_waitCondition	:= TRUE;
+		END_IF	
+	E_Condition.READY_LOADING_TOTE:
+		IF  GVL.fb_loading.eTransfer=E_Transfer.UNLOAD
+			OR tote_status=ToteStatus.LOADED 
+			OR  xInbound
+		THEN
+			M_waitCondition	:= TRUE;
+		END_IF	
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ParseStateToString" Id="{ad52fc13-a07d-48ab-9325-25df1429c370}">
+      <Declaration><![CDATA[METHOD ParseStateToString : STRING
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE THIS^.eStates OF
+	E_WorkingStates.IDLE:
+		ParseStateToString	:='IDLE';
+	E_WorkingStates.INIT:
+		ParseStateToString	:='INIT';
+	E_WorkingStates.CHECK:
+		ParseStateToString	:='CHECK';
+	E_WorkingStates.WAIT_NEW_TOTE:
+		ParseStateToString	:='WAIT_NEW_TOTE';
+	E_WorkingStates.LOADING:
+		ParseStateToString	:='LOADING';
+	E_WorkingStates.WAIT_FINISHED:
+		ParseStateToString	:='WAIT_FINISHED';
+	E_WorkingStates.TOTE_LOAD:
+		ParseStateToString	:='TOTE_LOAD';
+	E_WorkingStates.TOTE_UNLOAD:
+		ParseStateToString	:='TOTE_UNLOAD';
+	E_WorkingStates.BAG_OPEN:
+		ParseStateToString	:='BAG_OPEN';
+	E_WorkingStates.BAG_OPEN_DETECTION:
+		ParseStateToString	:='BAG_OPEN_DETECTION';
+	E_WorkingStates.BAG_CLOSE_STEP_0:
+		ParseStateToString	:='BAG_CLOSE_STEP_0';
+	E_WorkingStates.BAG_CLOSE_STEP_1:
+		ParseStateToString	:='BAG_CLOSE_STEP_1';
+	E_WorkingStates.BAG_CLOSE:
+		ParseStateToString	:='BAG_CLOSE';
+	E_WorkingStates.BAG_OPEN_INIT:
+		ParseStateToString	:='BAG_OPEN_INIT';
+	E_WorkingStates.TOTE_LIFT_UP:
+		ParseStateToString	:='TOTE_LIFT_UP';
+	E_WorkingStates.TOTE_LIFT_DOWN:
+		ParseStateToString	:='TOTE_LIFT_DOWN';
+	E_WorkingStates.BAG_OPEN_UP:
+		ParseStateToString	:='BAG_OPEN_UP';
+	E_WorkingStates.BAG_OPEN_DOWN:
+		ParseStateToString	:='BAG_OPEN_DOWN';
+	E_WorkingStates.TOTE_OUT:
+		ParseStateToString	:='TOTE_OUT';
+	E_WorkingStates.WAIT_1:
+		ParseStateToString	:='WAIT_1';
+	E_WorkingStates.WAIT_LOGTECH_OUTBOUND:
+		ParseStateToString	:='WAIT_LOGTECH_OUTBOUND';
+	E_WorkingStates.TOTE_STATUS_DETECTION:
+		ParseStateToString	:='TOTE_STATUS_DETECTION';
+	E_WorkingStates.NOTIFY_LOADING_OUTBOUND:
+		ParseStateToString	:='NOTIFY_LOADING_OUTBOUND';
+	E_WorkingStates.AGING_STATE_0:
+		ParseStateToString	:='AGING_STATE_0';
+	E_WorkingStates.AGING_STATE_1:
+		ParseStateToString	:='AGING_STATE_1';
+	E_WorkingStates.WAIT:
+		ParseStateToString	:='WAIT';
+	E_WorkingStates.WAIT_UNLOADING:
+		ParseStateToString	:='WAIT_UNLOADING';
+	E_WorkingStates.WAIT_SENSOR_ON:
+		ParseStateToString	:='WAIT_SENSOR_ON';
+	E_WorkingStates.WAIT_SENSOR_OFF:
+		ParseStateToString	:='WAIT_SENSOR_OFF';
+	E_WorkingStates.WAIT_MUTE_SENSOR_ON:
+		ParseStateToString	:='WAIT_MUTE_SENSOR_ON';
+	E_WorkingStates.WAIT_MUTE_SENSOR_OFF:
+		ParseStateToString	:='WAIT_MUTE_SENSOR_OFF';
+	E_WorkingStates.WAIT_LOAD_SENSOR_ON:
+		ParseStateToString	:='WAIT_LOAD_SENSOR_ON';
+	E_WorkingStates.WAIT_LOAD_SENSOR_OFF:
+		ParseStateToString	:='WAIT_LOAD_SENSOR_OFF';
+	E_WorkingStates.WAIT_RECEIVE_TOTE_FINISHED:
+		ParseStateToString	:='WAIT_RECEIVE_TOTE_FINISHED';
+	E_WorkingStates.WAIT_TOTE_DETECTION_ON:
+		ParseStateToString	:='WAIT_TOTE_DETECTION_ON';
+	E_WorkingStates.WAIT_TOTE_DETECTION_OFF:
+		ParseStateToString	:='WAIT_TOTE_DETECTION_OFF';
+	E_WorkingStates.DONE:
+		ParseStateToString	:='DONE';
+	E_WorkingStates.ERROR:
+		ParseStateToString	:='ERROR';
+	ELSE
+		ParseStateToString	:='UNKNOW STATE';
+END_CASE
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_working_tote">
+      <LineId Id="9" Count="0" />
+      <LineId Id="147" Count="0" />
+      <LineId Id="836" Count="0" />
+      <LineId Id="337" Count="2" />
+      <LineId Id="364" Count="0" />
+      <LineId Id="834" Count="0" />
+      <LineId Id="946" Count="0" />
+      <LineId Id="340" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="837" Count="2" />
+      <LineId Id="844" Count="3" />
+      <LineId Id="947" Count="0" />
+      <LineId Id="949" Count="0" />
+      <LineId Id="848" Count="1" />
+      <LineId Id="246" Count="0" />
+      <LineId Id="851" Count="0" />
+      <LineId Id="850" Count="0" />
+      <LineId Id="244" Count="1" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="240" Count="0" />
+      <LineId Id="1100" Count="1" />
+      <LineId Id="1103" Count="1" />
+      <LineId Id="1102" Count="0" />
+      <LineId Id="950" Count="2" />
+      <LineId Id="463" Count="1" />
+      <LineId Id="493" Count="3" />
+      <LineId Id="514" Count="0" />
+      <LineId Id="618" Count="0" />
+      <LineId Id="497" Count="12" />
+      <LineId Id="515" Count="1" />
+      <LineId Id="510" Count="0" />
+      <LineId Id="738" Count="0" />
+      <LineId Id="518" Count="0" />
+      <LineId Id="512" Count="1" />
+      <LineId Id="487" Count="0" />
+      <LineId Id="619" Count="17" />
+      <LineId Id="638" Count="3" />
+      <LineId Id="488" Count="0" />
+      <LineId Id="1056" Count="3" />
+      <LineId Id="1083" Count="0" />
+      <LineId Id="1070" Count="0" />
+      <LineId Id="1063" Count="1" />
+      <LineId Id="1066" Count="2" />
+      <LineId Id="1078" Count="1" />
+      <LineId Id="1069" Count="0" />
+      <LineId Id="1060" Count="0" />
+      <LineId Id="1047" Count="1" />
+      <LineId Id="1084" Count="0" />
+      <LineId Id="1088" Count="0" />
+      <LineId Id="1085" Count="0" />
+      <LineId Id="1091" Count="0" />
+      <LineId Id="1086" Count="0" />
+      <LineId Id="1052" Count="0" />
+      <LineId Id="1071" Count="5" />
+      <LineId Id="1081" Count="0" />
+      <LineId Id="1080" Count="0" />
+      <LineId Id="1077" Count="0" />
+      <LineId Id="1053" Count="1" />
+      <LineId Id="1049" Count="0" />
+      <LineId Id="462" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_working_tote.Callback">
+      <LineId Id="36" Count="1" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="90" Count="2" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="97" Count="0" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="60" Count="0" />
+      <LineId Id="66" Count="1" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="61" Count="0" />
+      <LineId Id="65" Count="0" />
+      <LineId Id="78" Count="0" />
+      <LineId Id="80" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="93" Count="2" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="98" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="99" Count="0" />
+      <LineId Id="46" Count="0" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="59" Count="0" />
+      <LineId Id="62" Count="0" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="58" Count="0" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="64" Count="0" />
+      <LineId Id="81" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_working_tote.M_Aborting">
+      <LineId Id="3" Count="1" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="30" Count="1" />
+      <LineId Id="61" Count="1" />
+      <LineId Id="65" Count="0" />
+      <LineId Id="34" Count="1" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="58" Count="0" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="59" Count="0" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="60" Count="0" />
+      <LineId Id="45" Count="1" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="12" Count="2" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_working_tote.M_agingTest">
+      <LineId Id="51" Count="4" />
+      <LineId Id="138" Count="1" />
+      <LineId Id="107" Count="2" />
+      <LineId Id="173" Count="1" />
+      <LineId Id="172" Count="0" />
+      <LineId Id="121" Count="1" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="141" Count="1" />
+      <LineId Id="110" Count="1" />
+      <LineId Id="199" Count="0" />
+      <LineId Id="176" Count="1" />
+      <LineId Id="175" Count="0" />
+      <LineId Id="140" Count="0" />
+      <LineId Id="114" Count="0" />
+      <LineId Id="106" Count="0" />
+      <LineId Id="59" Count="6" />
+      <LineId Id="77" Count="0" />
+      <LineId Id="178" Count="8" />
+      <LineId Id="216" Count="1" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="221" Count="0" />
+      <LineId Id="189" Count="3" />
+      <LineId Id="200" Count="0" />
+      <LineId Id="223" Count="3" />
+      <LineId Id="195" Count="2" />
+      <LineId Id="79" Count="4" />
+      <LineId Id="210" Count="0" />
+      <LineId Id="84" Count="0" />
+      <LineId Id="211" Count="0" />
+      <LineId Id="85" Count="1" />
+      <LineId Id="97" Count="5" />
+      <LineId Id="198" Count="0" />
+      <LineId Id="206" Count="1" />
+      <LineId Id="205" Count="0" />
+      <LineId Id="201" Count="1" />
+      <LineId Id="165" Count="0" />
+      <LineId Id="203" Count="0" />
+      <LineId Id="169" Count="0" />
+      <LineId Id="204" Count="0" />
+      <LineId Id="103" Count="1" />
+      <LineId Id="47" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_working_tote.M_checkCondition">
+      <LineId Id="9" Count="4" />
+      <LineId Id="64" Count="0" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="14" Count="3" />
+      <LineId Id="65" Count="1" />
+      <LineId Id="18" Count="1" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="24" Count="3" />
+      <LineId Id="88" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="89" Count="1" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="30" Count="8" />
+      <LineId Id="74" Count="0" />
+      <LineId Id="39" Count="5" />
+      <LineId Id="51" Count="2" />
+      <LineId Id="55" Count="7" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_working_tote.M_Completing">
+      <LineId Id="3" Count="1" />
+      <LineId Id="8" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_working_tote.M_Execute">
+      <LineId Id="255" Count="1" />
+      <LineId Id="309" Count="0" />
+      <LineId Id="338" Count="4" />
+      <LineId Id="344" Count="0" />
+      <LineId Id="337" Count="0" />
+      <LineId Id="336" Count="0" />
+      <LineId Id="310" Count="0" />
+      <LineId Id="313" Count="0" />
+      <LineId Id="323" Count="1" />
+      <LineId Id="314" Count="0" />
+      <LineId Id="301" Count="0" />
+      <LineId Id="320" Count="0" />
+      <LineId Id="302" Count="0" />
+      <LineId Id="304" Count="1" />
+      <LineId Id="327" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_working_tote.M_Holding">
+      <LineId Id="3" Count="2" />
+      <LineId Id="40" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_working_tote.M_Idle">
+      <LineId Id="9" Count="8" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_working_tote.M_load">
+      <LineId Id="6" Count="0" />
+      <LineId Id="365" Count="0" />
+      <LineId Id="466" Count="21" />
+      <LineId Id="497" Count="3" />
+      <LineId Id="496" Count="0" />
+      <LineId Id="501" Count="0" />
+      <LineId Id="694" Count="0" />
+      <LineId Id="648" Count="0" />
+      <LineId Id="650" Count="0" />
+      <LineId Id="649" Count="0" />
+      <LineId Id="651" Count="1" />
+      <LineId Id="493" Count="0" />
+      <LineId Id="495" Count="0" />
+      <LineId Id="465" Count="0" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="794" Count="0" />
+      <LineId Id="57" Count="2" />
+      <LineId Id="453" Count="0" />
+      <LineId Id="647" Count="0" />
+      <LineId Id="63" Count="7" />
+      <LineId Id="313" Count="0" />
+      <LineId Id="71" Count="1" />
+      <LineId Id="75" Count="2" />
+      <LineId Id="322" Count="0" />
+      <LineId Id="355" Count="0" />
+      <LineId Id="801" Count="4" />
+      <LineId Id="80" Count="1" />
+      <LineId Id="817" Count="0" />
+      <LineId Id="86" Count="4" />
+      <LineId Id="314" Count="0" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="93" Count="4" />
+      <LineId Id="857" Count="0" />
+      <LineId Id="99" Count="2" />
+      <LineId Id="872" Count="0" />
+      <LineId Id="867" Count="0" />
+      <LineId Id="871" Count="0" />
+      <LineId Id="870" Count="0" />
+      <LineId Id="869" Count="0" />
+      <LineId Id="868" Count="0" />
+      <LineId Id="104" Count="4" />
+      <LineId Id="295" Count="0" />
+      <LineId Id="109" Count="5" />
+      <LineId Id="684" Count="0" />
+      <LineId Id="673" Count="0" />
+      <LineId Id="701" Count="0" />
+      <LineId Id="788" Count="0" />
+      <LineId Id="681" Count="0" />
+      <LineId Id="674" Count="6" />
+      <LineId Id="317" Count="0" />
+      <LineId Id="683" Count="0" />
+      <LineId Id="682" Count="0" />
+      <LineId Id="787" Count="0" />
+      <LineId Id="777" Count="0" />
+      <LineId Id="786" Count="0" />
+      <LineId Id="776" Count="0" />
+      <LineId Id="685" Count="0" />
+      <LineId Id="760" Count="0" />
+      <LineId Id="791" Count="2" />
+      <LineId Id="790" Count="0" />
+      <LineId Id="762" Count="7" />
+      <LineId Id="761" Count="0" />
+      <LineId Id="115" Count="0" />
+      <LineId Id="806" Count="0" />
+      <LineId Id="809" Count="2" />
+      <LineId Id="807" Count="1" />
+      <LineId Id="812" Count="4" />
+      <LineId Id="125" Count="0" />
+      <LineId Id="725" Count="0" />
+      <LineId Id="130" Count="0" />
+      <LineId Id="702" Count="6" />
+      <LineId Id="132" Count="4" />
+      <LineId Id="672" Count="0" />
+      <LineId Id="502" Count="12" />
+      <LineId Id="516" Count="4" />
+      <LineId Id="522" Count="5" />
+      <LineId Id="530" Count="10" />
+      <LineId Id="543" Count="1" />
+      <LineId Id="549" Count="1" />
+      <LineId Id="552" Count="1" />
+      <LineId Id="818" Count="1" />
+      <LineId Id="558" Count="5" />
+      <LineId Id="849" Count="0" />
+      <LineId Id="571" Count="1" />
+      <LineId Id="574" Count="0" />
+      <LineId Id="820" Count="0" />
+      <LineId Id="577" Count="0" />
+      <LineId Id="579" Count="0" />
+      <LineId Id="581" Count="1" />
+      <LineId Id="586" Count="0" />
+      <LineId Id="588" Count="2" />
+      <LineId Id="593" Count="2" />
+      <LineId Id="597" Count="2" />
+      <LineId Id="601" Count="0" />
+      <LineId Id="603" Count="1" />
+      <LineId Id="606" Count="0" />
+      <LineId Id="608" Count="1" />
+      <LineId Id="612" Count="0" />
+      <LineId Id="614" Count="2" />
+      <LineId Id="619" Count="2" />
+      <LineId Id="850" Count="0" />
+      <LineId Id="629" Count="3" />
+      <LineId Id="873" Count="0" />
+      <LineId Id="877" Count="4" />
+      <LineId Id="876" Count="0" />
+      <LineId Id="902" Count="0" />
+      <LineId Id="875" Count="0" />
+      <LineId Id="892" Count="7" />
+      <LineId Id="904" Count="0" />
+      <LineId Id="900" Count="0" />
+      <LineId Id="905" Count="0" />
+      <LineId Id="901" Count="0" />
+      <LineId Id="837" Count="0" />
+      <LineId Id="639" Count="2" />
+      <LineId Id="646" Count="0" />
+      <LineId Id="457" Count="1" />
+      <LineId Id="369" Count="0" />
+      <LineId Id="367" Count="0" />
+      <LineId Id="285" Count="2" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_working_tote.M_mapping">
+      <LineId Id="390" Count="1" />
+      <LineId Id="262" Count="1" />
+      <LineId Id="627" Count="0" />
+      <LineId Id="264" Count="1" />
+      <LineId Id="628" Count="0" />
+      <LineId Id="266" Count="0" />
+      <LineId Id="268" Count="0" />
+      <LineId Id="629" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="272" Count="11" />
+      <LineId Id="287" Count="27" />
+      <LineId Id="316" Count="1" />
+      <LineId Id="319" Count="2" />
+      <LineId Id="326" Count="59" />
+      <LineId Id="508" Count="2" />
+      <LineId Id="630" Count="0" />
+      <LineId Id="511" Count="2" />
+      <LineId Id="631" Count="0" />
+      <LineId Id="515" Count="1" />
+      <LineId Id="632" Count="0" />
+      <LineId Id="519" Count="16" />
+      <LineId Id="537" Count="17" />
+      <LineId Id="556" Count="1" />
+      <LineId Id="559" Count="64" />
+      <LineId Id="254" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_working_tote.M_Reset">
+      <LineId Id="3" Count="1" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_working_tote.M_Resetting">
+      <LineId Id="3" Count="1" />
+      <LineId Id="58" Count="6" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="45" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_working_tote.M_Starting">
+      <LineId Id="18" Count="1" />
+      <LineId Id="21" Count="11" />
+      <LineId Id="50" Count="6" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="45" Count="1" />
+      <LineId Id="33" Count="2" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="36" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_working_tote.M_Stopping">
+      <LineId Id="3" Count="1" />
+      <LineId Id="200" Count="3" />
+      <LineId Id="145" Count="0" />
+      <LineId Id="162" Count="2" />
+      <LineId Id="199" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="196" Count="0" />
+      <LineId Id="170" Count="3" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="217" Count="1" />
+      <LineId Id="216" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="174" Count="1" />
+      <LineId Id="181" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="161" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="140" Count="0" />
+      <LineId Id="133" Count="0" />
+      <LineId Id="14" Count="2" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_working_tote.M_Undefined">
+      <LineId Id="10" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_working_tote.M_unload">
+      <LineId Id="6" Count="2" />
+      <LineId Id="196" Count="0" />
+      <LineId Id="369" Count="21" />
+      <LineId Id="399" Count="2" />
+      <LineId Id="396" Count="0" />
+      <LineId Id="402" Count="0" />
+      <LineId Id="565" Count="0" />
+      <LineId Id="569" Count="0" />
+      <LineId Id="567" Count="1" />
+      <LineId Id="570" Count="2" />
+      <LineId Id="566" Count="0" />
+      <LineId Id="397" Count="1" />
+      <LineId Id="368" Count="0" />
+      <LineId Id="619" Count="0" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="403" Count="1" />
+      <LineId Id="408" Count="5" />
+      <LineId Id="415" Count="1" />
+      <LineId Id="421" Count="9" />
+      <LineId Id="637" Count="0" />
+      <LineId Id="433" Count="0" />
+      <LineId Id="580" Count="0" />
+      <LineId Id="627" Count="3" />
+      <LineId Id="626" Count="0" />
+      <LineId Id="581" Count="0" />
+      <LineId Id="434" Count="18" />
+      <LineId Id="613" Count="0" />
+      <LineId Id="453" Count="0" />
+      <LineId Id="455" Count="14" />
+      <LineId Id="589" Count="0" />
+      <LineId Id="593" Count="2" />
+      <LineId Id="607" Count="0" />
+      <LineId Id="596" Count="2" />
+      <LineId Id="606" Count="0" />
+      <LineId Id="600" Count="5" />
+      <LineId Id="599" Count="0" />
+      <LineId Id="591" Count="0" />
+      <LineId Id="590" Count="0" />
+      <LineId Id="478" Count="0" />
+      <LineId Id="624" Count="1" />
+      <LineId Id="480" Count="4" />
+      <LineId Id="623" Count="0" />
+      <LineId Id="552" Count="0" />
+      <LineId Id="485" Count="2" />
+      <LineId Id="489" Count="6" />
+      <LineId Id="615" Count="0" />
+      <LineId Id="614" Count="0" />
+      <LineId Id="496" Count="13" />
+      <LineId Id="612" Count="0" />
+      <LineId Id="611" Count="0" />
+      <LineId Id="511" Count="2" />
+      <LineId Id="553" Count="0" />
+      <LineId Id="514" Count="5" />
+      <LineId Id="521" Count="0" />
+      <LineId Id="547" Count="0" />
+      <LineId Id="546" Count="0" />
+      <LineId Id="523" Count="0" />
+      <LineId Id="525" Count="0" />
+      <LineId Id="632" Count="1" />
+      <LineId Id="635" Count="1" />
+      <LineId Id="634" Count="0" />
+      <LineId Id="526" Count="6" />
+      <LineId Id="534" Count="0" />
+      <LineId Id="537" Count="0" />
+      <LineId Id="555" Count="0" />
+      <LineId Id="539" Count="0" />
+      <LineId Id="541" Count="4" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_working_tote.M_waitCondition">
+      <LineId Id="9" Count="10" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="21" Count="1" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_working_tote.ParseStateToString">
+      <LineId Id="5" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="80" Count="0" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="82" Count="0" />
+      <LineId Id="81" Count="0" />
+      <LineId Id="83" Count="19" />
+      <LineId Id="153" Count="1" />
+      <LineId Id="103" Count="46" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="31" Count="1" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="36" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

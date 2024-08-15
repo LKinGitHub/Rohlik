@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="GVL" Id="{467ff484-abc3-43b3-a376-da9ea4486a4c}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+VAR_GLOBAL
+
+//	fb_mcp						: FB_mcp;   //  1# Robot+Lighttower+Safetydoor  IO-Mapping
+//	fb_mcp_2    				: FB_mcp_1; //  2# Robot+Lighttower+Safetydoor  IO-Mapping
+	
+	fb_mcp_1						: FB_mcp;//  1# Robot+Lighttower+Safetydoor  IO-Mapping
+	fb_mcp_2						: FB_mcp;//  1# Robot+Lighttower+Safetydoor  IO-Mapping
+	
+	status						: MachineStatus := MachineStatus.STOPPED;
+	
+	iAng_airPress_left		AT%I*	:INT;
+	iAng_airPress_right      AT%I*	:INT;
+	aiFlow 				AT%I*	:INT;
+	
+	iAng_AirFlow_left 		AT%I*	:INT;
+	iAng_AirFlow_right 		AT%I*	:INT;
+
+
+	PackTags					: ST_PackMLv30;					//PackTags
+	PackTags1					: ST_PackMLv30;					//PackTags
+	PackTags2					: ST_PackMLv30;					//PackTags
+
+	nVisuProductCommand			: DINT;							//Products to produce
+	
+	nVisuProductCommand_2		: DINT;							//Products to produce
+
+	bButtonProductionReq		: BOOL;							//TRUE when a mode change to PRODUCTION is requested
+	bButtonProductionReq_2		: BOOL;							//TRUE when a mode change to PRODUCTION is requested
+	stChangeIntoProduction		: ST_ChangeIntoProduction;		//Result of command box "Change to Production requested"
+
+	aUnitInfo					: ARRAY [1..12] OF ST_UnitInfo;	//Array includes the states and modes of machineunits	
+	aCaption					: ARRAY [1..12] OF STRING := ['F1','F2','F3','F4','F5','F6','F7','F8','F9','F10','F11','F12'];
+	aKeyPressed					: ARRAY [1..12] OF BOOL;	
+
+	aUnitInfo_2					: ARRAY [1..12] OF ST_UnitInfo;	//Array includes the states and modes of machineunits	
+	aCaption_2					: ARRAY [1..12] OF STRING := ['F1','F2','F3','F4','F5','F6','F7','F8','F9','F10','F11','F12'];
+	aKeyPressed_2				: ARRAY [1..12] OF BOOL;		
+	
+	alarm						: ST_Alarm;
+	alarm_empty					: ST_Alarm;
+	alarm_temp_loading			: ST_Alarm;
+	alarm_temp_working1			: ST_Alarm;
+	alarm_temp_working2			: ST_Alarm;
+	fbWriteLog					: FB_WriteLog;
+	bWrite						: BOOL;
+	str							: STRING;
+	
+	alarms_hmi		: ARRAY[1..20] OF ST_Alarm_Hmi;
+	alarms1_hmi		: ARRAY[1..20] OF ST_Alarm_Hmi;
+	alarms2_hmi		: ARRAY[1..20] OF ST_Alarm_Hmi;
+	
+	pml_adminAlarm				: PML_AdminAlarm;	
+	
+
+	
+	
+
+	fb_sample					: FB_Sample;
+	fb_loading					: FB_loading_tote;
+	fb_working1					: FB_working_tote;
+	fb_working2					: FB_working_tote;
+//	fb_working2					: FB_working_tote_Right;
+
+	
+	PubSubService				: PubSubService;
+	
+	bRightSensor_Shild			: BOOL;
+	bLeftSensor_Shild			: BOOL;
+	
+
+	//----------------------------------------tryrun ----------------------------
+//	iLeftSizeToteLoaded			: INT;
+//	iRightSizeToteLoaded		: INT;
+//	bTryRunMode					: BOOL;
+//	bTryRunStart				: BOOL;
+//	bTryRunFrequency			: BOOL;
+//	tTryRun						: TON;
+//	tTryRunLeft1				: TON;
+//	tTryRunLeft2				: TON;
+//	tTryRunRight1				: TON;
+//	tTryRunRight2				: TON;
+	
+	
+	
+END_VAR
+
+VAR_GLOBAL CONSTANT
+	iAlarm_max					: INT:= 20;
+	MAX_PUB_SUB_DATA			: INT:=	19;
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

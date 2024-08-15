@@ -1,0 +1,592 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="MAIN" Id="{3db2f275-2958-4d55-b639-7561aac45e5f}" SpecialFunc="None">
+    <Declaration><![CDATA[// Disclaimer
+// 
+// This publication contains statements about the suitability of our products for certain areas of application. These statements are based on typical features of our products. The examples shown in this publication are for demonstration purposes only. 
+// The information provided herein should not be regarded as specific operation characteristics. It is incumbent on the customer to check and decide whether a product is suitable for use in a particular application. 
+// We do not give any warranty that the source code which is made available with this publication is complete or accurate. 
+//
+// THE SAMPLE CODE CONTAINED IN THIS PUBLICATION IS PROVIDED “AS IS” WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED, IMPLIED OR STATUTORY, INCLUDING WITHOUT LIMITATION, ANY WARRANTY WITH RESPECT TO NON-INFRINGEMENT, FREEDOM FROM PROPRIETARY RIGHTS OF THIRD PARTIES OR FITNESS FOR ANY PARTICULAR PURPOSE. 
+// This publication may be changed from time to time without prior notice. No liability is assumed for errors and/or omissions. Our products are described in detail in our data sheets and documentations. Product-specific warnings and cautions must be observed. 
+// For the latest version of our data sheets and documentations visit our website (www.beckhoff.de). 
+//
+// © Beckhoff Automation GmbH & Co. KG, 2022
+// The reproduction, distribution and utilization of this document as well as the communication of its contents to others without express authorization is prohibited. Offenders will be held liable for the payment of damages. All rights reserved in the event of the grant of a patent, utility model or design.
+PROGRAM MAIN
+VAR_INPUT
+	bExecuteComplete			: BOOL;									//Command Execute Complete, not defined
+END_VAR
+VAR
+	firstCycle : BOOL := TRUE;
+	UserModeCofig				: PML_UnitModeConfig;					//User can configure his own Mode
+	
+	fbMachine					: FB_Machine;							//Instance of FB_Machine
+//	fbMachine_2					: FB_Machine;							//Instance of FB_Machine
+	bMachineStartedUp			: BOOL := FALSE;						//TRUE, when first PLC-Cycle finish
+	fbVisu						: FB_Visu;								//Visualization
+							//Visualization
+	fbTrigger					: F_TRIG;								//Trigger for resseting Counters
+	fbTrigger_2					: F_TRIG;								//Trigger for resseting Counters
+
+	fbLocalSystemTime			 : FB_LocalSystemTime;					//Get local Systemtime
+	fbLocalSystemTime_2			 : FB_LocalSystemTime;					//Get local Systemtime
+	
+	fbTriggerErrorMainAxis		: R_TRIG;								//Trigger for detecting Error on Mainaxis and write into PackTags
+	fbTriggerErrorMetalAxis		: R_TRIG;								//Trigger for detecting Error on Metalaxis and write into PackTags
+	fbTriggerErrorPlasticAxis	: R_TRIG;								//Trigger for detecting Error on Plasticaxis and write into PackTags
+	
+	nStateCommandCheck			: DINT;									//State to handle with statecommands
+	
+	i	: INT;
+	tonDly	: TON;
+	FB_GetUPSStatus: FB_GetUPSStatus;	
+	dataloaded: BOOL;								//UPS数据文件读取状态（True为读取成功，False为读取失败）
+	OldData: BOOL;									//UPS备份数据文件读取状态
+	PersistentDataStatus: EPlcPersistentStatus;		//Persistent数据读取（恢复）状态	
+//	fb_ups	:FB_S_UPS_CX51x0;
+	//application	: FB_Application;
+
+	bButton				: BOOL;
+	ton_button			: TON;
+
+	refMachine_control_cmd	:REFERENCE TO MachineControlCommand;
+	
+	refMachine_control_cmd_2	:REFERENCE TO MachineControlCommand;
+	
+	rTrig_error	:ARRAY[0..10] OF R_TRIG;
+	rTrig_error_2	:ARRAY[0..10] OF R_TRIG;
+	
+	rTrig_agingTest	:R_TRIG;
+	fTrig_agingTest	:F_TRIG;
+
+	topicCallbackTest	: E_Topics;
+	dataCallbackTest	: PubSubData;
+	topic_sample	: E_topic_sample;
+	
+	(***********************ADS********************************)
+	light_tower_1			:	FB_Light_tower_module;
+	light_tower_2			:	FB_Light_tower_module;
+   // application_1			:	FB_Application;
+	tote_1					:	FB_Tote_Subsystem;
+	tote_2					:	FB_Tote_Subsystem;
+	safety_1				:	FB_Safety_Subsystem;
+	machine_control_1		:	FB_MachineControl_Subsystem;
+	heartbeat_1				:	FB_HeartBeat_Subsystem;
+	safety_2				:	FB_Safety_Subsystem;
+	
+	air_pressure_1			:	FB_AirPressure_Subsystem;
+
+	air_pressure_2			:	FB_AirPressure_Subsystem;
+	
+	machine_control_2		:	FB_MachineControl_Subsystem;
+	heartbeat_2				:	FB_HeartBeat_Subsystem;
+	
+	heartbeat_data_test : HeartbeatParams;	
+	update_light_tower_params_test	: UpdateLightTowerParams;
+	tset1: UDINT;
+	
+	
+	version 				:	STRING(255);
+	testbool: BOOL;
+	inbound_tote_params_test : InboundToteParams;
+	OutboundToteParams_test		:	OutboundToteParams;
+	testbool1: BOOL;
+	
+	
+	
+	fbMachine1					: FB_Machine;							//Instance of FB_Machine
+	fbMachine2					: FB_Machine;							//Instance of FB_Machine
+	stateMachine1	: FB_StateMachine;
+	stateMachine2	: FB_StateMachine;
+	
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(**************************************UPS*****************************************)
+FB_GetUPSStatus(
+	sNetId:= , 					//默认为本机Netid
+	nPort:= , 					//ADS端口号，若不填写功能块会自动获取，默认0
+	bEnable:= , 				//高电平有效，置True后循环读取UPS状态
+	bValid=> , 					//当bValid为True时，stStatus的值有效
+	bError=> , 
+	nErrId=> , 
+	stStatus=> );				//包含UPS信息的结构体
+	
+
+dataloaded:=_Appinfo.BootDataLoaded;
+OldData:=_Appinfo.OldBootData;
+PersistentDataStatus:=_Appinfo.PersistentStatus;
+
+//application();
+version:='v1.0.0';
+
+tonDly(PT:= T#10MS);
+//Configure Usermode 1
+A_UnitModeConfig();
+
+//Runs the first PLC-Cycle
+IF fbMachine1.bUndefinedDone AND fbMachine2.bUndefinedDone AND NOT bMachineStartedUp THEN
+	GVL.PackTags1.Command.CntrlCmd	:= ePMLCommand_Abort;
+	GVL.PackTags2.Command.CntrlCmd	:= ePMLCommand_Abort;
+	bMachineStartedUp			:= TRUE;
+END_IF
+
+
+GVL.bButtonProductionReq := GVL.PackTags.Command.UnitMode = ePMLProtUnitMode_Production AND GVL.PackTags.Status.UnitModeCurrent <> GVL.PackTags.Command.UnitMode;
+
+//Set the Packtags
+M_SetPackTags();
+
+//set the errors and warnings in Packtags
+M_SetPackTagsErrorWarning();
+
+//Call Visu
+M_CallVisu();
+///////////////////initialize unitmode and set 
+IF GVL.PackTags.Command.UnitMode=ePMLProtUnitMode_Invalid THEN
+	GVL.PackTags.Command.UnitMode	:= ePMLProtUnitMode_Production;
+	GVL.PackTags.Command.Parameter[1].Value := 1;
+	GVL.PackTags1.Command.UnitMode	:= ePMLProtUnitMode_Production;
+	GVL.PackTags1.Command.Parameter[1].Value := 1;	
+	GVL.PackTags2.Command.UnitMode	:= ePMLProtUnitMode_Production;
+	GVL.PackTags2.Command.Parameter[1].Value := 1;	
+	
+END_IF
+
+//Call FB_Machine
+GVL.fb_working1._iModuleID:= ModuleID.WORKING1;
+GVL.fb_working1._sInstanceName	:= 'working1';
+GVL.fb_loading._iModuleID:= ModuleID.LOADING;
+GVL.fb_loading._sInstanceName	:= 'loading';
+GVL.fb_working2._iModuleID:= ModuleID.WORKING2;
+GVL.fb_working2._sInstanceName	:= 'working2';
+GVL.fb_loading();
+GVL.fb_working1();
+GVL.fb_working2();
+
+
+fbMachine1(	eModeCommand:= GVL.PackTags.Command.UnitMode,
+  			eMode => GVL.PackTags1.Status.UnitModeCurrent, 
+			eState =>GVL.PackTags1.Status.StateCurrent,
+			pPML_Instance1:=ADR(GVL.fb_working1),
+			pPML_Instance2:=ADR(GVL.fb_loading),
+			pPackTags:=ADR(GVL.PackTags1),
+			pSafetySystem	:= ADR(safety_1)
+			);
+			
+fbMachine2(	eModeCommand:= GVL.PackTags.Command.UnitMode,
+  			eMode => GVL.PackTags2.Status.UnitModeCurrent, 
+			eState =>GVL.PackTags2.Status.StateCurrent,
+			pPML_Instance1:=ADR(GVL.fb_working2),
+			pPML_Instance2:=ADR(GVL.fb_loading),
+			pPackTags:=ADR(GVL.PackTags2),
+			pSafetySystem	:= ADR(safety_2)
+			);		
+	
+stateMachine1(	pPackTags:=ADR(GVL.PackTags1),
+				pMachine:=ADR(fbMachine1),
+				pMachine_control_cmd := ADR(machine_control_1.machineControlCmd),
+				pAirSystem	:=ADR(air_pressure_1),
+				pSafetySystem	:= ADR(safety_1),
+				pMcp	:= ADR(GVL.fb_mcp_1)
+				);
+
+stateMachine2(	pPackTags:=ADR(GVL.PackTags2),
+				pMachine:=ADR(fbMachine2),
+				pMachine_control_cmd := ADR(machine_control_2.machineControlCmd),
+				pAirSystem	:=ADR(air_pressure_2),
+				pSafetySystem	:= ADR(safety_2),
+				pMcp	:= ADR(GVL.fb_mcp_2)
+				);			
+		
+			
+GVL.fbWriteLog(
+	bWrite:= GVL.bWrite, 
+	sFileName:= , 
+	sMessage:= , 
+	OK=> , 
+	Busy=> , 
+	ErrorMsg=> , 
+	bError=> , 
+	ErrorID=> );
+	
+(***********************ADS********************************)
+GVL.fb_mcp_1(id:=1);
+GVL.fb_mcp_2(id:=2);
+tote_1();
+safety_1(pHeartBeat:=ADR(heartbeat_1),pSafety_door:=ADR(GVL.fb_mcp_1.st_safety_door),pPackTags:=ADR(GVL.PackTags1),pMachine:=ADR(fbMachine1));
+air_pressure_1(pPackTags:=ADR(GVL.PackTags1));
+heartbeat_1();
+light_tower_1(pHeartBeat:=ADR(heartbeat_1),pLightTower:= ADR(GVL.fb_mcp_1.lightTower));
+machine_control_1(pMachineCurrentStatus:= ADR(GVL.PackTags1.Status.StateCurrent));
+tote_1._sInstanceName	:='tote_1';
+safety_1._sInstanceName	:='safety_1';
+air_pressure_1._sInstanceName	:='air_pressure1';
+
+tote_2();
+light_tower_2(pHeartBeat:=ADR(heartbeat_2),pLightTower:= ADR(GVL.fb_mcp_2.lightTower));
+safety_2(pHeartBeat:=ADR(heartbeat_2),pSafety_door:=ADR(GVL.fb_mcp_2.st_safety_door),pPackTags:=ADR(GVL.PackTags2),pMachine:=ADR(fbMachine2));
+air_pressure_2(pPackTags:=ADR(GVL.PackTags2));
+heartbeat_2();
+machine_control_2(pMachineCurrentStatus:= ADR(GVL.PackTags2.Status.StateCurrent));
+tote_2._sInstanceName	:='tote_2';
+safety_2._sInstanceName	:='safety_2';
+air_pressure_2._sInstanceName	:='air_pressure2';
+
+
+M_SetUnitInfo();
+
+
+
+
+]]></ST>
+    </Implementation>
+    <Action Name="A_UnitModeConfig" Id="{22b649e9-a085-4601-8ad9-54522ade47b0}">
+      <Implementation>
+        <ST><![CDATA[UserModeCofig(
+	eMode							:= ePMLUnitMode_Service, 
+	bDisableClearing				:= TRUE, 
+	bDisableStarting				:= FALSE, 
+	bDisableSuspended				:= FALSE, 
+	bDisableStopping				:= TRUE, 
+	bDisableAborting				:= TRUE, 
+	bDisableHolding					:= TRUE, 
+	bDisableHeld					:= TRUE, 
+	bDisableUnholding				:= TRUE, 
+	bDisableSuspending				:= TRUE, 
+	bDisableUnsuspending			:= TRUE, 
+	bDisableResetting				:= TRUE, 
+	bDisableIdle					:= FALSE, 
+	bDisableCompleting				:= TRUE, 
+	bDisableComplete				:= FALSE, 
+	bEnableUnitModeChangeStopped	:= TRUE, 
+	bEnableUnitModeChangeIdle		:= TRUE, 
+	bEnableUnitModeChangeSuspended	:= FALSE, 
+	bEnableUnitModeChangeExecute	:= FALSE, 
+	bEnableUnitModeChangeAborted	:= TRUE, 
+	bEnableUnitModeChangeHeld		:= FALSE, 
+	bEnableUnitModeChangeComplete	:= TRUE, 
+	bError							=> , 
+	nErrorId						=> );
+UserModeCofig(
+	eMode							:= ePMLUnitMode_Production, 
+	bDisableClearing				:= FALSE, 
+	bDisableStarting				:= FALSE, 
+	bDisableSuspended				:= TRUE, 
+	bDisableStopping				:= FALSE, 
+	bDisableAborting				:= FALSE, 
+	bDisableHolding					:= TRUE, 
+	bDisableHeld					:= TRUE, 
+	bDisableUnholding				:= TRUE, 
+	bDisableSuspending				:= TRUE, 
+	bDisableUnsuspending			:= TRUE, 
+	bDisableResetting				:= FALSE, 
+	bDisableIdle					:= FALSE, 
+	bDisableCompleting				:= FALSE, 
+	bDisableComplete				:= FALSE, 
+	bEnableUnitModeChangeStopped	:= TRUE, 
+	bEnableUnitModeChangeIdle		:= TRUE, 
+	bEnableUnitModeChangeSuspended	:= FALSE, 
+	bEnableUnitModeChangeExecute	:= FALSE, 
+	bEnableUnitModeChangeAborted	:= TRUE, 
+	bEnableUnitModeChangeHeld		:= FALSE, 
+	bEnableUnitModeChangeComplete	:= TRUE, 
+	bError							=> , 
+	nErrorId						=> );
+	
+]]></ST>
+      </Implementation>
+    </Action>
+    <Method Name="M_CallVisu" Id="{1e59b2a3-52d5-45b9-816e-b9175fe8bcf5}">
+      <Declaration><![CDATA[METHOD M_CallVisu
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//Calling FB_Visu
+fbVisu(
+	aKeyPressed				:= GVL.aKeyPressed,
+	aUnitInfo				:= GVL.aUnitInfo, 
+	bInvalidEntry			=> ,
+	aCaption				=> GVL.aCaption,
+	eModeVisu				=> ,
+	eStateVisu				=> ,
+	sUnitName				=> ,
+	iFrameVisible			=> );
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_SetPackTags" Id="{e3fcccbd-b9f1-4f18-9b86-975dcfc89c23}">
+      <Declaration><![CDATA[METHOD M_SetPackTags
+VAR_INPUT
+END_VAR
+VAR	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//***************************Writing Data into GVL.PackTags***************************
+
+//Parameters for the production
+GVL.PackTags.Command.Parameter[1].ID				:= 1;
+GVL.PackTags.Command.Parameter[1].Name				:= 'Quantity';
+GVL.PackTags.Command.Parameter[1].Unit				:= 'Tote';
+
+//Countig produced totes, see fb_sample1
+GVL.PackTags.Admin.ProdProcessedCount[1].ID			:= 1;
+GVL.PackTags.Admin.ProdProcessedCount[1].Name		:= 'ToteFinish_Sample';
+GVL.PackTags.Admin.ProdProcessedCount[1].Unit		:= 'Tote';
+
+
+
+
+
+//Write the actual state and mode into the GVL.PackTags
+GVL.PackTags.Status.StateCurrent					:= fbMachine1.eState;
+GVL.PackTags.Status.UnitModeCurrent					:= fbMachine1.eMode;
+GVL.PackTags.Status.StateRequested					:= fbMachine1.eCommand;
+GVL.PackTags.Status.UnitModeRequested				:= fbMachine1.eModeCommand;
+GVL.PackTags.Status.StateChangeInProcess			:= GVL.PackTags.Status.StateCurrent <> GVL.PackTags.Status.StateRequested;
+GVL.PackTags.Status.UnitModeChangeInProcess			:= GVL.PackTags.Status.UnitModeCurrent <> GVL.PackTags.Status.UnitModeRequested;
+
+//Write the actual state and mode into the GVL.PackTags2
+GVL.PackTags1.Status.StateCurrent					:= fbMachine1.eState;
+GVL.PackTags1.Status.UnitModeCurrent					:= fbMachine1.eMode;
+GVL.PackTags1.Status.StateRequested					:= fbMachine1.eCommand;
+GVL.PackTags1.Status.UnitModeRequested				:= fbMachine1.eModeCommand;
+GVL.PackTags1.Status.StateChangeInProcess			:= GVL.PackTags1.Status.StateCurrent <> GVL.PackTags1.Status.StateRequested;
+GVL.PackTags1.Status.UnitModeChangeInProcess			:= GVL.PackTags1.Status.UnitModeCurrent <> GVL.PackTags1.Status.UnitModeRequested;
+//Write the actual state and mode into the GVL.PackTags2
+GVL.PackTags2.Status.StateCurrent					:= fbMachine2.eState;
+GVL.PackTags2.Status.UnitModeCurrent					:= fbMachine2.eMode;
+GVL.PackTags2.Status.StateRequested					:= fbMachine2.eCommand;
+GVL.PackTags2.Status.UnitModeRequested				:= fbMachine2.eModeCommand;
+GVL.PackTags2.Status.StateChangeInProcess			:= GVL.PackTags2.Status.StateCurrent <> GVL.PackTags2.Status.StateRequested;
+GVL.PackTags2.Status.UnitModeChangeInProcess			:= GVL.PackTags2.Status.UnitModeCurrent <> GVL.PackTags2.Status.UnitModeRequested;
+
+
+//Write actual time and date in GVL.PackTags
+fbLocalSystemTime(sNetID:= '', bEnable := TRUE);
+GVL.PackTags.Admin.PlcDateTime[0]	:= fbLocalSystemTime.systemTime.wYear;
+GVL.PackTags.Admin.PlcDateTime[1]	:= fbLocalSystemTime.systemTime.wMonth;
+GVL.PackTags.Admin.PlcDateTime[2]	:= fbLocalSystemTime.systemTime.wDay;
+GVL.PackTags.Admin.PlcDateTime[3]	:= fbLocalSystemTime.systemTime.wHour;
+GVL.PackTags.Admin.PlcDateTime[4]	:= fbLocalSystemTime.systemTime.wMinute;
+GVL.PackTags.Admin.PlcDateTime[5]	:= fbLocalSystemTime.systemTime.wSecond;
+GVL.PackTags.Admin.PlcDateTime[6]	:= fbLocalSystemTime.systemTime.wMilliseconds;
+GVL.PackTags1.Admin.PlcDateTime	:= GVL.PackTags.Admin.PlcDateTime;
+GVL.PackTags2.Admin.PlcDateTime	:= GVL.PackTags.Admin.PlcDateTime;
+//Set the productcounter to 0, when the production command is completed
+fbTrigger(CLK:= (fbMachine1.eState = ePMLState_Complete));
+IF fbTrigger.Q OR GVL.stChangeIntoProduction.bYesReset THEN
+	GVL.PackTags1.Admin.ProdProcessedCount[1].Count	:= 0;
+	GVL.PackTags1.Command.Parameter[1].Value			:= 0;
+	GVL.nVisuProductCommand							:= 0;
+END_IF
+
+//Set the productcounter to 0, when the production command is completed
+fbTrigger(CLK:= (fbMachine2.eState = ePMLState_Complete));
+IF fbTrigger.Q OR GVL.stChangeIntoProduction.bYesReset THEN
+	GVL.PackTags2.Admin.ProdProcessedCount[1].Count	:= 0;
+	GVL.PackTags2.Command.Parameter[1].Value			:= 0;
+	GVL.nVisuProductCommand							:= 0;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_SetPackTagsErrorWarning" Id="{9cf9563e-0860-4b80-8190-1adefae96c7f}">
+      <Declaration><![CDATA[METHOD M_SetPackTagsErrorWarning
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//====================Error and Warnig setting========================
+//Warnings
+GVL.PackTags1.Admin.Warning[1].Message	:= 'Invalid Production Command, command Products must be higher than 0';
+GVL.PackTags1.Admin.Warning[1].ID 		:= 1;
+
+GVL.PackTags1.Admin.Warning[2].Message	:= 'Invalid Mode Command, please try anothereone';
+GVL.PackTags1.Admin.Warning[2].ID		:= 2;
+
+
+//====================Error and Warnig handling========================
+//warning for invalid production command
+IF 	GVL.PackTags1.Status.UnitModeCurrent = ePMLProtUnitMode_Production AND 
+	GVL.PackTags1.Status.StateCurrent = ePMLState_Idle AND 
+	GVL.PackTags1.Command.CntrlCmd = ePMLCommand_Start AND
+ 	GVL.PackTags1.Command.Parameter[1].Value <= 0 
+THEN
+	GVL.PackTags1.Admin.Warning[1].Trigger :=TRUE;
+ELSE
+	GVL.PackTags1.Admin.Warning[1].Trigger :=FALSE;
+END_IF
+
+//warning for invalid mode command
+IF fbMachine1.bInvalidModeCommandOut THEN
+	GVL.PackTags1.Admin.Warning[2].Trigger :=TRUE;
+ELSE 
+	GVL.PackTags1.Admin.Warning[2].Trigger :=FALSE;
+END_IF
+
+
+
+
+
+//====================Error and Warnig setting========================
+//Warnings
+GVL.PackTags1.Admin.Warning[1].Message	:= 'Invalid Production Command, command Products must be higher than 0';
+GVL.PackTags1.Admin.Warning[1].ID 		:= 1;
+
+GVL.PackTags1.Admin.Warning[2].Message	:= 'Invalid Mode Command, please try anothereone';
+GVL.PackTags1.Admin.Warning[2].ID		:= 2;
+
+
+//====================Error and Warnig handling========================
+//warning for invalid production command
+IF 	GVL.PackTags2.Status.UnitModeCurrent = ePMLProtUnitMode_Production AND 
+	GVL.PackTags2.Status.StateCurrent = ePMLState_Idle AND 
+	GVL.PackTags2.Command.CntrlCmd = ePMLCommand_Start AND
+ 	GVL.PackTags2.Command.Parameter[1].Value <= 0 
+THEN
+	GVL.PackTags2.Admin.Warning[1].Trigger :=TRUE;
+ELSE
+	GVL.PackTags2.Admin.Warning[1].Trigger :=FALSE;
+END_IF
+
+//warning for invalid mode command
+IF fbMachine2.bInvalidModeCommandOut THEN
+	GVL.PackTags2.Admin.Warning[2].Trigger :=TRUE;
+ELSE 
+	GVL.PackTags2.Admin.Warning[2].Trigger :=FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_SetUnitInfo" Id="{613978d3-6a85-41f0-ad1f-b7556291b862}">
+      <Declaration><![CDATA[METHOD M_SetUnitInfo
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GVL.aUnitInfo[eMachine1].Name			:= 'fbMachine1';
+GVL.aUnitInfo[eMachine1].ActMode			:= fbMachine1.eMode;
+GVL.aUnitInfo[eMachine1].ActState		:= fbMachine1.eState;
+
+GVL.aUnitInfo[eMachine1].Name			:= 'fbMachine2';
+GVL.aUnitInfo[eMachine1].ActMode		:= fbMachine2.eMode;
+GVL.aUnitInfo[eMachine1].ActState		:= fbMachine2.eState;
+
+//GVL.aUnitInfo[eSample].Name				:= GVL.fb_sample._sInstanceName;
+//GVL.aUnitInfo[eSample].ActMode			:= GVL.fb_sample.eMode;
+//GVL.aUnitInfo[eSample].ActState			:= GVL.fb_sample.eState;
+
+
+GVL.aUnitInfo[eLoading].Name			:= GVL.fb_loading._sInstanceName;
+GVL.aUnitInfo[eLoading].ActMode			:= GVL.fb_loading.eMode;
+GVL.aUnitInfo[eLoading].ActState		:= GVL.fb_loading.eState;
+
+
+GVL.aUnitInfo[eWorking1].Name			:= GVL.fb_working1._sInstanceName;
+GVL.aUnitInfo[eWorking1].ActMode		:= GVL.fb_working1.eMode;
+GVL.aUnitInfo[eWorking1].ActState		:= GVL.fb_working1.eState;
+
+
+GVL.aUnitInfo[eWorking2].Name			:= GVL.fb_working2._sInstanceName;
+GVL.aUnitInfo[eWorking2].ActMode		:= GVL.fb_working2.eMode;
+GVL.aUnitInfo[eWorking2].ActState		:= GVL.fb_working2.eState;
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="MAIN">
+      <LineId Id="2153" Count="12" />
+      <LineId Id="158" Count="2" />
+      <LineId Id="1128" Count="0" />
+      <LineId Id="332" Count="0" />
+      <LineId Id="341" Count="0" />
+      <LineId Id="3" Count="1" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="1818" Count="4" />
+      <LineId Id="1297" Count="0" />
+      <LineId Id="626" Count="0" />
+      <LineId Id="14" Count="1" />
+      <LineId Id="64" Count="8" />
+      <LineId Id="1823" Count="8" />
+      <LineId Id="1489" Count="0" />
+      <LineId Id="74" Count="0" />
+      <LineId Id="1775" Count="0" />
+      <LineId Id="2394" Count="4" />
+      <LineId Id="2393" Count="0" />
+      <LineId Id="2166" Count="2" />
+      <LineId Id="1781" Count="7" />
+      <LineId Id="1840" Count="0" />
+      <LineId Id="1789" Count="7" />
+      <LineId Id="1839" Count="0" />
+      <LineId Id="1797" Count="2" />
+      <LineId Id="1801" Count="1" />
+      <LineId Id="1832" Count="1" />
+      <LineId Id="1938" Count="0" />
+      <LineId Id="1803" Count="2" />
+      <LineId Id="1807" Count="0" />
+      <LineId Id="1837" Count="1" />
+      <LineId Id="1808" Count="0" />
+      <LineId Id="1939" Count="0" />
+      <LineId Id="1309" Count="0" />
+      <LineId Id="1313" Count="1" />
+      <LineId Id="959" Count="2" />
+      <LineId Id="953" Count="4" />
+      <LineId Id="949" Count="0" />
+      <LineId Id="1219" Count="1" />
+      <LineId Id="2038" Count="0" />
+      <LineId Id="882" Count="0" />
+      <LineId Id="884" Count="0" />
+      <LineId Id="1119" Count="2" />
+      <LineId Id="2037" Count="0" />
+      <LineId Id="885" Count="0" />
+      <LineId Id="2273" Count="1" />
+      <LineId Id="2500" Count="0" />
+      <LineId Id="1502" Count="0" />
+      <LineId Id="1501" Count="0" />
+      <LineId Id="1500" Count="0" />
+      <LineId Id="1293" Count="2" />
+      <LineId Id="1292" Count="0" />
+      <LineId Id="2291" Count="0" />
+      <LineId Id="2276" Count="1" />
+      <LineId Id="2281" Count="0" />
+      <LineId Id="2275" Count="0" />
+      <LineId Id="1400" Count="0" />
+      <LineId Id="693" Count="0" />
+      <LineId Id="813" Count="2" />
+      <LineId Id="817" Count="0" />
+    </LineIds>
+    <LineIds Name="MAIN.A_UnitModeConfig">
+      <LineId Id="2" Count="24" />
+      <LineId Id="29" Count="23" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="MAIN.M_CallVisu">
+      <LineId Id="3" Count="1" />
+      <LineId Id="14" Count="1" />
+      <LineId Id="28" Count="5" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="MAIN.M_SetPackTags">
+      <LineId Id="164" Count="64" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="MAIN.M_SetPackTagsErrorWarning">
+      <LineId Id="108" Count="57" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="MAIN.M_SetUnitInfo">
+      <LineId Id="3" Count="2" />
+      <LineId Id="73" Count="2" />
+      <LineId Id="72" Count="0" />
+      <LineId Id="6" Count="3" />
+      <LineId Id="54" Count="14" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="50" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

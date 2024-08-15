@@ -1,0 +1,754 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Generic" Id="{6731ada0-e7f3-4a4b-8534-5c6189c275ad}" SpecialFunc="None">
+    <Declaration><![CDATA[//the functionblock FB_Generick is transmitted to every machineunit
+FUNCTION_BLOCK FB_Generic IMPLEMENTS ITF_UnitState,I_SubCallback,I_Common
+VAR_INPUT
+	eModeCommand			: DINT;									//Mode from superior Unit
+	eCommand				: E_PMLCommand := ePMLCommand_Abort;	//Command for a new state from superior unit
+END_VAR
+VAR_OUTPUT
+	eMode					: DINT;									//Actual mode of the Unit
+	eState					: E_PMLState (*:= ePMLState_Aborted*) ;	//Actual state of the Unit
+	
+	bUndefinedDone			: BOOL;									//When the SPS is started, the first state is Undefiend. bUndefined is TRUE, when the method Undefined has succesful finished
+	bInvalidModeCommandOut	: BOOL;
+	bChangeIntoProduction	: BOOL;
+END_VAR
+VAR
+	fbUnitModeManager		: PML_UnitModeManager;					//The PML_UnitModeManager manage the Modechanges
+	fbStateMachine 			: PML_StateMachine;						//The PML_StateMachine mangae the Statechanges
+	
+	nStateModeChange		: INT	:= 0;							//Variable to handle the modechange
+	nLastState				: E_PMLState;							//Variable to store last state
+	
+	packTags				: ST_PackMLv30;
+	i	: INT;
+	j	: INT;
+	k	: INT;
+	ton_timeout			: TON;
+	iStateTemp			: INT;	
+	
+	rTrig_electricalError	:ARRAY[1..MaxAlarms] OF R_TRIG;
+	alarm_temp		: ST_Alarm;
+	alarm_empty		: ST_Alarm;
+	subscribed	: BOOL	:= FALSE;
+	subData		: PubSubData;
+	
+	strState	: STRING;
+	sComponent_name			: STRING;
+	iComponetID				: INT;	
+	infoLevel	: ServerityLevelType;//should be set to high level after debug
+	sInstanceName	: STRING;
+	bCouple	: BOOL;
+	isError	: BOOL;
+	
+	pml_adminAlarm	: PML_AdminAlarm;
+	
+	
+	bAging_test	: BOOL;
+	iAging_test	: INT;
+	
+	ton_aging_test	: TON;
+	ftrig_agingTest	: F_TRIG;
+	
+	CurrentState	: E_PMLState;
+	PreviousState	: E_PMLState;
+
+END_VAR
+VAR PERSISTENT
+	diCnt_aging	: DINT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[M_mapping();
+ton_timeout();
+strState	:= ParseStateToString();
+IF CurrentState<>eState THEN
+	PreviousState		:= CurrentState;
+	CurrentState		:= eState;
+END_IF
+CASE nStateModeChange OF
+0:
+	//Waiting for user request
+	bChangeIntoProduction:= FALSE;
+	IF  GVL.bButtonProductionReq AND (GVL.PackTags.Command.UnitMode = ePMLProtUnitMode_Production) AND (GVL.PackTags.Status.UnitModeCurrent = ePMLProtUnitMode_Invalid) THEN
+			nStateModeChange	:= 1;
+	ELSIF  GVL.PackTags.Command.UnitModeChangeRequest AND (GVL.PackTags.Command.UnitMode <> ePMLProtUnitMode_Production) THEN
+			nStateModeChange	:= 1;
+	ELSIF  GVL.bButtonProductionReq AND (GVL.PackTags.Command.UnitMode = ePMLProtUnitMode_Production) AND (GVL.PackTags.Status.UnitModeCurrent <> ePMLProtUnitMode_Production) THEN
+			nStateModeChange	:= 3;
+	END_IF
+1:
+	//Starting UnitModeManager 
+	fbUnitModeManager.bExecute				:= TRUE;
+	fbUnitModeManager.eModeCommand			:= eModeCommand;
+	GVL.PackTags.Status.UnitModeChangeInProcess	:= TRUE;
+
+	IF fbUnitModeManager.bDone THEN
+		fbUnitModeManager.bExecute	:= FALSE;
+		bInvalidModeCommandOut		:= FALSE;
+		nStateModeChange			:= 0;
+		bChangeIntoProduction		:= FALSE;
+		GVL.PackTags.Status.UnitModeChangeInProcess	:= FALSE;
+	ELSIF fbUnitModeManager.bError THEN
+		bInvalidModeCommandOut		:= TRUE;
+		fbUnitModeManager.bExecute	:= FALSE;
+		nLastState					:= GVL.PackTags.Status.StateCurrent;
+		nLastState					:= GVL.PackTags.Status.StateCurrent;
+		nStateModeChange			:= 2;
+		bChangeIntoProduction		:= FALSE;
+		GVL.PackTags.Status.UnitModeChangeInProcess	:= FALSE;
+	END_IF
+2:
+	//ErrorHanddling
+	IF  GVL.PackTags.Command.UnitModeChangeRequest THEN
+		nStateModeChange:=0;
+		bInvalidModeCommandOut		:= FALSE;
+	ELSIF nLastState<> GVL.PackTags.Status.StateCurrent THEN
+		bInvalidModeCommandOut		:= FALSE;
+	END_IF
+	
+3:
+	//state to check, if command 'Porduction' is valid
+	IF (GVL.PackTags.Status.StateCurrent = ePMLState_Aborted OR GVL.PackTags.Status.StateCurrent = ePMLState_Stopped OR GVL.PackTags.Status.StateCurrent = ePMLState_Idle) THEN
+		bChangeIntoProduction		:= TRUE;
+		IF  GVL.stChangeIntoProduction.bYes OR GVL.stChangeIntoProduction.bYesReset THEN
+			nStateModeChange			:= 1;		
+		ELSIF GVL.stChangeIntoProduction.bNo THEN
+			nStateModeChange			:= 0;
+		END_IF
+	ELSE
+		nStateModeChange:= 2;
+		bInvalidModeCommandOut		:= TRUE;
+		nLastState					:= GVL.PackTags.Status.StateCurrent;
+	END_IF
+END_CASE
+
+
+fbUnitModeManager(									
+	eState			:= eState,
+	eModeStatus		=> eMode,
+	bDone			=> ,
+	bError			=> ,
+	nErrorId		=> );
+
+
+IF fbUnitModeManager.eModeStatus <>  0 THEN
+	//Calling the StateMachine, when there is a valid Mode
+	fbStateMachine(
+		eMode				:= eMode, 				
+		eCommand			:= eCommand,			
+		stSubUnitInfoRef	:= ,
+		stOptions			:= , 
+		eState				=> eState, 				
+		bError				=> , 
+		nErrorID			=> );
+END_IF
+
+//One of the methods is executing  by the actual state
+CASE eState OF
+	ePMLState_Undefined:
+		M_Undefined();
+	ePMLState_Clearing:
+		M_Clearing();
+	ePMLState_Stopped:
+		M_Stopped();
+	ePMLState_Starting:
+		M_Starting();
+	ePMLState_Idle:
+		M_Idle();
+	ePMLState_Suspended:
+		M_Suspended();
+	ePMLState_Execute:
+		M_Execute();
+	ePMLState_Stopping:
+		M_Stopping();
+	ePMLState_Aborting:
+		M_Aborting();
+	ePMLState_Aborted:
+		M_Aborted();
+	ePMLState_Holding:
+		M_Holding();
+	ePMLState_Held:
+		M_Held();
+	ePMLState_Unholding:
+		M_Unholding();
+	ePMLState_Suspending:
+		M_Suspending();
+	ePMLState_Unsuspending:
+		M_Unsuspending();
+	ePMLState_Resetting:
+		M_Resetting();
+	ePMLState_Completing:
+		M_Completing();
+	ePMLState_Complete:
+		M_Complete();
+END_CASE
+PackTags.Admin.PlcDateTime[0]	:= GVL.PackTags.Admin.PlcDateTime[0];
+PackTags.Admin.PlcDateTime[1]	:= GVL.PackTags.Admin.PlcDateTime[1];
+PackTags.Admin.PlcDateTime[2]	:= GVL.PackTags.Admin.PlcDateTime[2];
+PackTags.Admin.PlcDateTime[3]	:= GVL.PackTags.Admin.PlcDateTime[3];
+PackTags.Admin.PlcDateTime[4]	:= GVL.PackTags.Admin.PlcDateTime[4];
+PackTags.Admin.PlcDateTime[5]	:= GVL.PackTags.Admin.PlcDateTime[5];
+PackTags.Admin.PlcDateTime[6]	:= GVL.PackTags.Admin.PlcDateTime[6];
+
+
+]]></ST>
+    </Implementation>
+    <Property Name="_bCouple" Id="{d581fed4-6c92-402e-8311-b82ca6d8ff85}">
+      <Declaration><![CDATA[PROPERTY _bCouple : BOOL]]></Declaration>
+      <Get Name="Get" Id="{4c4020aa-4caa-4c24-8d9d-d604f4042153}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_bCouple	:=bCouple;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{e933df66-1036-46bd-befa-fc6903f0c803}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[bCouple	:= _bCouple;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="_iModuleID" Id="{9ae23003-8b42-4a18-bfc3-87ed1ba21aba}">
+      <Declaration><![CDATA[PROPERTY _iModuleID : INT]]></Declaration>
+      <Set Name="Set" Id="{6846f771-5575-4712-bb18-a34d7f4ec04e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[iComponetID	:= _iModuleID;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="_sInstanceName" Id="{970a0a4e-c9e0-4dc8-9835-9c9e2c732854}">
+      <Declaration><![CDATA[PROPERTY _sInstanceName : STRING]]></Declaration>
+      <Get Name="Get" Id="{70876430-8ae7-47c9-a5d7-872681473195}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_sInstanceName	:=sInstanceName;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{27f02c37-7e9b-490d-9ffa-0ab5f0ffead9}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[sInstanceName	:= _sInstanceName;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="Callback" Id="{8736aa8f-8e6c-410d-875b-4496dc1cb594}">
+      <Declaration><![CDATA[(*
+Description: 
+the callback that will be invoked when there is a publish for what the subscriber was subscribed to.
+*)
+METHOD Callback
+VAR_INPUT
+	data : PubSubData;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GenerateErrorMsg" Id="{73147bfe-a04c-4821-b872-4df6d90a07c9}">
+      <Declaration><![CDATA[(*
+GenerateErrorMsg method:generate the error message according to the inputs
+generate example:'{M99_06} fb_sample1 DETECTION time out for T#3s.'
+errorType:
+		'M':mechanical error
+		'E':electrical error
+		'S':safety error
+iState:state of state machine
+errorMsg:descirbe the error
+sComponent_name:defined in every componet
+iComponetID:defined in every componet
+strState:parseStateToString() to get the strState in ervery component
+sTimeout_setting:defined in every componet
+*)
+METHOD GenerateErrorMsg : STRING
+VAR_INPUT
+	errorType	: STRING;
+	iState		: INT;
+	errorMsg	: STRING;	
+END_VAR
+VAR
+	sErrorID	: STRING;
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GenerateErrorMsg	:= '';
+GenerateErrorMsg	:= CONCAT('{',errorType);
+GenerateErrorMsg	:= CONCAT(GenerateErrorMsg,INT_TO_STRING(iComponetID));
+GenerateErrorMsg	:= CONCAT(GenerateErrorMsg,'_');
+
+IF iState<10 THEN
+	sErrorID	:= CONCAT('00',INT_TO_STRING(iState));
+ELSIF iState<100 THEN
+	sErrorID	:= CONCAT('0',INT_TO_STRING(iState));
+ELSE
+	sErrorID	:= INT_TO_STRING(iState);
+END_IF
+
+GenerateErrorMsg	:= CONCAT(GenerateErrorMsg,sErrorID);
+GenerateErrorMsg	:= CONCAT(GenerateErrorMsg,'} ');
+GenerateErrorMsg	:= CONCAT(GenerateErrorMsg,sInstanceName);
+GenerateErrorMsg	:= CONCAT(GenerateErrorMsg,' ');
+IF errorType<>'E' THEN
+	GenerateErrorMsg	:= CONCAT(GenerateErrorMsg,strState);
+END_IF
+
+GenerateErrorMsg	:= CONCAT(GenerateErrorMsg,' ');
+GenerateErrorMsg	:= CONCAT(GenerateErrorMsg,errorMsg);
+IF errorMsg='time out' THEN
+	GenerateErrorMsg	:= CONCAT(GenerateErrorMsg,' ');
+	GenerateErrorMsg	:= CONCAT(GenerateErrorMsg,'for ');
+	GenerateErrorMsg	:= CONCAT(GenerateErrorMsg,TIME_TO_STRING(ton_timeout.PT));//timeout setting
+	GenerateErrorMsg	:= CONCAT(GenerateErrorMsg,'.');
+END_IF
+IF errorType='E' THEN
+	GenerateErrorMsg	:= CONCAT(GenerateErrorMsg,' when');
+	GenerateErrorMsg	:= CONCAT(GenerateErrorMsg,' in ');
+	GenerateErrorMsg	:= CONCAT(GenerateErrorMsg,strState);
+	GenerateErrorMsg	:= CONCAT(GenerateErrorMsg,' state');
+END_IF
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Aborted" Id="{68860e43-9d33-4150-aa1b-f9759c02f24b}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Aborted'}
+METHOD M_Aborted
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Aborting" Id="{c83e3bc9-e145-46e3-9c33-ce95d5c21ca1}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Aborting'}
+METHOD M_Aborting
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ton_timeout(IN:= FALSE);	
+M_StateComplete();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_agingTest" Id="{8c8846e4-11ec-43e9-8a9c-862cbb2ef50e}">
+      <Declaration><![CDATA[METHOD M_agingTest : BOOL
+VAR_INPUT
+	rVelocity_percent	: REAL;//unit percent %
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_CheckError" Id="{a4a08cde-d484-4d58-965f-11aa500573c8}">
+      <Declaration><![CDATA[METHOD M_CheckError : BOOL
+VAR_INPUT
+END_VAR
+
+VAR
+	Trigger: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_CheckError	:= FALSE;
+
+FOR i:=1 TO GlobalParameters.MaxAlarms DO
+	IF THIS^.PackTags.Admin.Alarm[i].Trigger THEN
+		M_CheckError	:= TRUE;
+	END_IF
+END_FOR
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Clearing" Id="{0f37ef63-2c8e-48f6-9e84-c77671458548}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Clearing'}
+METHOD M_Clearing
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i:=1 TO 3 DO//try clear alarm several times
+	FOR j:=1 TO MaxAlarms DO
+		 THIS^.pml_adminAlarm.M_AcknowledgeAlarm(stAdmin:=THIS^.PackTags.Admin,stAlarm:=THIS^.PackTags.Admin.Alarm[j]);
+		 THIS^.pml_adminAlarm.M_ClearAlarm(stAdmin:=THIS^.PackTags.Admin,stAlarm:=THIS^.PackTags.Admin.Alarm[j]);
+	END_FOR
+END_FOR
+isError	:= FALSE;
+
+M_StateComplete();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Complete" Id="{18ab3b63-6319-4aa4-aef3-33841844edc2}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Complete'}
+METHOD M_Complete
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Completing" Id="{7b03ef7e-4ee3-4746-bd08-8890665aa131}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Completing'}
+METHOD M_Completing
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_StateComplete();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Execute" Id="{825be72c-aa8e-40b9-8699-374335e35ea2}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Execute'}
+METHOD M_Execute
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+M_StateComplete();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Held" Id="{4a3f8bde-f1b8-4aee-9633-d2a338539321}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Held'}
+METHOD M_Held
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Holding" Id="{9d5b10bb-229a-4335-9d36-a5f1fe33f650}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Holding'}
+METHOD M_Holding
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_StateComplete();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Idle" Id="{3ab71075-3900-414e-8650-b0c834b4c865}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Idle'}
+METHOD M_Idle
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Init" Id="{0f5e224c-302b-446f-b95b-ee7e56e8f302}">
+      <Declaration><![CDATA[METHOD M_Init : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Log" Id="{40c883da-c87f-4016-93f1-ffad0475c623}">
+      <Declaration><![CDATA[(*
+M_Log method :will be show the text in the TwinCAT output window when using the IDE,and also in the windows event logger
+the method will filter out the logs who's type is above the info
+*)
+METHOD M_Log : STRING
+VAR_INPUT
+	eLogType	: ServerityLevelType;
+	sTextLog	: STRING;	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF eLogType <= infoLevel THEN
+	strState	:= CONCAT(STR1:=strState,STR2:=' ');
+	strState	:= CONCAT(STR1:=strState,STR2:=sInstanceName);
+	ADSLOGSTR(msgCtrlMask:=Tc2_System.ADSLOG_MSGTYPE_LOG,msgFmtStr:=strState,strArg:='');	
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_mapping" Id="{ec417875-8527-44f0-83cf-875f1370e772}">
+      <Declaration><![CDATA[METHOD M_mapping : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[alarm_temp.DateTime	:=GVL.packTags.Admin.PlcDateTime;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Resetting" Id="{bb8cf386-5782-4629-a5b7-1dc8d7ce9545}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Resetting'}
+METHOD M_Resetting
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[	ton_timeout(IN:= TRUE,PT:= T#10MS);
+	IF ton_timeout.Q THEN//for get the E_PMLState.ePMLState_Resetting
+		M_StateComplete();
+	END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Starting" Id="{96719522-d113-4a0a-a836-fdaea104eb56}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Starting'}
+METHOD M_Starting
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_StateComplete();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_StateComplete" Id="{c69fff04-ca0a-403e-a712-c6501809dcc9}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_StateComplete'}
+METHOD M_StateComplete
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//the actual state is completed
+fbStateMachine.M_StateComplete();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Stopped" Id="{8465c14a-a7ea-401c-a764-b99b72cc50df}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Stopped'}
+METHOD M_Stopped
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Stopping" Id="{d6c99805-59c1-43c7-97aa-78d67dd6d46a}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Stopping'}
+METHOD M_Stopping
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_StateComplete();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Suspended" Id="{27417895-9da2-442c-922d-a8df9c1cd3da}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Suspended'}
+METHOD M_Suspended
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Suspending" Id="{a3988690-4dd4-47c0-924a-117823f14aec}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Suspending'}
+METHOD M_Suspending
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_StateComplete();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Undefined" Id="{f70e73ab-a871-4e76-9350-87ae2d7dd598}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Undefined'}
+METHOD M_Undefined
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Unholding" Id="{d9a03489-e211-4f9a-9b80-768251b9a205}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Unholding'}
+METHOD M_Unholding
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_StateComplete();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_UnitsActive" Id="{1639241c-1ae7-4229-ae24-38e16f998ffd}">
+      <Declaration><![CDATA[METHOD M_UnitsActive : BOOL
+VAR_INPUT
+
+	preCmd	: E_PMLCommand;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Unsuspending" Id="{8ba8c2d8-4287-4e63-b24d-24e7c4e7b3da}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Unsuspending'}
+METHOD M_Unsuspending
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_StateComplete();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ParseStateToString" Id="{3a1137cc-985e-43fc-8c35-cc5b7b382f87}">
+      <Declaration><![CDATA[METHOD ParseStateToString : STRING
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_Generic">
+      <LineId Id="143" Count="0" />
+      <LineId Id="357" Count="0" />
+      <LineId Id="262" Count="0" />
+      <LineId Id="416" Count="1" />
+      <LineId Id="419" Count="0" />
+      <LineId Id="418" Count="0" />
+      <LineId Id="3" Count="115" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="307" Count="5" />
+      <LineId Id="306" Count="0" />
+      <LineId Id="222" Count="1" />
+      <LineId Id="221" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic._bCouple.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic._bCouple.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic._iModuleID.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic._sInstanceName.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic._sInstanceName.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic.Callback">
+      <LineId Id="10" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic.GenerateErrorMsg">
+      <LineId Id="13" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="66" Count="1" />
+      <LineId Id="70" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="27" Count="1" />
+      <LineId Id="72" Count="1" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="30" Count="1" />
+      <LineId Id="98" Count="2" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="101" Count="0" />
+      <LineId Id="105" Count="0" />
+      <LineId Id="102" Count="2" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic.M_Aborted">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic.M_Aborting">
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic.M_agingTest">
+      <LineId Id="47" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic.M_CheckError">
+      <LineId Id="15" Count="1" />
+      <LineId Id="5" Count="1" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="25" Count="1" />
+    </LineIds>
+    <LineIds Name="FB_Generic.M_Clearing">
+      <LineId Id="6" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic.M_Complete">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic.M_Completing">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic.M_Execute">
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic.M_Held">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic.M_Holding">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic.M_Idle">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic.M_Init">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic.M_Log">
+      <LineId Id="10" Count="0" />
+      <LineId Id="28" Count="1" />
+      <LineId Id="17" Count="1" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic.M_mapping">
+      <LineId Id="85" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic.M_Resetting">
+      <LineId Id="5" Count="2" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic.M_Starting">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic.M_StateComplete">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic.M_Stopped">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic.M_Stopping">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic.M_Suspended">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic.M_Suspending">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic.M_Undefined">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic.M_Unholding">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic.M_UnitsActive">
+      <LineId Id="96" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic.M_Unsuspending">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Generic.ParseStateToString">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

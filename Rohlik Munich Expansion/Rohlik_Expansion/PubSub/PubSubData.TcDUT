@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="PubSubData" Id="{ab22aa99-ed73-4a46-86ae-150a999fa6c3}">
+    <Declaration><![CDATA[TYPE PubSubData :
+STRUCT
+	Topic : E_Topics;
+	Data	: ARRAY[0..GVL.MAX_PUB_SUB_DATA] OF KeyAndValue;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

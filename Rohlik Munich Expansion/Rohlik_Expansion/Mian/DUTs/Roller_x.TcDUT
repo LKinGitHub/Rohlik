@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="Roller_x" Id="{10d4ce77-f7b6-4dac-a71c-e16d0d58af16}">
+    <Declaration><![CDATA[TYPE Roller_x :
+STRUCT
+	
+	roller	: Roller;
+	//photo_sensor_mute_left	 : FB_DigitalInput;    
+	//photo_sensor_mute_right	: FB_DigitalInput;     
+(*photo_sensor_mute_left replaced by photo_sensor[0] ; photo_sensor_mute_right replaced by photo_sensor[1] *)
+photo_sensor: ARRAY [0..1] OF FB_DigitalInput;  
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

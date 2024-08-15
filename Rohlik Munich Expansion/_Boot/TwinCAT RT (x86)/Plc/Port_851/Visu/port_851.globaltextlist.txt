@@ -1,0 +1,299 @@
+Id;Default
+55; command Products: %i
+323;%.2f
+206;%.2f mm
+829;%.2f MPa
+1131;%.2r
+740;%.3f mm
+201;%s
+209;+
+210;-
+2384;2 Systems
+54;A C C I D E N T
+18;Abort
+33;Aborted
+34;Aborting
+602;Acc
+843;Actual Position
+830;Admin
+773;Aging test
+5;Alarm
+61;Average MachSpeed: %5.2f Package/min
+203;Axis Error 
+299;Axis_bagOpen_0
+618;Axis_bagOpen_1
+211;Axis_bagOpen_2
+743;Axis_bagOpen_3
+324;Axis_vacuun_0
+786;Axis_vacuun_1
+179;BagOpen
+63;BagOpening
+11;BagOpening 
+521;BagOpening-1
+1064;BagOpening_1
+2321;BagOpening_2
+2069;BagOpening_Detection
+959;Bag_)
+1353;Bag_0
+1316;Bag_1
+1317;Bag_closed
+517;Bag_opened
+2196;bDisplay
+81;BELT ESTOP
+1803;bLoad_up
+808;Breaker OFF
+486;Breaker ON
+1159;buffer
+327;BUFFER SAFETY
+732;Buffer Stopper
+1438;b_EStopRestart
+16;Clear
+32;Clearing
+17;Command
+38;Complete
+1085;Completing
+58;CurrentMachSpeed:%5.2f Package/min
+1975;DateTime
+1723;Datetime
+349;Dec
+216;deg/s
+217;deg/s2
+50;Detection$R$Nof metal
+180;DIO
+68;Do you want to change tp production mode?
+662;DOG
+2636;DOOR CLOSED
+1080;Down
+673;error
+586;EStop Restart
+2274;EStopRestart
+23;Execute
+19;Execute$R$NComplete
+924;Extend
+2482;extend
+614;extended
+59;Finished Metalboxes: %i
+60;Finished Plasticboxes: %i
+56;Finished Products: %i 
+801;Flood Light
+1197;GVL_IOLink
+25;Held
+12;Hold
+26;Holding
+841;HOME
+248;HomeDone
+902;ID
+21;Idle
+136;inbound
+710;inbound_1
+1624;inbound_2
+44;INIT
+4;Invalid
+1037;Lamp
+2490;LIFT DOOR LEFT
+2284;LIFT DOOR RIGHT
+473;Lift_down
+293;Lift_iuo
+316;Lift_up
+51;Light$R$Nsensor
+2749;LIGHT STO EDM
+319;Load
+1648;Load Tote
+1129;Load Tote Request
+762;Loading
+416;Load_up
+581;Lock MCP Left Door
+222;Lock MCP Right Door
+580;Log In
+234;Log Out
+1496;LogOut
+6;Mantainance
+7;Manual
+2290;MCP ESTOP LEFT
+1000;MCP ESTOP RIGHT
+1593;MCP ESTOP2
+708;Message
+361;Method
+2239;MID SAFETY DOOR1
+2485;MID SAFETY DOOR2
+52;Move belt$R$N+
+53;Move to$R$Nwork position
+491;Muanal
+737;name
+3;No
+1516;NO.
+258;NO. 
+1043;None
+1736;Open MCP Left Door
+1323;Open MCP Right Door
+711;Operator
+381;outbound_1
+1368;outbound_2
+1318;outbound_assist$R$N$R$N
+760;outbound_assist_1$R$N$R$N
+182;outbound_assist_2$R$N$R$N
+1029;outbound_end
+787;Pause
+1446;photosensor
+2037;photo_sensor_bottom
+1081;photo_sensor_diagonal
+706;photo_sens[1]or_start
+1231;PICKMODULE STO EDM
+882;PICKMODULE2 STO EDM
+1922;PLACE1 STO EDM
+1263;PLACE2 STO EDM
+1450;PML 
+598;Position Setting
+1051;Production
+57;Reset the Visu
+30;Reseting
+40;ROBOT1 EAS
+1399;ROBOT1 EES
+1167;ROBOT2 EAS
+2067;ROBOT2 EES
+1126;ROLLER BELT STO EDM
+1023;rolleroutbound_assist$R$N$R$N
+1305;roller_assign
+1160;roller_inbound
+1610;roller_inbound_assist
+1295;roller_outbound_assist$R$N$R$N
+2362;SAFETY DOOR LEFT
+1331;SAFETYDOOR RIGHT
+1925;Sample
+36;SC
+1012;sensor[0]
+1257;sensor[1]
+82;sensor[2]
+774;sensor[3]
+1262;sensor[4]
+1137;sensor[5]
+794;sensor[6]
+512;sensor[7]
+681;sensor_start[0]
+1006;sensor_start[1]
+62;Seperated Boxes: %i
+415;Service
+102;sStepID
+99;Jerk
+839;JOG BW
+840;JOG FW
+1374;lift
+795;LIFT
+178;Lift
+926;LIFT ESTOP
+519;LIFT STATION DETECTION
+495;LIGHT CURTAIN LEFT
+39;LIGHT CURTAIN RIGHT
+413;LOAD
+897;LOADING SAFETY
+351;Main
+386;MCP ESTOP
+215;mm/s
+214;mm/s2
+207;MOVE ABS
+569;Move relative
+205;Neg LS
+677;outbound
+842;photosensor[0]
+79;photosensor[1]
+70;photo_sensor[0]
+919;photo_sensor[1]
+800;photo_sensor_mute
+925;photo_sensor_mute_l
+891;photo_sensor_start
+1003;place
+204;Pos LS
+844;Power $R$NOn
+359;Power On
+342;ReM
+1185;ReM3
+904;ReM4
+274;ReM5
+199;Reset
+10;RESET
+1651;retract
+934;retracted
+71;ROBOT EAS
+312;ROBOT EES
+72;roller
+1437;Roller In
+189;roller[0]
+709;roller[1]
+633;roller[2]
+687;roller[3]
+522;roller_x
+792;roller_y
+845;RUN
+634;SAFETY DOOR
+202;SAFETY INPUT
+617;SAFETY OUTPUT
+641;sComponentID
+438;sComponent_ID
+358;sComponent_name
+874;sensor_mute
+143;sensor_mute_left
+487;sensor_mute_right
+622;Set absolute$R$Nencoder as linear
+454;Set absolute$R$Nencoder as rotation
+208;Set Point
+14;Set Pos to 0
+332;sEventType
+714;sEvent_MSG
+245;sID
+220;sMethod
+1077;Start
+22;Starting
+67;State Model$R$N%s
+1034;StepID
+986;sTime
+198;Stop
+996;STOP
+1671;stop
+31;Stopped
+35;Stopping
+1097;Suspend
+28;Suspended
+29;Suspending
+666;Time
+784;tote_detection
+1613;TryRunMode
+590;TryRunStart
+118;TryRunStop
+585;Type
+13;Unhold
+24;Unholding
+20;Unit Mode
+780;UNLOAD
+809;Unload
+2590;Unload To Left
+297;Unload To Right
+37;Unsuspend
+27;Unsuspending
+15;Unuspend
+407;UP
+505;Up
+848;User
+8;UserMode 1
+863;valve_clamp[0]
+1846;valve_left_door
+1781;valve_left_door extend
+2324;valve_left_door valve_left_door.extend
+676;valve_left_door.extend
+1741;valve_lif
+396;valve_lift
+464;valve_lift[0]
+247;valve_lift_1
+1409;valve_lift_2
+2061;valve_lif_1
+1819;valve_right_door
+227;valve_stopper
+200;Velocity
+193;WORKING SAFETY
+246;Working1
+753;Working1 Load
+928;Working1 Unload
+514;Working2
+2337;Working2 Load
+86;Working2 Unload
+1;Yes
+2;Yes, with Reset

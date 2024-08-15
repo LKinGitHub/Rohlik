@@ -1,0 +1,521 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Tote_Subsystem" Id="{18f3e813-8d9e-4f02-997f-31b8e26895c7}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Tote_Subsystem EXTENDS FB_Generic
+VAR_INPUT
+	
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	tote_status_array 	AT%Q*	: ARRAY [0..99] OF ToteStatus;
+	
+	status					: MachineStatus := MachineStatus.STOPPED;	
+	current_air_pressure	: REAL;	
+	machine_control_cmd	 	: MachineControlCommand;
+	
+	cmd						: OrderToteCommand;
+	
+	ton1					: TON;
+
+	ton_heart_beat			: TON;
+	bReset_ads_heart_beat	: BOOL;
+	bTest					: BOOL;
+	
+	machine_current_status	: E_PMLState;
+	workflow1_status		: ToteSubsystemWorkflowStatus := ToteSubsystemWorkflowStatus.UNKNOWN;
+	error1_status			: OrderToteErrorStatus := OrderToteErrorStatus.UNKNOWN;
+	
+	workflow2_status		: ToteSubsystemWorkflowStatus := ToteSubsystemWorkflowStatus.UNKNOWN;
+	error2_status			: OrderToteErrorStatus := OrderToteErrorStatus.UNKNOWN;
+	
+	loading_tote			: ToteData;
+	working1_tote			: ToteData;
+	working2_tote			: ToteData;
+	
+	
+	bInbound		: BOOL;
+	bOutbound		: BOOL;
+	bAbortInbound	: BOOL;
+	bAbortOutbound	: BOOL;
+	inboundToteParams_temp	: InboundToteParams;
+	outboundToteParams_temp	: OutboundToteParams;
+	abortToreParams_temp	: AbortToteRequestParams;
+
+	A1	: INT;
+	A2	: INT;
+	iCase_abort	: INT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[SUPER^();
+M_mapping();
+IF sInstanceName='tote_1' THEN
+	tote_status_array[0]	:= GVL.fb_loading.tote_status;
+	tote_status_array[1]	:= GVL.fb_working1.tote_status;
+	tote_status_array[2]	:= GVL.fb_working1.outboundTote_status;//outbound tote status form logtech
+	machine_current_status	:= GVL.PackTags1.Status.StateCurrent;
+END_IF
+IF sInstanceName='tote_2' THEN
+	tote_status_array[0]	:= GVL.fb_loading.tote_status;
+	tote_status_array[1]	:= GVL.fb_working2.tote_status;
+	tote_status_array[2]	:=  GVL.fb_working2.outboundTote_status;//outbound tote status form logtech
+	machine_current_status	:= GVL.PackTags2.Status.StateCurrent;
+END_IF
+
+CASE machine_current_status OF
+	ePMLState_Aborted,ePMLState_Aborting:
+		status	:= MachineStatus.ERROR;
+	ePMLState_Stopping:	
+		status	:= MachineStatus.STOPPING;
+	ePMLState_Stopped:
+		status	:= MachineStatus.STOPPED;
+	ePMLState_Resetting:	
+		status	:= MachineStatus.RESETTING;
+	ePMLState_Idle:	
+		status	:= MachineStatus.READY;		
+	ePMLState_Execute:	
+		status	:= MachineStatus.RUNNING;			
+END_CASE
+
+IF bInbound THEN
+	inboundToteParams_temp.source_id	:= ModelIdentifier.inbounding_position;
+	inboundToteParams_temp.target_id	:= ModelIdentifier.working_position;
+	inbound_tote_request(inbound_tote_params:=inboundToteParams_temp);
+	bInbound	:= FALSE;
+END_IF
+IF bOutbound THEN
+	outboundToteParams_temp.source_id	:= ModelIdentifier.working_position;
+	outboundToteParams_temp.target_id	:= ModelIdentifier.outbound_position;	
+	outbound_tote_request(outbound_tote_params:=outboundToteParams_temp);
+	bOutbound	:= FALSE;
+END_IF
+IF bAbortInbound THEN
+	abortToreParams_temp.source_id	:= ModelIdentifier.inbounding_position;
+	abortToreParams_temp.target_id	:= ModelIdentifier.working_position;	
+	abort_tote_request(abort_tote_request_params:=abortToreParams_temp);
+	bAbortInbound	:= FALSE;
+END_IF
+
+IF bAbortOutbound THEN
+	abortToreParams_temp.source_id	:= ModelIdentifier.working_position;
+	abortToreParams_temp.target_id	:= ModelIdentifier.outbound_position;	
+	abort_tote_request(abort_tote_request_params:=abortToreParams_temp);
+	bAbortOutbound	:= FALSE;
+END_IF
+
+
+]]></ST>
+    </Implementation>
+    <Method Name="abort_tote_request" Id="{27f34e87-d12e-4bea-8d7e-cdf5426cb953}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD abort_tote_request : UDINT//only response while awaiting
+VAR_INPUT
+	abort_tote_request_params : AbortToteRequestParams; // Struct containing data from the barcode scan	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[abort_tote_request:=MethodCallReturnValue.DECLINED_BUSY;
+IF sInstanceName='tote_1' THEN
+	IF abort_tote_request_params.source_id=ModelIdentifier.inbounding_position AND abort_tote_request_params.target_id=ModelIdentifier.working_position THEN
+		iCase_abort	:= 1;
+	END_IF
+	IF abort_tote_request_params.source_id=ModelIdentifier.working_position AND abort_tote_request_params.target_id=ModelIdentifier.outbound_position THEN
+		iCase_abort	:= 2;
+	END_IF		
+	CASE iCase_abort OF
+		1:
+			IF GVL.fb_working1.tote_status=ToteStatus.AWAITING_INBOUND_AVAILABILITY THEN
+				subData.Topic	:= E_Topics.WORKING1_ABORT_INBOUND;
+				GVL.PubSubService.Publish(topic:=E_Topics.WORKING1_ABORT_INBOUND,data:= subData);
+				abort_tote_request:= MethodCallReturnValue.ACCEPTED;
+			ELSE
+				abort_tote_request:= MethodCallReturnValue.DECLINED_ERROR;
+			END_IF
+		2:
+			IF GVL.fb_working1.tote_status=ToteStatus.AWAITING_OUTBOUND_AVAILABILITY THEN
+				subData.Topic	:= E_Topics.WORKING1_ABORT_OUTBOUND;
+				GVL.PubSubService.Publish(topic:=E_Topics.WORKING1_ABORT_OUTBOUND,data:= subData);
+				abort_tote_request:= MethodCallReturnValue.ACCEPTED;
+			ELSE
+				abort_tote_request:= MethodCallReturnValue.DECLINED_ERROR;
+			END_IF	
+		ELSE
+			abort_tote_request:= MethodCallReturnValue.DECLINED_ERROR;
+	END_CASE
+END_IF
+
+IF sInstanceName='tote_2' THEN
+	IF abort_tote_request_params.source_id=ModelIdentifier.inbounding_position AND abort_tote_request_params.target_id=ModelIdentifier.working_position THEN
+		iCase_abort	:= 1;
+	END_IF
+	IF abort_tote_request_params.source_id=ModelIdentifier.working_position AND abort_tote_request_params.target_id=ModelIdentifier.outbound_position THEN
+		iCase_abort	:= 2;
+	END_IF		
+	CASE iCase_abort OF
+		1:
+			IF GVL.fb_working2.tote_status=ToteStatus.AWAITING_INBOUND_AVAILABILITY THEN
+				subData.Topic	:= E_Topics.WORKING2_ABORT_INBOUND;
+				GVL.PubSubService.Publish(topic:=E_Topics.WORKING2_ABORT_INBOUND,data:= subData);
+				abort_tote_request:= MethodCallReturnValue.ACCEPTED;
+			ELSE
+				abort_tote_request:= MethodCallReturnValue.DECLINED_ERROR;
+			END_IF
+		2:
+			IF GVL.fb_working2.tote_status=ToteStatus.AWAITING_INBOUND_AVAILABILITY THEN
+				subData.Topic	:= E_Topics.WORKING2_ABORT_OUTBOUND;
+				GVL.PubSubService.Publish(topic:=E_Topics.WORKING2_ABORT_OUTBOUND,data:= subData);
+				abort_tote_request:= MethodCallReturnValue.ACCEPTED;
+			ELSE
+				abort_tote_request:= MethodCallReturnValue.DECLINED_ERROR;
+			END_IF	
+		ELSE
+			abort_tote_request:= MethodCallReturnValue.DECLINED_ERROR;			
+	END_CASE
+END_IF
+	
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="barcode_validation_request" Id="{23a3884d-0782-4064-9104-e388dc1c5efc}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD barcode_validation_request : UDINT
+VAR_INPUT
+	barcode_validation_request_params : BarcodeValidationRequestParams;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="inbound_tote_request" Id="{62affe0d-84a6-41ac-aec8-cb5e0392a33c}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD inbound_tote_request : UDINT
+VAR_INPUT
+	inbound_tote_params : InboundToteParams;
+END_VAR
+VAR	
+	subData	: PubSubData;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+IF sInstanceName='tote_1' THEN
+//	IF NOT (((GVL.fb_working1.xLoading OR GVL.fb_working1.xInbound) AND GVL.fb_loading.xOutbound_woking1) OR 
+//		GVL.fb_working1.tote_status=ToteStatus.LOADED OR GVL.fb_working1.xUnloading OR GVL.fb_working1.xOutbound) 
+//	THEN//avoid cmd while inbounding or has tote
+//		subData.Topic	:= E_Topics.WORKING1_INBOUND_TOTE;
+//		GVL.PubSubService.Publish(topic:= E_Topics.WORKING1_INBOUND_TOTE,data:= subData);	
+//	END_IF
+	subData.Topic	:= E_Topics.WORKING1_INBOUND_TOTE;
+	GVL.PubSubService.Publish(topic:= E_Topics.WORKING1_INBOUND_TOTE,data:= subData);
+	A1	:= A1+1;	
+END_IF
+IF sInstanceName='tote_2' THEN
+//	IF NOT (((GVL.fb_working2.xLoading OR GVL.fb_working2.xInbound) AND GVL.fb_loading.xOutbound_woking2) OR 
+//		GVL.fb_working2.tote_status=ToteStatus.LOADED OR GVL.fb_working2.xUnloading OR GVL.fb_working2.xOutbound) 
+//	THEN//avoid cmd while inbounding or has tote
+//		subData.Topic	:= E_Topics.WORKING2_INBOUND_TOTE;
+//		GVL.PubSubService.Publish(topic:= E_Topics.WORKING2_INBOUND_TOTE,data:= subData);
+//	END_IF
+	subData.Topic	:= E_Topics.WORKING2_INBOUND_TOTE;
+	GVL.PubSubService.Publish(topic:= E_Topics.WORKING2_INBOUND_TOTE,data:= subData);
+	A2	:= A2+1;
+END_IF
+
+//subData.Topic	:= E_Topics.RESET_WAITING_FOR_NEW_SPACE;
+//GVL.PubSubService.Publish(topic:= E_Topics.RESET_WAITING_FOR_NEW_SPACE,data:= subData);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="init_tote_request" Id="{a1f3fcdf-d013-416d-a1e1-2ac9181b9d6c}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD  init_tote_request : udint
+VAR_INPUT
+	init_tote_request_params : InitToteRequestParams;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[init_tote_request:=1;
+IF init_tote_request_params.source_id=ModelIdentifier.inbounding_position AND 
+   init_tote_request_params.source_id=ModelIdentifier.working_position THEN 
+  ;
+     //MAIN.Machine.EM03.eState:=	E_WorkingStates.IDLE;				
+//			MAIN.Machine.EM03.xLoading	:= FALSE;
+//			MAIN.Machine.EM03.xUnloading	:= FALSE;
+//			MAIN.Machine.EM03.xPerturbing := FALSE;
+//			MAIN.Machine.EM03.xSwaping    := FALSE;
+	 //MAIN.Machine.EM01.eState:=E_LoadingStates.IDLE;
+END_IF  
+IF init_tote_request_params.source_id=ModelIdentifier.working_position AND 
+   init_tote_request_params.source_id=ModelIdentifier.outbound_position THEN 
+;
+    // MAIN.Machine.EM03.eState:=	E_WorkingStates.IDLE;				
+//			MAIN.Machine.EM03.xLoading	:= FALSE;
+//			MAIN.Machine.EM03.xUnloading	:= FALSE;
+//			MAIN.Machine.EM03.xPerturbing := FALSE;
+//			MAIN.Machine.EM03.xSwaping    := FALSE;
+	// MAIN.Machine.EM04.eState:=E_UnloadingStates.IDLE;
+END_IF  
+init_tote_request:=0;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_mapping" Id="{541fb1a0-cd7a-4efb-8c21-3483a35c300d}">
+      <Declaration><![CDATA[METHOD M_mapping : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="outbound_tote_request" Id="{60e6c187-39cd-4825-86c8-2f30debab9c2}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD outbound_tote_request : UDINT
+VAR_INPUT
+	outbound_tote_params : OutboundToteParams;	
+END_VAR
+VAR	
+	subData	: PubSubData;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF sInstanceName='tote_1' THEN
+	IF NOT (GVL.fb_working1.xOutbound OR GVL.fb_working1.xInbound ) THEN//avoid cmd while outbounding
+		subData.Topic	:= E_Topics.WORKING1_OUTBOUND_TOTE;
+		GVL.PubSubService.Publish(topic:= E_Topics.WORKING1_OUTBOUND_TOTE,data:= subData);
+	END_IF	
+END_IF
+IF sInstanceName='tote_2' THEN
+	IF NOT (GVL.fb_working2.xOutbound OR GVL.fb_working2.xInbound ) THEN//avoid cmd while outbounding
+		subData.Topic	:= E_Topics.WORKING2_OUTBOUND_TOTE;
+		GVL.PubSubService.Publish(topic:= E_Topics.WORKING2_OUTBOUND_TOTE,data:= subData);
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="perturb_tote_request" Id="{a84801f4-88b7-49a6-af4b-2debbf0ff0a0}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD perturb_tote_request : UDINT
+VAR_INPUT
+	perturb_tote_params : PerturbToteParams;	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF //APP.Machine.CurrentStateEnum=E_PMLState.ePMLState_Execute 
+//AND 
+cmd=OrderToteCommand.DO_NOTHING
+AND NOT MAIN.safety_1.bStop_button_unlock 
+//AND NOT MAIN.safety_1.bBStop_button_unlock 
+THEN
+	cmd	:= OrderToteCommand.OPEN_BAG;
+	perturb_tote_request:=0;
+ELSE
+	perturb_tote_request:=1;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="reset_tote_request" Id="{77d9c51b-ed0b-4c37-8545-4a8fcb780fa9}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD reset_tote_request : UDINT
+VAR_INPUT
+		
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[reset_tote_request	:= 1;
+
+GVL.PackTags.Command.CntrlCmd:=1;
+
+reset_tote_request	:= 0;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Setcmd" Id="{ba1f9cec-c3b0-46b8-a89b-cc046febc1a7}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD Setcmd : BOOL
+VAR_INPUT
+	orderToteCommand : OrderToteCommand;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[cmd	:= orderToteCommand;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="swap_tote_request" Id="{f9f9c208-72c4-42e1-a02a-8ed4ea1b33b9}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD swap_tote_request : UDINT
+VAR_INPUT
+	swap_tote_params : SwapToteParams;	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF //APP.Machine.CurrentStateEnum=E_PMLState.ePMLState_Execute 
+//AND 
+cmd=OrderToteCommand.DO_NOTHING
+AND NOT MAIN.safety_1.bStop_button_unlock 
+//AND NOT MAIN.safety_1.bBStop_button_unlock 
+THEN
+	cmd	:= OrderToteCommand.SWAP;
+	swap_tote_request:=0;
+ELSE
+	swap_tote_request:=1;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_Tote_Subsystem">
+      <LineId Id="851" Count="0" />
+      <LineId Id="187" Count="0" />
+      <LineId Id="593" Count="0" />
+      <LineId Id="672" Count="2" />
+      <LineId Id="849" Count="0" />
+      <LineId Id="848" Count="0" />
+      <LineId Id="602" Count="0" />
+      <LineId Id="740" Count="1" />
+      <LineId Id="675" Count="0" />
+      <LineId Id="850" Count="0" />
+      <LineId Id="671" Count="0" />
+      <LineId Id="636" Count="0" />
+      <LineId Id="471" Count="0" />
+      <LineId Id="478" Count="0" />
+      <LineId Id="480" Count="0" />
+      <LineId Id="482" Count="0" />
+      <LineId Id="481" Count="0" />
+      <LineId Id="491" Count="1" />
+      <LineId Id="487" Count="0" />
+      <LineId Id="483" Count="0" />
+      <LineId Id="489" Count="0" />
+      <LineId Id="488" Count="0" />
+      <LineId Id="490" Count="0" />
+      <LineId Id="484" Count="0" />
+      <LineId Id="479" Count="0" />
+      <LineId Id="726" Count="0" />
+      <LineId Id="731" Count="0" />
+      <LineId Id="832" Count="1" />
+      <LineId Id="732" Count="2" />
+      <LineId Id="739" Count="0" />
+      <LineId Id="836" Count="0" />
+      <LineId Id="834" Count="0" />
+      <LineId Id="736" Count="2" />
+      <LineId Id="727" Count="0" />
+      <LineId Id="846" Count="0" />
+      <LineId Id="845" Count="0" />
+      <LineId Id="784" Count="0" />
+      <LineId Id="787" Count="0" />
+      <LineId Id="785" Count="0" />
+      <LineId Id="354" Count="0" />
+      <LineId Id="837" Count="0" />
+      <LineId Id="847" Count="0" />
+      <LineId Id="841" Count="0" />
+      <LineId Id="838" Count="1" />
+      <LineId Id="262" Count="0" />
+      <LineId Id="844" Count="0" />
+      <LineId Id="843" Count="0" />
+      <LineId Id="60" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Tote_Subsystem.abort_tote_request">
+      <LineId Id="247" Count="0" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="290" Count="2" />
+      <LineId Id="294" Count="1" />
+      <LineId Id="293" Count="0" />
+      <LineId Id="283" Count="0" />
+      <LineId Id="296" Count="0" />
+      <LineId Id="299" Count="5" />
+      <LineId Id="298" Count="0" />
+      <LineId Id="305" Count="0" />
+      <LineId Id="307" Count="5" />
+      <LineId Id="306" Count="0" />
+      <LineId Id="380" Count="1" />
+      <LineId Id="297" Count="0" />
+      <LineId Id="267" Count="0" />
+      <LineId Id="285" Count="0" />
+      <LineId Id="263" Count="0" />
+      <LineId Id="343" Count="7" />
+      <LineId Id="366" Count="5" />
+      <LineId Id="357" Count="1" />
+      <LineId Id="372" Count="5" />
+      <LineId Id="365" Count="0" />
+      <LineId Id="384" Count="0" />
+      <LineId Id="382" Count="0" />
+      <LineId Id="342" Count="0" />
+      <LineId Id="378" Count="1" />
+      <LineId Id="248" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Tote_Subsystem.barcode_validation_request">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Tote_Subsystem.inbound_tote_request">
+      <LineId Id="13" Count="0" />
+      <LineId Id="76" Count="0" />
+      <LineId Id="90" Count="0" />
+      <LineId Id="122" Count="0" />
+      <LineId Id="112" Count="0" />
+      <LineId Id="94" Count="0" />
+      <LineId Id="91" Count="1" />
+      <LineId Id="124" Count="0" />
+      <LineId Id="123" Count="0" />
+      <LineId Id="99" Count="0" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="95" Count="0" />
+      <LineId Id="121" Count="0" />
+      <LineId Id="111" Count="0" />
+      <LineId Id="82" Count="0" />
+      <LineId Id="78" Count="0" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="126" Count="0" />
+      <LineId Id="125" Count="0" />
+      <LineId Id="100" Count="0" />
+      <LineId Id="77" Count="0" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="108" Count="0" />
+      <LineId Id="72" Count="0" />
+      <LineId Id="69" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Tote_Subsystem.init_tote_request">
+      <LineId Id="11" Count="10" />
+      <LineId Id="43" Count="8" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Tote_Subsystem.M_mapping">
+      <LineId Id="10" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Tote_Subsystem.outbound_tote_request">
+      <LineId Id="34" Count="0" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="35" Count="1" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="58" Count="0" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="38" Count="1" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Tote_Subsystem.perturb_tote_request">
+      <LineId Id="258" Count="1" />
+      <LineId Id="273" Count="0" />
+      <LineId Id="260" Count="0" />
+      <LineId Id="271" Count="1" />
+      <LineId Id="262" Count="3" />
+      <LineId Id="241" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Tote_Subsystem.reset_tote_request">
+      <LineId Id="267" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="263" Count="0" />
+      <LineId Id="269" Count="0" />
+      <LineId Id="268" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Tote_Subsystem.Setcmd">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Tote_Subsystem.swap_tote_request">
+      <LineId Id="6" Count="1" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="15" Count="1" />
+      <LineId Id="10" Count="3" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

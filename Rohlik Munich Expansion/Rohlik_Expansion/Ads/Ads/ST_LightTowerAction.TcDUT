@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_LightTowerAction" Id="{d086dee9-590d-4737-ab6f-ce742ffc4750}">
+    <Declaration><![CDATA[TYPE ST_LightTowerAction :
+STRUCT
+	GREEN			: BOOL;
+	GREEN_FLASHING	: BOOL;
+	
+	RED				: BOOL;
+	RED_FLASHING	: BOOL;
+	
+	YELLOW			: BOOL;
+	YELLOW_FLASHING	: BOOL;
+	
+	BLUE			: BOOL;
+	BLUE_FLASHING	: BOOL;
+	
+	WHITE			: BOOL;
+	WHITE_FLASHING	: BOOL;
+	
+	BEEPING			: BOOL;
+	BEEPING_FLASHING: BOOL;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

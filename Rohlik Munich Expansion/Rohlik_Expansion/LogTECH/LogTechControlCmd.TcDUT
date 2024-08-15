@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="LogTechControlCmd" Id="{b1c2bad0-7542-4ad7-b576-f1054f278c68}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE LogTechControlCmd :
+(
+	DO_NOTHING 				:= 0,
+	READY_TO_TRANSFER		:= 1,
+	TRANSFERRING_TOTE		:= 2,
+	TRANSFER_TOTE_FINISHED	:= 3,
+	TRANSFER_IN_ERROR		:= 4,
+	READY_TO_RECEIVE		:= 5,
+	RECEIVING_TOTE			:= 6,
+	RECEIVE_TOTE_FINISHED	:= 7
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,187 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="PubSubService" Id="{c1ca663d-d24d-4b74-97d3-9fc5bb4f757d}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PubSubService IMPLEMENTS I_PubSubService
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+
+VAR
+	TopicsToSubscribers : ARRAY[0..MAX_TOPICS - 1, 0..MAX_SUBSCRIBERS_PER_TOPIC - 1] OF SubscriberCell;
+	subscriberCounters : ARRAY [0..MAX_TOPICS - 1] OF INT;
+	cntPublish	: ST_TracePublish;
+END_VAR
+
+VAR CONSTANT 
+	MAX_SUBSCRIBERS_PER_TOPIC : INT := 5;
+	MAX_TOPICS : INT := E_Topics.NUMBER_OF_TOPICS;
+END_VAR ]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="ParseStateToString" Id="{04b3e825-2ebb-40e3-9f5a-0252070d4cf6}">
+      <Declaration><![CDATA[METHOD ParseStateToString : STRING
+VAR_INPUT
+	topic	: E_Topics;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE topic OF
+	E_Topics.UNKNOWN:
+		ParseStateToString	:='UNKNOWN';
+	E_Topics.WORKING1_INBOUND_TOTE:
+		ParseStateToString	:='WORKING1_INBOUND_TOTE';
+	E_Topics.WORKING1_OUTBOUND_TOTE:
+		ParseStateToString	:='WORKING1_OUTBOUND_TOTE';
+	E_Topics.LOADING_BEGIN_OUTBOUND_WOKING1:
+		ParseStateToString	:='LOADING_BEGIN_OUTBOUND_WOKING1';
+	E_Topics.LOADING_END_OUTBOUND_WOKING1:
+		ParseStateToString	:='LOADING_END_OUTBOUND_WOKING1';
+	E_Topics.WORKING1_BEGIN_INBOUND:
+		ParseStateToString	:='WORKING1_BEGIN_INBOUND';
+	E_Topics.WORKING1_ABORT_INBOUND:
+		ParseStateToString	:='WORKING1_ABORT_INBOUND';
+	E_Topics.WORKING2_INBOUND_TOTE:
+		ParseStateToString	:='WORKING2_INBOUND_TOTE';
+	E_Topics.WORKING2_OUTBOUND_TOTE:
+		ParseStateToString	:='WORKING2_OUTBOUND_TOTE';
+	E_Topics.LOADING_BEGIN_OUTBOUND_WOKING2:
+		ParseStateToString	:='LOADING_BEGIN_OUTBOUND_WOKING2';
+	E_Topics.LOADING_END_OUTBOUND_WOKING2:
+		ParseStateToString	:='LOADING_END_OUTBOUND_WOKING2';
+	E_Topics.WORKING2_BEGIN_INBOUND:
+		ParseStateToString	:='WORKING2_BEGIN_INBOUND';
+	E_Topics.WORKING2_ABORT_INBOUND:
+		ParseStateToString	:='WORKING2_ABORT_INBOUND';	
+	E_Topics.RESET_WAITING_FOR_NEW_SPACE:
+		ParseStateToString	:='RESET_WAITING_FOR_NEW_SPACE';				
+	E_Topics.SAMPLE_SUBSCRRIBE_1:
+		ParseStateToString	:='SAMPLE_SUBSCRRIBE_1';	
+	E_Topics.SAMPLE_SUBSCRRIBE_2:
+		ParseStateToString	:='SAMPLE_SUBSCRRIBE_2';	
+	E_Topics.SAMPLE_SUBSCRRIBE_3:
+		ParseStateToString	:='SAMPLE_SUBSCRRIBE_3';	
+	E_Topics.NUMBER_OF_TOPICS:
+		ParseStateToString	:='NUMBER_OF_TOPICS';		
+		
+	ELSE
+		ParseStateToString	:='UNKNOW TOPIC';
+END_CASE
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Publish" Id="{8cb0105a-f163-40f5-bbb7-d6346a4460f1}">
+      <Declaration><![CDATA[METHOD Publish
+VAR_INPUT
+	topic	: E_Topics;
+	data	: PubSubData;
+END_VAR
+VAR
+	index : INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[cntPublish.iCnt	:= 0;
+cntPublish.topic	:= '';	
+FOR index := 0 TO MAX_SUBSCRIBERS_PER_TOPIC -1 BY 1 DO
+	IF TopicsToSubscribers[topic, index].OCCUPIED = TRUE THEN
+		TopicsToSubscribers[topic, index].subscriber.Callback(data);
+//		ADSLOGSTR(msgCtrlMask:=Tc2_System.ADSLOG_MSGTYPE_LOG,msgFmtStr:=CONCAT(STR1:=ParseStateToString(topic),STR2:=TopicsToSubscribers[topic, index].sInstance),strArg:='');
+	END_IF
+	cntPublish.iCnt		:= cntPublish.iCnt+1;
+	cntPublish.topic	:= ParseStateToString(topic);	
+END_FOR
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Subscribe" Id="{ba2230aa-7438-48f4-b45d-8788c93cf06a}">
+      <Declaration><![CDATA[METHOD Subscribe : INT
+VAR_INPUT
+	topic	: E_Topics;
+	sInstance	: STRING;
+	subCallback	: I_SubCallback;
+END_VAR
+VAR 
+	index : INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Subscribe := -1;
+
+IF  subscriberCounters[topic] >= MAX_SUBSCRIBERS_PER_TOPIC THEN
+	RETURN;
+END_IF
+
+FOR index := 0 TO (MAX_SUBSCRIBERS_PER_TOPIC - 1) BY 1 DO
+	IF TopicsToSubscribers[topic, index].occupied = FALSE THEN
+		TopicsToSubscribers[topic, index].occupied := TRUE;
+		TopicsToSubscribers[topic, index].sTopic := ParseStateToString(topic);
+		TopicsToSubscribers[topic, index].sInstance := sInstance;
+		TopicsToSubscribers[topic, index].subscriber := subCallback;
+		Subscribe := index;
+		subscriberCounters[topic] := subscriberCounters[topic] + 1;
+		RETURN;
+	END_IF
+END_FOR
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Unsubscribe" Id="{fe1f058b-cb54-4499-94ae-fb021fb9302a}">
+      <Declaration><![CDATA[METHOD Unsubscribe
+VAR_INPUT
+	topic : E_Topics;
+	subscriberID	: INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF TopicsToSubscribers[topic, subscriberID].occupied = TRUE THEN
+	TopicsToSubscribers[topic, subscriberID].occupied := FALSE;
+	subscriberCounters[topic] := subscriberCounters[topic] - 1; 	
+END_IF 
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="PubSubService">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="PubSubService.ParseStateToString">
+      <LineId Id="5" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="154" Count="0" />
+      <LineId Id="173" Count="6" />
+      <LineId Id="181" Count="13" />
+      <LineId Id="172" Count="0" />
+      <LineId Id="198" Count="0" />
+      <LineId Id="195" Count="0" />
+      <LineId Id="200" Count="6" />
+      <LineId Id="196" Count="1" />
+      <LineId Id="31" Count="1" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="36" Count="0" />
+    </LineIds>
+    <LineIds Name="PubSubService.Publish">
+      <LineId Id="23" Count="1" />
+      <LineId Id="10" Count="2" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="21" Count="1" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="26" Count="1" />
+    </LineIds>
+    <LineIds Name="PubSubService.Subscribe">
+      <LineId Id="9" Count="8" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="18" Count="4" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="PubSubService.Unsubscribe">
+      <LineId Id="8" Count="3" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

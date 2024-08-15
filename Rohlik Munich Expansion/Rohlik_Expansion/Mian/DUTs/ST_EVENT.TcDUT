@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_EVENT" Id="{764d447b-4db5-4ba8-a958-381e9e6d2f7e}">
+    <Declaration><![CDATA[TYPE ST_EVENT :  
+STRUCT
+    sTime			    	:  STRING :=''; 		// time when event writes in buffer
+	sEventType	    		:  STRING :='';		// error, warning, info
+	
+	sComponent_name			:  STRING :='';			// Component name  
+	sComponentID			:  STRING :='';		// Component ID  - String
+	sMethod					:  STRING;					//	method name 	
+	sStepID					:  STRING;					//	the Event number (the last step, in wich event occured) (Step in method)
+	
+	sEvent_MSG      		:  STRING :='';		// event message fron Text list according with StateMachineID*1000 + StepID
+	
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

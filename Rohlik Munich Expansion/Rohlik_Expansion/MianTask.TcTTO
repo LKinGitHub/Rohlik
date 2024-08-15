@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Task Name="MianTask" Id="{12eb5b33-8882-449e-a17c-35eeeaefc12a}">
+    <!--CycleTime in micro seconds.-->
+    <CycleTime>4000</CycleTime>
+    <Priority>20</Priority>
+    <PouCall>
+      <Name>MAIN</Name>
+    </PouCall>
+    <TaskFBGuid>{180e888e-7aee-4550-8a69-c18b2af5237d}</TaskFBGuid>
+    <Fb_init>{427894ff-1111-4e0a-96b2-a62c68003b1f}</Fb_init>
+    <Fb_exit>{109a65df-c3f7-40e1-a52c-a5fafa7e7e77}</Fb_exit>
+    <CycleUpdate>{aec5e252-d7ce-4baf-9746-41985ff25022}</CycleUpdate>
+    <PostCycleUpdate>{2ab90992-4dcc-41c9-aed1-6c9051d102ef}</PostCycleUpdate>
+  </Task>
+</TcPlcObject>

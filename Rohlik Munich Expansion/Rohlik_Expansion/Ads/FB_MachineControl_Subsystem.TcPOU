@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_MachineControl_Subsystem" Id="{15e4ff61-708d-44b2-875f-d4ee1da239ec}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_MachineControl_Subsystem
+VAR_INPUT
+	pMachineCurrentStatus	:POINTER TO E_PMLState;
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	machine_status AT%Q*: MachineStatus:= MachineStatus.STOPPED;	
+	machine_current_status	: E_PMLState;	
+    machineControlCmd	: MachineCommandStructure;
+	
+	
+
+	bStart	: BOOL;
+	bStop	: BOOL;
+	bReset	: BOOL;
+	machineControlCmd_temp	: MachineCommandStructure;
+	AAA: INT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+CASE pMachineCurrentStatus^ OF
+	ePMLState_Stopped:
+		machine_status	:= MachineStatus.STOPPED;
+	ePMLState_Resetting:	
+		machine_status	:= MachineStatus.RESETTING;
+	ePMLState_Idle:	
+		machine_status	:= MachineStatus.READY;	
+	ePMLState_Starting:	
+		machine_status	:= MachineStatus.INITIALIZING;
+	ePMLState_Execute:	
+		machine_status	:= MachineStatus.RUNNING;		
+	ePMLState_Stopping:	
+		machine_status	:= MachineStatus.STOPPING;
+	ePMLState_Aborted,ePMLState_Aborting:
+		machine_status	:= MachineStatus.ERROR;		
+END_CASE
+
+
+
+
+IF bStart THEN
+	machineControlCmd_temp.command	:= MachineControlCommand.START;
+	machine_control_command(command_data:=machineControlCmd_temp);
+	bStart	:= FALSE;
+END_IF
+IF bStop THEN
+	machineControlCmd_temp.command	:= MachineControlCommand.STOP;
+	machine_control_command(command_data:=machineControlCmd_temp);
+	bStop	:= FALSE;
+END_IF
+IF bReset THEN
+	machineControlCmd_temp.command	:= MachineControlCommand.RESET;
+	machine_control_command(command_data:=machineControlCmd_temp);
+	bReset	:= FALSE;
+END_IF
+]]></ST>
+    </Implementation>
+    <Method Name="machine_control_command" Id="{27ade1f0-fc07-41bd-b30c-f2e581ef73ab}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD machine_control_command : UDINT
+VAR_INPUT
+	command_data : MachineCommandStructure; 	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+machineControlCmd	:= command_data;
+AAA:=AAA+1;]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_MachineControl_Subsystem">
+      <LineId Id="167" Count="0" />
+      <LineId Id="106" Count="0" />
+      <LineId Id="125" Count="0" />
+      <LineId Id="124" Count="0" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="126" Count="0" />
+      <LineId Id="129" Count="0" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="131" Count="0" />
+      <LineId Id="130" Count="0" />
+      <LineId Id="133" Count="0" />
+      <LineId Id="132" Count="0" />
+      <LineId Id="109" Count="1" />
+      <LineId Id="135" Count="0" />
+      <LineId Id="134" Count="0" />
+      <LineId Id="92" Count="0" />
+      <LineId Id="183" Count="0" />
+      <LineId Id="190" Count="1" />
+      <LineId Id="184" Count="0" />
+      <LineId Id="147" Count="0" />
+      <LineId Id="192" Count="0" />
+      <LineId Id="187" Count="0" />
+      <LineId Id="185" Count="1" />
+      <LineId Id="205" Count="3" />
+      <LineId Id="204" Count="0" />
+      <LineId Id="210" Count="3" />
+      <LineId Id="209" Count="0" />
+      <LineId Id="193" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_MachineControl_Subsystem.machine_control_command">
+      <LineId Id="293" Count="0" />
+      <LineId Id="249" Count="0" />
+      <LineId Id="277" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Task Name="EtherCAT_Task" Id="{3b72e7e9-d428-416c-8e76-3a28de7ac5a6}">
+    <!--CycleTime in micro seconds.-->
+    <CycleTime>2000</CycleTime>
+    <Priority>2</Priority>
+    <TaskFBGuid>{108a141c-3d74-4498-89bc-b7c95cecd85c}</TaskFBGuid>
+    <Fb_init>{83419d3f-85a4-44fa-808f-41614a647049}</Fb_init>
+    <Fb_exit>{8cfb1b78-faf4-41ef-8447-4a6b5cde1b5a}</Fb_exit>
+    <CycleUpdate>{a6048acd-ed80-4ea5-ade4-22b7107ffed8}</CycleUpdate>
+    <PostCycleUpdate>{e8ff37eb-9132-49f6-94b5-195d3cda9aa7}</PostCycleUpdate>
+  </Task>
+</TcPlcObject>

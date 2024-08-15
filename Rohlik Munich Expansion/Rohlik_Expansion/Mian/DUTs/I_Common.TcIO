@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Itf Name="I_Common" Id="{44610be4-d804-4754-ab13-9ec4d915ccf3}">
+    <Declaration><![CDATA[INTERFACE I_Common
+]]></Declaration>
+    <Method Name="GenerateErrorMsg" Id="{7ca6110f-3862-444c-8b03-b70132daa866}">
+      <Declaration><![CDATA[METHOD GenerateErrorMsg : STRING
+VAR_INPUT
+	errorType	: STRING;
+//	strState	: STRING;
+	iState		: INT;
+	errorMsg	: STRING;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="M_Init" Id="{299d6f59-0f79-4ebd-bbde-3218fc2c181d}">
+      <Declaration><![CDATA[METHOD M_Init : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="M_Log" Id="{c3022895-c745-4eb6-9e87-3c32c8498265}">
+      <Declaration><![CDATA[METHOD M_Log : STRING
+VAR_INPUT
+	eLogType	: ServerityLevelType;
+	sTextLog	: STRING;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="ParseStateToString" Id="{5a0b3f82-f3a3-47dc-91da-b5fce544aace}">
+      <Declaration><![CDATA[METHOD ParseStateToString : STRING
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

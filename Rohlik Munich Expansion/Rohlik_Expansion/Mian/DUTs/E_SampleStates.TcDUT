@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_SampleStates" Id="{4ffc5800-b861-408d-90bd-87b0491278fb}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE E_SampleStates :
+(
+	IDLE := 0,
+	INIT,
+	CHECK,
+	WAIT,
+	WAIT_ON,
+	WAIT_OFF,
+	DETECTION,
+	LAMP_ON,
+	LAMP_OFF,
+	DONE,
+
+	ERROR
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

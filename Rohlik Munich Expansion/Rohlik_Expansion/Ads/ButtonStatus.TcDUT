@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ButtonStatus" Id="{09185448-9596-44d4-b71e-9a8730f6048d}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE ButtonStatus :
+(
+	UNKNOWN := 0, 
+	RELEASED := 1, 
+	PRESSED := 2
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

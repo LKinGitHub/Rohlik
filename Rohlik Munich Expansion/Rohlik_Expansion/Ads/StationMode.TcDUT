@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="StationMode" Id="{6d5e1a59-ef5a-48ba-8ec6-e343fb54bd38}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE StationMode :
+(
+	UNkNOW          := 0,  //Interface Documents not exist (jun.22)
+	RUNNING			:= 1,
+	RESETTING		:= 2,
+	STOPPED			:= 3,
+	DISABLED		:= 4,
+	STARTING		:= 5,
+	INTERVENTION	:= 6
+		
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

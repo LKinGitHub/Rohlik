@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="LogTechTransferStatus" Id="{7e964da8-1ad0-4482-8211-0c24bbda5578}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE LogTechTransferStatus:
+(
+	UNKNOWN					:= 0,
+  	READY_TO_RECEIVE		:= 1,
+	RECEIVING_TOTE			:= 2,
+	RECEIVE_TOTE_FINISHED	:= 3,
+	READY_TO_TRANSFER		:= 4,
+	TRANSFERING_TOTE		:= 5,//also for stop the process,both stop and error
+	TRANSFER_TOTE_FINISHED	:= 6
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

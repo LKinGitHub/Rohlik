@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="G_IO" Id="{dfe05562-cd77-4d74-a229-ed718eb42956}">
+    <Declaration><![CDATA[{attribute 'global_init_slot' := '40600'}
+VAR_GLOBAL CONSTANT
+	{attribute 'global_init_slot'}
+	DiMouduleMAX 			:	INT	:=	16;
+	{attribute 'global_init_slot'}
+	DOMODULEMAX 			:	INT	:=	16;
+	{attribute 'global_init_slot'}
+	SiMouduleMAX 			:	INT	:=	16;
+	{attribute 'global_init_slot'}
+	SoMODULEMAX 			:	INT	:=	16;	
+END_VAR
+
+VAR_GLOBAL
+	arDI	AT%I*		: ARRAY[0..DiMouduleMAX ] OF ST_IO_16;		//  links to Digital input  Modules 
+	arDO	AT%Q*		: ARRAY[0..DOMODULEMAX ] OF ST_IO_16;		//  links to Digital output Modules	
+	arSI	AT%I*		: ARRAY[0..SiMouduleMAX ] OF ST_SafetyIO;	//  links to safety input  Modules
+	arSO	AT%Q*		: ARRAY[0..SOMODULEMAX ] OF ST_SafetyIO;	//  links to safety output  Modules
+	
+	
+	arIOLinkTx_Lift  AT%I*			: ARRAY[0..7 ] OF ST_Ifm_TX;
+	arIOLinkTx_Place1  AT%I*		: ARRAY[0..7 ] OF ST_Ifm_TX;
+	arIOLinkTx_Place2  AT%I*		: ARRAY[0..7 ] OF ST_Ifm_TX;
+	
+	arIOLinkRx_Lift  AT%Q*			: ARRAY[0..7 ] OF ST_Ifm_RX;
+	arIOLinkRx_Place1  AT%Q*		: ARRAY[0..7 ] OF ST_Ifm_RX;
+	arIOLinkRx_Place2  AT%Q*		: ARRAY[0..7 ] OF ST_Ifm_RX;
+	
+	arIOLinkQualifier_Lift  AT%I*	: ST_Ifm_Qualifier ;
+	arIOLinkQualifier_Place1  AT%I*	: ST_Ifm_Qualifier ;
+	arIOLinkQualifier_Place2  AT%I*	: ST_Ifm_Qualifier ;
+/////////////////////////ETHERCAT BUS STATE/////////////////////
+	wcState_mcp			AT%I*	: UINT;
+	wcState_lift		AT%I*	: UINT;
+	wcState_place1		AT%I*	: UINT;
+	wcState_place2		AT%I*	: UINT;
+	devState_Device1	AT%I*	: UINT;
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

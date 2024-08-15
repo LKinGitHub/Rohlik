@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_Ifm_Qualifier" Id="{57b7b7d7-6602-447b-9cd5-bfe46d2553bd}">
+    <Declaration><![CDATA[TYPE ST_Ifm_Qualifier :
+STRUCT
+	CH : ARRAY[0..7] OF USINT ;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="MachineControlCommand_1" Id="{10c762b4-a476-47d7-a37d-e2a865866c48}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE MachineControlCommand_1 :
+(
+	DO_NOTHING := 0,
+	START := 1, (* Start machine *)
+	STOP := 2, (* Stop machine *)
+	RESET := 3 (* Clear machine error status *)
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

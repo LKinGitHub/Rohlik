@@ -1,0 +1,896 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Safety_Subsystem" Id="{589679bc-3a60-44ea-a3dd-41af04fbe7bf}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Safety_Subsystem EXTENDS FB_Generic
+VAR_INPUT
+	pHeartBeat		: POINTER TO FB_HeartBeat_Subsystem;
+	pSafety_door	: POINTER TO ST_safetyDoor;
+	pPackTags		: POINTER TO ST_PackMLv30;
+	pMachine		: POINTER TO FB_Machine;
+END_VAR
+VAR_IN_OUT
+	
+END_VAR
+VAR_OUTPUT
+	
+END_VAR
+VAR
+	button_array AT%Q* : ARRAY [0..99] OF ButtonStatus; (* Array of 100 elements for ButtonStatus, button reset, button unlock *)
+	estop_array AT%Q* : ARRAY [0..99] OF EStopStatus; (* Array of 100 elements for EStopStatus *)
+	safety_door_array AT%Q*: ARRAY [0..99] OF SafetyDoorStatus; (* Array of 100 elements for SafetyDoorStatus *)
+	light_curtain_array AT%Q*: ARRAY [0..999] OF LightCurtainStatus; (* Array of 1000 elements for LightCurtainStatus *)
+	sensor_array  AT%Q*: ARRAY [0..999] OF SensorStatus; (* Array of 1000 elements for SensorStatus *)
+	estop_status AT%Q*: GeneralStatus;
+	gates_status AT%Q*: GeneralStatus;
+	safety_status AT%Q*: GeneralStatus;
+
+	SI_0	: UINT;
+	SI_1	: UINT;
+	GI_0 	: UINT;
+	GI_1 	: UINT;
+	
+	
+	station_mode	: StationMode;//APP status
+	iStationMode	: UINT;
+	iState: INT;
+	bEstop_detection	: BOOL;	
+	
+
+	eStates					:	E_SafetyStates	:=	E_SafetyStates.IDLE;
+	eStateTemp				:	E_SafetyStates	:=	E_SafetyStates.IDLE;
+
+	errorMessage	: STRING;
+	xError	: BOOL;
+	xEstop	: BOOL;
+	xError_working	: BOOL;
+	xEstop_behavior	: BOOL;
+	
+	xError_loading	: BOOL;
+	eStates_safetyDoor	: E_SAFETYDOOR	:= E_SAFETYDOOR.IDLE;
+	bReset_safetyDoor	: BOOL;
+	
+	
+	
+	GPWM	: FB_GPWM;
+	GPWM_1s	: FB_GPWM;
+	tonSaftyDelay: TON;
+	b_EStopRestarting  : BOOL;
+	T_EStopRestart : TON;
+//////////////////////SAFETY hardware config///////////////	
+	mcp_estop_left				: FB_DigitalInput;
+	safetyDoor_left				: BOOL;
+	
+	mcp_estop_right				: FB_DigitalInput;
+	safetyDoor_right			: BOOL;
+	door_closed					: BOOL;
+	bRobot1_eStop				: BOOL;
+	bRobot2_eStop				: BOOL;
+
+	lift_station_detection		: BOOL;
+	
+	lift_door_left				: FB_DigitalInput;
+	lift_door_right				: FB_DigitalInput;
+	
+	robot1_EES					: BOOL;
+	robot1_EAS					: BOOL;
+	
+	robot2_EES					: BOOL;
+	robot2_EAS					: BOOL;
+	buffer_safety				: BOOL;
+	loading_safety				: BOOL;
+	working_safety				: BOOL;
+	baffle_sensor_1				: BOOL;
+	baffle_sensor_2				: BOOL;
+	
+	LiftStoEDM					: BOOL;
+	Place1StoEDM				: BOOL;
+	Place2StoEDM				: BOOL;  
+
+	
+	safety_door_unlock_en		: BOOL;
+	bStop_button_unlock		: BOOL;//for not receive cmd from tote_subsystem
+	
+
+	
+	
+	refMachineCmd	: REFERENCE TO E_PMLCommand;
+	lift_safetyDoor_left: BOOL;
+	lift_safetyDoor_right: BOOL;
+	
+
+	
+	ton_waitDoorLocked	: TON;
+	
+	pml_command	: E_PMLCommand;
+	
+	bDoorUnlockRequest	: BOOL;
+	fTrig_error	:ARRAY[1..20] OF F_TRIG;
+	
+	resetting	: BOOL;//while in resetting,can not unlock the door
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[SUPER^();
+M_mapping();
+M_safetyDoor();
+
+
+IF sInstanceName='safety_1' THEN
+	IF pMachine^.eState=ePMLState_Aborted AND xEstop AND pSafety_door^.door_locked AND 
+	 	(GVL.fb_mcp_2.st_safety_door.door_locked OR lift_door_right.Q)
+	THEN
+		pSafety_door^.lamp_reset	:= GPWM_1s.q_xOut;
+	ELSE
+		pSafety_door^.lamp_reset	:= FALSE;
+	END_IF	
+END_IF
+IF sInstanceName='safety_2' THEN
+	IF pMachine^.eState=ePMLState_Aborted AND xEstop AND pSafety_door^.door_locked AND 
+	 	(GVL.fb_mcp_1.st_safety_door.door_locked OR lift_door_left.Q)
+	THEN
+		pSafety_door^.lamp_reset	:= GPWM_1s.q_xOut;
+	ELSE
+		pSafety_door^.lamp_reset	:= FALSE;
+	END_IF	
+END_IF
+
+xEstop	:= bRobot1_eStop AND bRobot2_eStop AND mcp_estop_left.Q AND mcp_estop_right.Q AND lift_station_detection AND baffle_sensor_1 AND baffle_sensor_2;
+xEstop_behavior	:= NOT(GVL_SAFETY.robot1_STO_EES AND GVL_SAFETY.robot2_STO_EES AND GVL_SAFETY.Lift_STO);
+IF sInstanceName='safety_1' THEN
+		xError	:=NOT(GVL_SAFETY.robot1_STO_EES AND GVL_SAFETY.Lift_STO AND GVL_SAFETY.Place1_STO AND GVL_SAFETY.robot1_STO_EAS); 
+		GVL_SAFETY.bLeftDoorUnlock_Request	:= pSafety_door^.door_lock;		
+		IF robot1_EES THEN 
+			IF robot1_EAS THEN
+				safety_status := GeneralStatus.READY ;
+			ELSE
+				safety_status := GeneralStatus.NOT_READY ;
+			END_IF
+		ELSE
+			safety_status := GeneralStatus.ERROR; 
+		END_IF
+END_IF
+IF sInstanceName='safety_2' THEN
+	xError	:=NOT(GVL_SAFETY.robot2_STO_EES AND GVL_SAFETY.Lift_STO AND GVL_SAFETY.Place2_STO AND GVL_SAFETY.robot2_STO_EAS);
+	GVL_SAFETY.bRightDoorUnlock_Request	:= pSafety_door^.door_lock;
+	IF robot2_EES THEN 
+		IF robot2_EAS THEN
+			safety_status := GeneralStatus.READY ;
+		ELSE
+			safety_status := GeneralStatus.NOT_READY ;
+		END_IF
+	ELSE
+		safety_status := GeneralStatus.ERROR; 
+	END_IF		
+END_IF
+
+//安全Safety报警 确认 复位
+tonSaftyDelay(IN:= NOT tonSaftyDelay.Q ,PT:=T#1S);
+b_ErrorAck := tonSaftyDelay.Q;
+
+
+GPWM(i_xEnable:=TRUE,i_udiTime:=10,i_udiCycle:=20);
+GPWM_1s(i_xEnable:=TRUE,i_udiTime:=500,i_udiCycle:=1000);
+
+ 
+
+
+
+////////////////////////////////////////////////safety error/////////////////////////////////////////////////// 
+IF wcState_mcp=0 AND wcState_lift=0 AND wcState_place1=0 AND wcState_place2=0 THEN
+	fTrig_error[1](CLK:=mcp_estop_left.Q OR pMachine^.eState = ePMLState_Clearing);
+	fTrig_error[2](CLK:=mcp_estop_right.Q OR pMachine^.eState = ePMLState_Clearing);
+	fTrig_error[3](CLK:=bRobot1_eStop OR pMachine^.eState = ePMLState_Clearing);
+	fTrig_error[4](CLK:=bRobot2_eStop OR pMachine^.eState = ePMLState_Clearing);
+	fTrig_error[5](CLK:=lift_station_detection OR pMachine^.eState = ePMLState_Clearing);
+	fTrig_error[6](CLK:=baffle_sensor_1 OR pMachine^.eState = ePMLState_Clearing);
+	fTrig_error[7](CLK:= baffle_sensor_2 OR pMachine^.eState = ePMLState_Clearing);
+	IF sInstanceName='safety_1' THEN
+		fTrig_error[8](CLK:=safetyDoor_left OR pMachine^.eState = ePMLState_Clearing);
+	END_IF
+	IF sInstanceName='safety_2' THEN
+		fTrig_error[8](CLK:=safetyDoor_right OR pMachine^.eState = ePMLState_Clearing);
+	END_IF
+END_IF
+fTrig_error[9](CLK:= wcState_mcp=0 OR pMachine^.eState = ePMLState_Clearing);
+fTrig_error[10](CLK:= wcState_lift=0 OR pMachine^.eState = ePMLState_Clearing);
+fTrig_error[11](CLK:= wcState_place1=0 OR pMachine^.eState = ePMLState_Clearing);
+fTrig_error[12](CLK:= wcState_place2=0 OR pMachine^.eState = ePMLState_Clearing);
+IF pPackTags^.Status.StateCurrent<>E_PMLState.ePMLState_Resetting THEN
+	FOR i:=1 TO 20 DO
+		IF fTrig_error[i].Q THEN
+			THIS^.packTags.Admin.Alarm[i].ID	:= i;
+			CASE i OF
+				1:
+					THIS^.packTags.Admin.Alarm[1].Message	:= GenerateErrorMsg(errorType:='S',iState := i,errorMsg:='estop on left door is pressed');
+				2:
+					THIS^.packTags.Admin.Alarm[2].Message	:= GenerateErrorMsg(errorType:='S',iState := i,errorMsg:='estop on right door is pressed');
+				3:
+					THIS^.packTags.Admin.Alarm[3].Message	:= GenerateErrorMsg(errorType:='S',iState := i,errorMsg:='estop on robot1 teachpannel is pressed');
+				4:
+					THIS^.packTags.Admin.Alarm[4].Message	:= GenerateErrorMsg(errorType:='S',iState := i,errorMsg:='estop on robot2 teachpannel is pressed');
+				5:
+					THIS^.packTags.Admin.Alarm[5].Message	:= GenerateErrorMsg(errorType:='S',iState := i,errorMsg:='switch detecting lift module is not detected');
+				6:
+					THIS^.packTags.Admin.Alarm[6].Message	:= GenerateErrorMsg(errorType:='S',iState := i,errorMsg:='up baffle is not detected');	
+				7:
+					THIS^.packTags.Admin.Alarm[7].Message	:= GenerateErrorMsg(errorType:='S',iState := i,errorMsg:='down baffle is not detected');	
+				8:
+					THIS^.packTags.Admin.Alarm[8].Message	:= GenerateErrorMsg(errorType:='S',iState := i,errorMsg:='gate is unlocked');	
+				9:
+					THIS^.packTags.Admin.Alarm[9].Message	:= GenerateErrorMsg(errorType:='S',iState := i,errorMsg:='MCP EtherCAT bus is in state ERROR');	
+				10:
+					THIS^.packTags.Admin.Alarm[10].Message	:= GenerateErrorMsg(errorType:='S',iState := i,errorMsg:='Lift module EtherCAT bus is in state ERROR');	
+				11:
+					THIS^.packTags.Admin.Alarm[11].Message	:= GenerateErrorMsg(errorType:='S',iState := i,errorMsg:='Place1 module EtherCAT bus is in state ERROR');	
+				12:
+					THIS^.packTags.Admin.Alarm[12].Message	:= GenerateErrorMsg(errorType:='S',iState := i,errorMsg:='Place2 module EtherCAT bus is in state ERROR');	
+
+			END_CASE
+			THIS^.pml_adminAlarm.M_SetAlarm(stAdmin:=pPackTags^.Admin,stAlarm := THIS^.packTags.Admin.Alarm[i]);
+		END_IF
+	END_FOR
+END_IF
+]]></ST>
+    </Implementation>
+    <Property Name="_stationMode" Id="{fa1a69a3-64f3-40be-8c11-e2e8d858f937}">
+      <Declaration><![CDATA[PROPERTY _stationMode : StationMode]]></Declaration>
+      <Get Name="Get" Id="{52cfb30d-f267-4800-b9f3-0a7b053a5648}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_stationMode	:= station_mode;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{f5aec801-a0db-4857-824f-81dc9a74d698}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[station_mode	:= _stationMode;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="M_mapping" Id="{d65f4aa6-b391-4ff2-83f9-f1479fd3c9f4}">
+      <Declaration><![CDATA[METHOD M_mapping : BOOL
+VAR_INPUT
+END_VAR
+
+VAR
+
+	
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+
+mcp_estop_left(D:= G_IO.arSI[0].Ch[1] AND G_IO.arSI[0].Ch[2],on_ms:=100,off_ms:=50);//while trig door lock and unlock,it will trig the input randomly	
+safetyDoor_left				:= G_IO.arSI[0].Ch[3] AND G_IO.arSI[0].Ch[4];
+mcp_estop_right(D:= G_IO.arSI[1].Ch[1] AND G_IO.arSI[1].Ch[2],on_ms:=100,off_ms:=50);//while trig door lock and unlock,it will trig the input randomly	
+safetyDoor_right			:= G_IO.arSI[1].Ch[3] AND G_IO.arSI[1].Ch[4];
+IF sInstanceName='safety_1' THEN
+	door_closed					:= G_IO.arSI[2].Ch[3];
+END_IF
+IF sInstanceName='safety_2' THEN
+	door_closed					:= G_IO.arSI[2].Ch[4];
+END_IF
+bRobot1_eStop				:= G_IO.arSI[3].Ch[1] AND G_IO.arSI[3].Ch[2];
+bRobot2_eStop				:= G_IO.arSI[3].Ch[3] AND G_IO.arSI[3].Ch[4];
+
+lift_station_detection		:= G_IO.arSI[4].Ch[3] AND G_IO.arSI[4].Ch[4];
+lift_door_left(D:= G_IO.arSI[5].Ch[1] AND G_IO.arSI[5].Ch[2],on_ms:=500,off_ms:=80);
+lift_door_right(D:= G_IO.arSI[5].Ch[3] AND G_IO.arSI[5].Ch[4],on_ms:=500,off_ms:=80);
+baffle_sensor_1				:= G_IO.arSI[6].Ch[1] AND G_IO.arSI[6].Ch[2];
+baffle_sensor_2				:= G_IO.arSI[6].Ch[3] AND G_IO.arSI[6].Ch[4];
+	
+robot1_EES					:= GVL_SAFETY.robot1_STO_EES;
+robot1_EAS					:= GVL_SAFETY.robot1_STO_EAS;
+robot2_EES					:= GVL_SAFETY.robot2_STO_EES;
+robot2_EAS					:= GVL_SAFETY.robot2_STO_EAS;
+LiftStoEDM					:= GVL_SAFETY.Lift_STO_EDM;
+Place1StoEDM				:= GVL_SAFETY.Place1_STO_EDM;
+Place2StoEDM				:= GVL_SAFETY.Place2_STO_EDM;                 
+                    
+                  
+ //EDM config
+// GVL_IOLink.robots_ees_edm  	:= TRUE;  
+ GVL_SAFETY.Robot1_EES_EDM  	:= GVL.fb_mcp_1.EDM_EES;
+ GVL_SAFETY.Robot2_EES_EDM  	:= GVL.fb_mcp_2.EDM_EES; 
+ GVL_SAFETY.robot1_eas_edm  	:= GVL.fb_mcp_1.EDM_EAS;
+ GVL_SAFETY.robot2_eas_edm  	:= GVL.fb_mcp_2.EDM_EAS;
+// GVL_SAFETY.Lift_STO_EDM        := GVL.fb_loading.EDM_KM;
+// GVL_SAFETY.Place1_STO_EDM      := GVL.fb_working1.EDM_KM;
+// GVL_SAFETY.Place2_STO_EDM      := GVL.fb_working2.EDM_KM;	
+	
+
+
+
+/////////////////////////////////////////////Estop array//////////////////////////////////
+IF mcp_estop_left.Q THEN
+	estop_array[0]:=EStopStatus.DISENGAGED;
+ELSE
+	estop_array[0]:=EStopStatus.ENGAGED;	
+END_IF
+IF mcp_estop_right.Q THEN
+	estop_array[1]:=EStopStatus.DISENGAGED;
+ELSE
+	estop_array[1]:=EStopStatus.ENGAGED;	
+END_IF
+IF bRobot1_eStop THEN
+	estop_array[2]:=EStopStatus.DISENGAGED;
+ELSE
+	estop_array[2]:=EStopStatus.ENGAGED;	
+END_IF
+IF bRobot2_eStop THEN
+	estop_array[3]:=EStopStatus.DISENGAGED;
+ELSE
+	estop_array[3]:=EStopStatus.ENGAGED;	
+END_IF
+
+/////////////////////////////////////////////button array//////////////////////////////////
+
+IF pSafety_door^.button_reset THEN
+	button_array[0]:=ButtonStatus.PRESSED;
+ELSE
+	button_array[0]:=ButtonStatus.RELEASED;	
+END_IF
+IF pSafety_door^.button_unlock THEN
+	button_array[1]:=ButtonStatus.PRESSED;
+ELSE
+	button_array[1]:=ButtonStatus.RELEASED;	
+END_IF
+/////////////////////////////////////////////safety door array//////////////////////////////////
+IF sInstanceName='safety_1' THEN
+	IF safetyDoor_left THEN
+		safety_door_array[0]:=SafetyDoorStatus.LOCKED;
+	ELSE
+		safety_door_array[0]:=SafetyDoorStatus.UNLOCKED;
+	END_IF
+END_IF
+IF sInstanceName='safety_2' THEN
+	IF safetyDoor_right THEN
+		safety_door_array[0]:=SafetyDoorStatus.LOCKED;
+	ELSE
+		safety_door_array[0]:=SafetyDoorStatus.UNLOCKED;
+	END_IF	
+END_IF   
+/////////////////////////////////////////////sensor array//////////////////////////////////
+IF lift_station_detection THEN
+	sensor_array[0]:=SensorStatus.SIGNAL;
+ELSE
+	sensor_array[0]:=SensorStatus.NO_SIGNAL;
+END_IF
+IF baffle_sensor_1 THEN
+	sensor_array[1]:=SensorStatus.SIGNAL;
+ELSE
+	sensor_array[1]:=SensorStatus.NO_SIGNAL;
+END_IF
+IF baffle_sensor_2 THEN
+	sensor_array[2]:=SensorStatus.SIGNAL;
+ELSE
+	sensor_array[2]:=SensorStatus.NO_SIGNAL;
+END_IF
+IF lift_door_left.Q THEN
+	sensor_array[3]:=SensorStatus.SIGNAL;
+ELSE
+	sensor_array[3]:=SensorStatus.NO_SIGNAL;
+END_IF
+
+IF lift_door_right.Q THEN
+	sensor_array[4]:=SensorStatus.SIGNAL;
+ELSE
+	sensor_array[4]:=SensorStatus.NO_SIGNAL;
+END_IF
+IF pSafety_door^.door_closed THEN
+	sensor_array[5]:=SensorStatus.SIGNAL;
+ELSE
+	sensor_array[5]:=SensorStatus.NO_SIGNAL;
+END_IF
+//GI_0.0	:= GVL.fb_mcp.st_safety_door.button_reset;
+//GI_0.1	:= GVL.fb_mcp.st_safety_door.button_unlock;
+//GI_0.2	:= GVL.fb_mcp.st_safety_door.door_closed;
+
+//SI_0.0	:= mcp_estop_left;
+//SI_0.1	:= safetyDoor_left;
+//SI_0.2	:= belt_estop;
+//SI_0.3	:= lift_estop;
+//SI_0.4	:= lift_station_detection;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_reset" Id="{8b41f1d7-fa71-4d85-b5b2-adf9e9a2f81c}">
+      <Declaration><![CDATA[METHOD M_reset : BOOL
+VAR_INPUT
+	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_reset	:= FALSE;
+resetting	:= TRUE;
+//xError	:= FALSE;//remove while safety is ready
+//M_reset	:= TRUE;//remove while safety is ready
+//RETURN;//remove while safety is ready
+//check if all safety outputs
+//////////////////////////////////////////////////////////timeout//////////////////////////////////////////
+		ton_timeout();
+		iStateTemp	:= eStateTemp;
+		IF eStateTemp=eStates THEN
+			ton_timeout.IN	:=TRUE;
+		ELSE
+			ton_timeout.IN	:=FALSE;
+			eStateTemp	:= eStates;	
+			M_Log(eLogType:=ServerityLevelType.INFO,sTextLog:='');
+			IF ton_timeout.Q THEN
+				RETURN;
+			END_IF
+		END_IF
+		IF ton_timeout.Q THEN	
+			ton_timeout.IN	:=FALSE;
+			CASE eStates OF	
+				E_SafetyStates.ERROR:	
+					alarm_temp.Message	:= GenerateErrorMsg(errorType:='S',iState := iStateTemp,errorMsg:='in error state.');
+				ELSE
+					alarm_temp.Message	:= GenerateErrorMsg(errorType:='S',iState := iStateTemp,errorMsg:='time out');
+			END_CASE
+//////////////////////////////////////////////////////////states don't want to timeout and trig error//////////////////////////////////////////				
+			IF  eStates<>E_SafetyStates.IDLE AND
+				eStates<>E_SafetyStates.TRIG_RESET
+			THEN
+				eStates	:= E_SafetyStates.ERROR;
+				IF sInstanceName='safety_1' THEN					
+					THIS^.pml_adminAlarm.M_SetAlarm(stAdmin:=GVL.PackTags1.Admin,stAlarm:=THIS^.alarm_temp);
+				END_IF			
+				IF sInstanceName='safety_2' THEN
+					THIS^.pml_adminAlarm.M_SetAlarm(stAdmin:=GVL.PackTags2.Admin,stAlarm:=THIS^.alarm_temp);
+				END_IF					
+			END_IF
+		END_IF
+
+
+CASE eStates OF
+	E_SafetyStates.IDLE:
+		pml_command	:= ePMLCommand_Undefined;
+		xError	:= FALSE;
+		ton_timeout.PT	:= T#1000MS;
+		eStates	:= E_SafetyStates.CHECK_SAFETY_INPUTS;
+	E_SafetyStates.CHECK_SAFETY_INPUTS:
+		IF xEstop AND pSafety_door^.door_locked THEN
+			eStates	:= E_SafetyStates.CHECK_OTHER_STATION;
+		END_IF
+	E_SafetyStates.CHECK_OTHER_STATION:
+		IF sInstanceName='safety_1' THEN
+			IF GVL.fb_mcp_2.st_safety_door.door_locked OR lift_door_right.Q THEN
+				eStates	:= E_SafetyStates.TRIG_RESET;
+			END_IF
+		END_IF
+		IF sInstanceName='safety_2' THEN
+			IF GVL.fb_mcp_1.st_safety_door.door_locked OR lift_door_left.Q THEN
+				eStates	:= E_SafetyStates.TRIG_RESET;
+			END_IF
+		END_IF
+	E_SafetyStates.TRIG_RESET:
+		ton_timeout.PT	:= T#300MS;
+		b_EStopRestart	:= GPWM.q_xOut;
+		IF sInstanceName='safety_1' THEN
+			bSafetyRestart_left		:= GPWM.q_xOut;
+		END_IF
+		IF sInstanceName='safety_2' THEN	
+			bSafetyRestart_right	:= GPWM.q_xOut;
+		END_IF
+		IF ton_timeout.Q THEN
+			b_EStopRestart	:= FALSE;
+			bSafetyRestart_left		:= FALSE;
+			bSafetyRestart_right	:= FALSE;
+			eStates	:= E_SafetyStates.CHECK_SAFETY_OUTPUT;
+		END_IF
+		
+	E_SafetyStates.LOCKDOOR_REQUEST:
+		ton_timeout.PT	:= T#3000MS;
+		IF sInstanceName='safety_1' THEN
+			IF GVL.fb_loading.M_LockRequest_1() THEN
+				eStates	:= E_SafetyStates.DONE;
+			END_IF			
+		END_IF
+		IF sInstanceName='safety_2' THEN
+			IF GVL.fb_loading.M_LockRequest_2() THEN
+				eStates	:= E_SafetyStates.DONE;
+			END_IF			
+		END_IF		
+//		IF sInstanceName='safety_1' THEN
+//			IF NOT (GVL.fb_loading.xLocking2 OR GVL.fb_loading.xUnlocking2) THEN
+//				IF GVL.fb_loading.M_LockRequest(sInstanceName:=sInstanceName) THEN
+//					eStates	:= E_SafetyStates.DONE;
+//				END_IF					
+//			END_IF
+//		END_IF
+//		IF sInstanceName='safety_2' THEN
+//			IF NOT (GVL.fb_loading.xLocking1 OR GVL.fb_loading.xUnlocking1) THEN
+//				IF GVL.fb_loading.M_LockRequest(sInstanceName:=sInstanceName) THEN
+//					eStates	:= E_SafetyStates.DONE;
+//				END_IF					
+//			END_IF
+//		END_IF	
+		
+	E_SafetyStates.CHECK_SAFETY_OUTPUT:	
+		IF sInstanceName='safety_1' THEN
+			IF Lift_STO AND Place1_STO THEN
+				eStates	:= E_SafetyStates.LOCKDOOR_REQUEST;
+			END_IF
+		END_IF			
+		IF sInstanceName='safety_2' THEN
+			IF Lift_STO AND Place2_STO THEN
+				eStates	:= E_SafetyStates.LOCKDOOR_REQUEST;		
+			END_IF	
+		END_IF
+	E_SafetyStates.DONE:
+		M_reset	:= TRUE;
+		resetting	:= FALSE;
+		eStates	:= E_SafetyStates.IDLE;
+	E_SafetyStates.ERROR:	
+		M_reset	:= TRUE;
+		resetting	:= FALSE;
+		xError	:= TRUE;
+		eStates	:= E_SafetyStates.IDLE;
+
+	
+END_CASE
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_safetyDoor" Id="{9ae49d5b-b993-491d-87e3-565117d40da3}">
+      <Declaration><![CDATA[(*
+	button_lock:lock the gate and then control the related door of lift  
+	button_unlock:	1)wait station stopped 
+					2)control the related doors
+					3)unlock the gate
+	button_reset:	1)reset safety 
+					2)control the related door of lift module
+*)
+METHOD M_safetyDoor : BOOL
+VAR_INPUT
+	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+safety_door_unlock_en	:= (safety_status<>GeneralStatus.READY OR 
+							(station_mode = StationMode.STOPPED OR 
+							station_mode = StationMode.DISABLED OR
+							station_mode = StationMode.INTERVENTION OR 
+							pHeartBeat^.heart_timeout_Alarm)) AND
+							(pMachine^.eState=ePMLState_Aborted OR 
+							pMachine^.eState=ePMLState_Stopped OR	
+							pMachine^.eState=ePMLState_Idle);
+
+ton_waitDoorLocked(PT:=T#1000MS);
+IF NOT xEstop THEN
+	eStates_safetyDoor	:= E_SAFETYDOOR.UNLOCKING;	
+END_IF			
+CASE eStates_safetyDoor	OF
+	E_SAFETYDOOR.IDLE:
+		IF pSafety_door^.door_locked THEN
+			eStates_safetyDoor	:= E_SAFETYDOOR.LOCKED;
+		ELSE
+			eStates_safetyDoor	:= E_SAFETYDOOR.UNLOCKED;
+		END_IF
+	E_SAFETYDOOR.LOCKED:
+		pSafety_door^.lamp_lock	:=	FALSE;
+		pSafety_door^.lamp_unlock	:= TRUE;//door lcoked,unlock lamp solid
+		IF pSafety_door^.button_unlock AND NOT resetting THEN//while resetting,door can not be unlock,otherwise might trig safety
+			bStop_button_unlock	:= TRUE;
+			eStates_safetyDoor	:= E_SAFETYDOOR.WAIT_UNLOCK_EN;
+		END_IF			
+	E_SAFETYDOOR.REQUEST_LOCK:
+	;
+	E_SAFETYDOOR.SAFETY:
+	;
+	E_SAFETYDOOR.UNLOCKED:
+		pSafety_door^.lamp_unlock	:= FALSE;
+		IF pSafety_door^.door_closed THEN
+			pSafety_door^.lamp_lock	:= GPWM_1s.q_xOut;//door closed,lock lamp blinking
+			IF pSafety_door^.button_lock THEN
+				bStop_button_unlock	:= FALSE;
+				eStates_safetyDoor	:= E_SAFETYDOOR.WAIT_LOCKED;
+			END_IF
+		ELSE
+			pSafety_door^.lamp_lock	:= TRUE;//door open,lock lamp solid
+		END_IF
+	E_SAFETYDOOR.WAIT_LOCKED:
+		ton_waitDoorLocked.IN	:= TRUE;
+		pSafety_door^.door_lock	:= FALSE;
+		IF pSafety_door^.door_locked THEN
+			ton_waitDoorLocked.IN	:= FALSE;
+			eStates_safetyDoor	:= E_SAFETYDOOR.LOCKED;
+	 	END_IF
+		//if lock door failed,turn to unlock door and need to press the lock button to lock the door once more
+		IF ton_waitDoorLocked.Q THEN
+			ton_waitDoorLocked.IN	:= FALSE;
+			eStates_safetyDoor	:= E_SAFETYDOOR.UNLOCKING;
+		END_IF
+		
+	E_SAFETYDOOR.WATI_LODING_DOOR://wait the state of lift door
+		pSafety_door^.lamp_unlock	:= GPWM_1s.q_xOut;//door unlocking,unlock lamp blinking
+		IF sInstanceName='safety_1' THEN
+			IF bAirDump1 THEN//while gate is locked and its air is dumpped,means safety error must be accupped 
+				IF GVL.fb_loading.M_unlockRequest(sInstanceName:=sInstanceName) THEN
+					eStates_safetyDoor	:= E_SAFETYDOOR.UNLOCKING;
+				END_IF
+			ELSE
+				eStates_safetyDoor	:= E_SAFETYDOOR.UNLOCKING;	
+			END_IF		
+		END_IF	
+		IF sInstanceName='safety_2' THEN
+			IF bAirDump2 THEN//while gate is locked and its air is dumpped,means safety error must be accupped 
+				IF GVL.fb_loading.M_unlockRequest(sInstanceName:=sInstanceName) THEN
+					eStates_safetyDoor	:= E_SAFETYDOOR.UNLOCKING;
+				END_IF
+			ELSE
+				eStates_safetyDoor	:= E_SAFETYDOOR.UNLOCKING;	
+			END_IF			
+		END_IF
+	E_SAFETYDOOR.WAIT_UNLOCK_EN:
+		IF pHeartBeat^.heart_timeout_Alarm OR (station_mode = StationMode.INTERVENTION AND pSafety_door^.button_unlock) THEN
+			pml_command	:= ePMLCommand_Stop;
+		END_IF
+		
+		pSafety_door^.lamp_unlock	:= GPWM_1s.q_xOut;//door unlocking,unlock lamp blinking
+		IF safety_door_unlock_en THEN
+			pml_command	:= ePMLCommand_Undefined;
+			eStates_safetyDoor	:= E_SAFETYDOOR.WATI_LODING_DOOR;
+		END_IF
+	E_SAFETYDOOR.UNLOCKING:
+		pml_command	:= ePMLCommand_Undefined;
+		pSafety_door^.lamp_unlock	:= GPWM_1s.q_xOut;//door unlocking,unlock lamp blinking
+		pSafety_door^.door_lock	:= TRUE;
+		IF NOT pSafety_door^.door_locked THEN
+			eStates_safetyDoor	:= E_SAFETYDOOR.UNLOCKED;
+		END_IF
+	
+END_CASE
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ParseStateToString" Id="{eba8c4e0-542f-4ac2-867d-052acfedaa7d}">
+      <Declaration><![CDATA[METHOD ParseStateToString : STRING
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE THIS^.eStates OF
+	E_SafetyStates.IDLE:
+		ParseStateToString	:='IDLE';
+	E_SafetyStates.CHECK_SAFETY_INPUTS:
+		ParseStateToString	:='CHECK_SAFETY_INPUTS';
+	E_SafetyStates.CHECK_DOOR_CLOSED:
+		ParseStateToString	:='CHECK_DOOR_CLOSED';
+	E_SafetyStates.CHECK_DOOR_LOCKED:
+		ParseStateToString	:='CHECK_DOOR_LOCKED';
+	E_SafetyStates.LOCKDOOR_REQUEST:
+		ParseStateToString	:='LOCKDOOR_REQUEST';
+	E_SafetyStates.CHECK_DOOR_OSSD:
+		ParseStateToString	:='CHECK_DOOR_OSSD';
+	E_SafetyStates.CHECK_SAFETY_OUTPUT:
+		ParseStateToString	:='CHECK_SAFETY_OUTPUT';
+	E_SafetyStates.DOOR_LOCK:
+		ParseStateToString	:='DOOR_LOCK';
+	E_SafetyStates.TRIG_RESET:
+		ParseStateToString	:='TRIG_RESET';
+	E_SafetyStates.CHECK_OTHER_STATION:
+		ParseStateToString	:='CHECK_OTHER_STATION';
+	E_SafetyStates.DONE:
+		ParseStateToString	:='DONE';
+	E_SafetyStates.ERROR:
+		ParseStateToString	:='ERROR';
+	ELSE
+		ParseStateToString	:='UNKNOW STATE';
+END_CASE
+
+	]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="update_station_mode" Id="{64d128c5-2a5a-4d16-9d84-da9d84099763}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD update_station_mode  : UDINT
+VAR_INPUT
+	update_station_mode_params	: UpdateStationModeParams;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[update_station_mode	:= 1;
+station_mode	:= update_station_mode_params.station_mode;
+update_station_mode	:= 0;]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_Safety_Subsystem">
+      <LineId Id="1758" Count="0" />
+      <LineId Id="1491" Count="0" />
+      <LineId Id="1490" Count="0" />
+      <LineId Id="1387" Count="0" />
+      <LineId Id="1494" Count="0" />
+      <LineId Id="1401" Count="0" />
+      <LineId Id="1636" Count="0" />
+      <LineId Id="1640" Count="0" />
+      <LineId Id="1649" Count="0" />
+      <LineId Id="1637" Count="2" />
+      <LineId Id="1634" Count="1" />
+      <LineId Id="1641" Count="2" />
+      <LineId Id="1648" Count="0" />
+      <LineId Id="1644" Count="3" />
+      <LineId Id="1498" Count="0" />
+      <LineId Id="1633" Count="0" />
+      <LineId Id="1404" Count="1" />
+      <LineId Id="1407" Count="1" />
+      <LineId Id="1410" Count="0" />
+      <LineId Id="1412" Count="8" />
+      <LineId Id="1496" Count="0" />
+      <LineId Id="1421" Count="1" />
+      <LineId Id="1424" Count="0" />
+      <LineId Id="1426" Count="23" />
+      <LineId Id="1520" Count="0" />
+      <LineId Id="1450" Count="12" />
+      <LineId Id="1521" Count="0" />
+      <LineId Id="1507" Count="0" />
+      <LineId Id="1509" Count="2" />
+      <LineId Id="1463" Count="20" />
+      <LineId Id="1512" Count="7" />
+      <LineId Id="1484" Count="5" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Subsystem._stationMode.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Subsystem._stationMode.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Subsystem.M_mapping">
+      <LineId Id="240" Count="0" />
+      <LineId Id="106" Count="5" />
+      <LineId Id="263" Count="3" />
+      <LineId Id="112" Count="8" />
+      <LineId Id="143" Count="0" />
+      <LineId Id="142" Count="0" />
+      <LineId Id="121" Count="0" />
+      <LineId Id="145" Count="0" />
+      <LineId Id="144" Count="0" />
+      <LineId Id="122" Count="4" />
+      <LineId Id="241" Count="1" />
+      <LineId Id="254" Count="1" />
+      <LineId Id="243" Count="3" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="132" Count="0" />
+      <LineId Id="149" Count="23" />
+      <LineId Id="177" Count="11" />
+      <LineId Id="133" Count="0" />
+      <LineId Id="190" Count="0" />
+      <LineId Id="192" Count="5" />
+      <LineId Id="274" Count="0" />
+      <LineId Id="198" Count="37" />
+      <LineId Id="189" Count="0" />
+      <LineId Id="134" Count="7" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Subsystem.M_reset">
+      <LineId Id="3" Count="0" />
+      <LineId Id="219" Count="0" />
+      <LineId Id="4" Count="3" />
+      <LineId Id="175" Count="0" />
+      <LineId Id="217" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="178" Count="19" />
+      <LineId Id="201" Count="1" />
+      <LineId Id="216" Count="0" />
+      <LineId Id="211" Count="4" />
+      <LineId Id="209" Count="1" />
+      <LineId Id="173" Count="1" />
+      <LineId Id="172" Count="0" />
+      <LineId Id="35" Count="1" />
+      <LineId Id="266" Count="0" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="265" Count="0" />
+      <LineId Id="39" Count="2" />
+      <LineId Id="139" Count="0" />
+      <LineId Id="143" Count="0" />
+      <LineId Id="222" Count="0" />
+      <LineId Id="241" Count="8" />
+      <LineId Id="240" Count="0" />
+      <LineId Id="223" Count="13" />
+      <LineId Id="58" Count="0" />
+      <LineId Id="237" Count="0" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="218" Count="0" />
+      <LineId Id="251" Count="0" />
+      <LineId Id="254" Count="1" />
+      <LineId Id="252" Count="1" />
+      <LineId Id="257" Count="3" />
+      <LineId Id="256" Count="0" />
+      <LineId Id="161" Count="0" />
+      <LineId Id="158" Count="0" />
+      <LineId Id="163" Count="1" />
+      <LineId Id="159" Count="1" />
+      <LineId Id="162" Count="0" />
+      <LineId Id="165" Count="5" />
+      <LineId Id="126" Count="0" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="66" Count="0" />
+      <LineId Id="88" Count="0" />
+      <LineId Id="94" Count="1" />
+      <LineId Id="89" Count="0" />
+      <LineId Id="152" Count="0" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="98" Count="1" />
+      <LineId Id="250" Count="0" />
+      <LineId Id="90" Count="0" />
+      <LineId Id="72" Count="1" />
+      <LineId Id="220" Count="0" />
+      <LineId Id="74" Count="2" />
+      <LineId Id="221" Count="0" />
+      <LineId Id="77" Count="0" />
+      <LineId Id="79" Count="4" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Subsystem.M_safetyDoor">
+      <LineId Id="174" Count="0" />
+      <LineId Id="293" Count="2" />
+      <LineId Id="297" Count="3" />
+      <LineId Id="178" Count="0" />
+      <LineId Id="301" Count="0" />
+      <LineId Id="179" Count="0" />
+      <LineId Id="335" Count="0" />
+      <LineId Id="337" Count="0" />
+      <LineId Id="336" Count="0" />
+      <LineId Id="181" Count="9" />
+      <LineId Id="330" Count="3" />
+      <LineId Id="198" Count="6" />
+      <LineId Id="206" Count="0" />
+      <LineId Id="210" Count="18" />
+      <LineId Id="334" Count="0" />
+      <LineId Id="303" Count="0" />
+      <LineId Id="326" Count="0" />
+      <LineId Id="307" Count="0" />
+      <LineId Id="338" Count="0" />
+      <LineId Id="341" Count="1" />
+      <LineId Id="339" Count="0" />
+      <LineId Id="343" Count="1" />
+      <LineId Id="340" Count="0" />
+      <LineId Id="306" Count="0" />
+      <LineId Id="315" Count="0" />
+      <LineId Id="345" Count="0" />
+      <LineId Id="317" Count="1" />
+      <LineId Id="347" Count="1" />
+      <LineId Id="319" Count="0" />
+      <LineId Id="346" Count="0" />
+      <LineId Id="302" Count="0" />
+      <LineId Id="274" Count="0" />
+      <LineId Id="362" Count="2" />
+      <LineId Id="276" Count="1" />
+      <LineId Id="282" Count="1" />
+      <LineId Id="286" Count="0" />
+      <LineId Id="275" Count="0" />
+      <LineId Id="240" Count="0" />
+      <LineId Id="361" Count="0" />
+      <LineId Id="258" Count="0" />
+      <LineId Id="245" Count="2" />
+      <LineId Id="249" Count="2" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Subsystem.ParseStateToString">
+      <LineId Id="5" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="52" Count="9" />
+      <LineId Id="64" Count="3" />
+      <LineId Id="72" Count="4" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="31" Count="1" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="36" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Safety_Subsystem.update_station_mode">
+      <LineId Id="3" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

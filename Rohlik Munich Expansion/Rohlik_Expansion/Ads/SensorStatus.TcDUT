@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="SensorStatus" Id="{c480e0b9-27c6-45ee-becd-e8d18f39fab6}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE SensorStatus :
+(
+	UNKNOWN := 0,
+	NO_SIGNAL:=1,
+	SIGNAL:=2
+);
+
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

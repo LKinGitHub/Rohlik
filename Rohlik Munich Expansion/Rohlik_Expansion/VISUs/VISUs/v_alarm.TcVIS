@@ -1,0 +1,2522 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Visu Name="v_alarm" Id="{51d6440c-068c-4c8c-a478-475ae0c9cee1}">
+    <XmlArchive>
+      <Data>
+        <o xml:space="preserve" t="VisualObject">
+          <n n="LastVisuLanguageModelEntry" />
+          <v n="UniqueIdGenerator">"13"</v>
+          <o n="VisualElemList" t="VisualElemList">
+            <l n="VisualElementList" t="VisualElemCollection" cet="GenericVisualElem">
+              <o>
+                <a n="ConfiguredComplexInputs" et="ComplexInput" />
+                <l n="Elements" t="ArrayList" />
+                <n n="VisualElementDescription" />
+                <o n="VisualElemMemberList" t="VisualElemMemberList">
+                  <l n="VisualElemMemberList" t="VisualElemMemberCollection" cet="VisualElemMember">
+                    <o>
+                      <v n="Id">1988609688L</v>
+                      <v n="Value">"BC2A4FA5-14BB-4918-8204-CD9A59198925"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2340015797L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2565699834L</v>
+                      <v n="Value">"VCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4134387352L</v>
+                      <v n="Value">"NONE"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1603690730L</v>
+                      <v n="Value">"Arial"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4253639993L</v>
+                      <v n="Value" t="Int16">12</v>
+                    </o>
+                    <o>
+                      <v n="Id">2729990903L</v>
+                      <v n="Value">0U</v>
+                    </o>
+                    <o>
+                      <v n="Id">1213979116L</v>
+                      <v n="Value">0U</v>
+                    </o>
+                    <o>
+                      <v n="Id">3488306084L</v>
+                      <v n="Value">4278190080U</v>
+                    </o>
+                    <o>
+                      <v n="Id">1841004748L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1527138651L</v>
+                      <v n="Value">"VCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1434968226L</v>
+                      <v n="Value">"NONE"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2570670854L</v>
+                      <v n="Value">"Arial"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2962390624L</v>
+                      <v n="Value" t="Int16">12</v>
+                    </o>
+                    <o>
+                      <v n="Id">197286807L</v>
+                      <v n="Value">0U</v>
+                    </o>
+                    <o>
+                      <v n="Id">1520511911L</v>
+                      <v n="Value">0U</v>
+                    </o>
+                    <o>
+                      <v n="Id">1720799940L</v>
+                      <v n="Value">4278190080U</v>
+                    </o>
+                    <o>
+                      <v n="Id">2760174939L</v>
+                      <v n="Value">"&lt;toggle/tap variable&gt;"</v>
+                    </o>
+                    <o>
+                      <v n="Id">79858601L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4170211607L</v>
+                      <v n="Value">"VCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3237426231L</v>
+                      <v n="Value">"NONE"</v>
+                    </o>
+                    <o>
+                      <v n="Id">432620569L</v>
+                      <v n="Value">"Arial"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4263212489L</v>
+                      <v n="Value" t="Int16">12</v>
+                    </o>
+                    <o>
+                      <v n="Id">2253039221L</v>
+                      <v n="Value">0U</v>
+                    </o>
+                    <o>
+                      <v n="Id">4125473248L</v>
+                      <v n="Value">0U</v>
+                    </o>
+                    <o>
+                      <v n="Id">3944328998L</v>
+                      <v n="Value">4278190080U</v>
+                    </o>
+                    <o>
+                      <v n="Id">611646020L</v>
+                      <v n="Value">"&lt;toggle/tap variable&gt;"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3649724534L</v>
+                      <v n="Value" t="Int16">24</v>
+                    </o>
+                    <o>
+                      <v n="Id">1970058906L</v>
+                      <v n="Value" t="Int16">30</v>
+                    </o>
+                    <o>
+                      <v n="Id">494569607L</v>
+                      <v n="Value">4278190080U</v>
+                    </o>
+                    <o>
+                      <v n="Id">2812299069L</v>
+                      <v n="Value">4292137160U</v>
+                    </o>
+                    <o>
+                      <v n="Id">135947015L</v>
+                      <v n="Value">4278190080U</v>
+                    </o>
+                    <o>
+                      <v n="Id">493260384L</v>
+                      <v n="Value">4294967295U</v>
+                    </o>
+                    <o>
+                      <v n="Id">1999528970L</v>
+                      <v n="Value">"&lt;toggle/tap variable&gt;"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3719097617L</v>
+                      <v n="Value">0</v>
+                    </o>
+                    <o>
+                      <v n="Id">1649127785L</v>
+                      <v n="Value" t="Int16">0</v>
+                    </o>
+                    <o>
+                      <v n="Id">357335551L</v>
+                      <v n="Value" t="Int16">0</v>
+                    </o>
+                    <o>
+                      <v n="Id">2422045748L</v>
+                      <v n="Value" t="Int16">2048</v>
+                    </o>
+                    <o>
+                      <v n="Id">2134141914L</v>
+                      <v n="Value" t="Int16">539</v>
+                    </o>
+                    <o>
+                      <v n="Id">1668544811L</v>
+                      <o n="Value" t="StructuredTypeNode">
+                        <v n="StructuredTypeNodeIsAnimation">false</v>
+                        <l n="TypeNodeChildren" t="ArrayList">
+                          <o t="DynamicArrayNode">
+                            <o n="DynamicArrayNodeCounterNode" t="BasicTypeNode">
+                              <v n="Flags">0L</v>
+                              <v n="BasicTypeNodeValue" t="Int16">2</v>
+                              <v n="BasicTypeNodeAcceptsExpression">false</v>
+                              <n n="BasicTypeNodeFastAccess" />
+                              <a n="BasicTypeNodeEnumValues" et="String" />
+                              <n n="EnumValueDisplayTextIds" />
+                              <n n="EnumValueVisibilityAttributeValues" />
+                              <n n="EnumValueLibraryId" />
+                              <n n="DynamicEnumMemberVisibilityCheckerTypeGuid" />
+                              <l n="TypeNodeChildren" t="ArrayList" />
+                              <o n="TypeNodeType" t="TypeNodeType">
+                                <v n="TypeClass" t="TypeClass">Int</v>
+                                <v n="QualifiedName">"INT"</v>
+                                <v n="Name">"INT"</v>
+                              </o>
+                              <v n="TypeNodeName">"iColumnCount"</v>
+                              <o n="TypeNodeAttributes" t="TypeNodeAttributes2">
+                                <v n="AttrFlags">1UL</v>
+                                <d n="TypeNodeAttributesData" t="CaseInsensitiveHashtable" ckt="String" cvt="String">
+                                  <v>''DOCU__COMMENT</v>
+                                  <v> This variable holds the current number of columns in the variable "Column"</v>
+                                  <v>Visible</v>
+                                  <v>False</v>
+                                </d>
+                                <v n="ConvDone">true</v>
+                              </o>
+                              <v n="TypeNodeId" t="Int16">3</v>
+                              <v n="TypeNodeIdLong">1217457711L</v>
+                              <v n="LibraryId">"visuelemswincontrols, 3.5.13.20 (system)"</v>
+                              <n n="DisplayTextId" />
+                              <n n="DescriptionTextID" />
+                              <v n="DescriptionUseParent">false</v>
+                            </o>
+                            <n n="DynamicArrayNodeFastAccess" />
+                            <n n="ChildTemplate" />
+                            <l n="TypeNodeChildren" t="ArrayList" />
+                            <o n="TypeNodeType" t="TypeNodeType">
+                              <v n="TypeClass" t="TypeClass">Userdef</v>
+                              <v n="QualifiedName">"VisuFbTableColumnSimple"</v>
+                              <v n="Name">"VisuFbTableColumnSimple"</v>
+                            </o>
+                            <v n="TypeNodeName">"Column"</v>
+                            <o n="TypeNodeAttributes" t="TypeNodeAttributes2">
+                              <v n="AttrFlags">0UL</v>
+                              <d n="TypeNodeAttributesData" t="CaseInsensitiveHashtable" ckt="String" cvt="String">
+                                <v>DefaultArraySize</v>
+                                <v>100</v>
+                                <v>DescriptionUseFromParent</v>
+                                <v></v>
+                                <v>DisplayTextId</v>
+                                <v>TL_ElementProperties.Column</v>
+                                <v>''DOCU__COMMENT</v>
+                                <v> Points to an array, that containts the configuration of each column</v>
+                              </d>
+                              <v n="ConvDone">true</v>
+                            </o>
+                            <v n="TypeNodeId" t="Int16">2</v>
+                            <v n="TypeNodeIdLong">2702530833L</v>
+                            <v n="LibraryId">"visuelemswincontrols, 3.5.13.20 (system)"</v>
+                            <v n="DisplayTextId">"TL_ElementProperties.Column"</v>
+                            <n n="DescriptionTextID" />
+                            <v n="DescriptionUseParent">true</v>
+                          </o>
+                          <o t="BasicTypeNode">
+                            <v n="Flags">0L</v>
+                            <v n="BasicTypeNodeValue" t="Int16">2</v>
+                            <v n="BasicTypeNodeAcceptsExpression">false</v>
+                            <n n="BasicTypeNodeFastAccess" />
+                            <a n="BasicTypeNodeEnumValues" et="String" />
+                            <n n="EnumValueDisplayTextIds" />
+                            <n n="EnumValueVisibilityAttributeValues" />
+                            <n n="EnumValueLibraryId" />
+                            <n n="DynamicEnumMemberVisibilityCheckerTypeGuid" />
+                            <l n="TypeNodeChildren" t="ArrayList" />
+                            <o n="TypeNodeType" t="TypeNodeType">
+                              <v n="TypeClass" t="TypeClass">Int</v>
+                              <v n="QualifiedName">"INT"</v>
+                              <v n="Name">"INT"</v>
+                            </o>
+                            <v n="TypeNodeName">"iColumnCount"</v>
+                            <o n="TypeNodeAttributes" t="TypeNodeAttributes2">
+                              <v n="AttrFlags">1UL</v>
+                              <d n="TypeNodeAttributesData" t="CaseInsensitiveHashtable" ckt="String" cvt="String">
+                                <v>''DOCU__COMMENT</v>
+                                <v> This variable holds the current number of columns in the variable "Column"</v>
+                                <v>Visible</v>
+                                <v>False</v>
+                              </d>
+                              <v n="ConvDone">true</v>
+                            </o>
+                            <v n="TypeNodeId" t="Int16">3</v>
+                            <v n="TypeNodeIdLong">1217457711L</v>
+                            <v n="LibraryId">"visuelemswincontrols, 3.5.13.20 (system)"</v>
+                            <n n="DisplayTextId" />
+                            <n n="DescriptionTextID" />
+                            <v n="DescriptionUseParent">false</v>
+                          </o>
+                        </l>
+                        <o n="TypeNodeType" t="TypeNodeType">
+                          <v n="TypeClass" t="TypeClass">Userdef</v>
+                          <v n="QualifiedName">"VisuStructColumn"</v>
+                          <v n="Name">"VisuStructColumn"</v>
+                        </o>
+                        <v n="TypeNodeName">"Columns"</v>
+                        <o n="TypeNodeAttributes" t="TypeNodeAttributes2">
+                          <v n="AttrFlags">344064UL</v>
+                          <d n="TypeNodeAttributesData" t="CaseInsensitiveHashtable" ckt="String" cvt="String">
+                            <v>Category</v>
+                            <v>Standard|Columns</v>
+                            <v>conditionalshow</v>
+                            <v>visu_coredev</v>
+                            <v>DescriptionTextId</v>
+                            <v>TL_ElementProperties.Desc_Columns</v>
+                            <v>DisplayTextId</v>
+                            <v>TL_ElementProperties.Columns</v>
+                            <v>DisplayValue</v>
+                            <v></v>
+                            <v>''DOCU__COMMENT</v>
+                            <v> This structure contains the definition of the table columns.</v>
+                            <v>DynamicArray</v>
+                            <v></v>
+                            <v>Editable</v>
+                            <v>False</v>
+                            <v>''NORMAL__COMMENT</v>
+                            <v> the node for this element in the property view should have no value, i.e. ''</v>
+                            <v>PreventBlobInitRec</v>
+                            <v>VisuStructRectangle</v>
+                            <v>SortFlag</v>
+                            <v>60</v>
+                            <v>Storable</v>
+                            <v>True</v>
+                            <v>TableColumns</v>
+                            <v></v>
+                          </d>
+                          <v n="ConvDone">true</v>
+                        </o>
+                        <v n="TypeNodeId" t="Int16">1</v>
+                        <v n="TypeNodeIdLong">1668544811L</v>
+                        <v n="LibraryId">"visuelemswincontrols, 3.5.13.20 (system)"</v>
+                        <v n="DisplayTextId">"TL_ElementProperties.Columns"</v>
+                        <v n="DescriptionTextID">"TL_ElementProperties.Desc_Columns"</v>
+                        <v n="DescriptionUseParent">false</v>
+                      </o>
+                    </o>
+                    <o>
+                      <v n="Id">3866084034L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">538318008L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">1055805281L</v>
+                      <v n="Value" t="Int16">50</v>
+                    </o>
+                    <o>
+                      <v n="Id">1255297995L</v>
+                      <v n="Value">1</v>
+                    </o>
+                    <o>
+                      <v n="Id">3729828405L</v>
+                      <l n="Value" t="ArrayList" cet="FontDescription">
+                        <o>
+                          <v n="FontStyle">0</v>
+                          <v n="AdditionalFontStyle" t="UInt16">0</v>
+                          <v n="ExplicitColor">-16777216</v>
+                          <v n="FontName">"Tahoma"</v>
+                          <v n="FontSize">16</v>
+                          <v n="ScriptIdentification">0</v>
+                          <v n="DoubleFontSize" t="Double">0</v>
+                          <o n="NamedColor" t="NamedStyleColor">
+                            <v n="Color">-16777216</v>
+                            <v n="CanonicalName">"Font-Default-Color"</v>
+                          </o>
+                        </o>
+                      </l>
+                    </o>
+                    <o>
+                      <v n="Id">1176519758L</v>
+                      <l n="Value" t="ArrayList" cet="NamedStyleColor">
+                        <o>
+                          <v n="Color">-16714753</v>
+                          <v n="CanonicalName">"Element-Table-SelectionColor"</v>
+                        </o>
+                      </l>
+                    </o>
+                    <o>
+                      <v n="Id">1905889384L</v>
+                      <l n="Value" t="ArrayList" cet="NamedStyleColor">
+                        <o>
+                          <v n="Color">-16777216</v>
+                          <v n="CanonicalName">"Element-Table-SelectionFontColor"</v>
+                        </o>
+                      </l>
+                    </o>
+                    <o>
+                      <v n="Id">2678395525L</v>
+                      <v n="Value">1U</v>
+                    </o>
+                    <o>
+                      <v n="Id">1228257629L</v>
+                      <v n="Value">""</v>
+                    </o>
+                    <o>
+                      <v n="Id">390574330L</v>
+                      <v n="Value">""</v>
+                    </o>
+                    <o>
+                      <v n="Id">571893170L</v>
+                      <v n="Value">""</v>
+                    </o>
+                    <o>
+                      <v n="Id">2597686782L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">72808681L</v>
+                      <v n="Value">"GVL.alarms1_hmi"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1636615684L</v>
+                      <v n="Value">1</v>
+                    </o>
+                    <o>
+                      <v n="Id">3234392039L</v>
+                      <o n="Value" t="DataVariableInformation">
+                        <v n="DataArrayType">"ARRAY [1..20] OF ST_Alarm_Hmi"</v>
+                        <v n="ColumnCount">2</v>
+                        <v n="RowCount">20</v>
+                        <v n="FirstColumnIndex">0</v>
+                        <v n="FirstRowIndex">1</v>
+                        <a n="ColumnTypes" cet="TypeClass">
+                          <v>String</v>
+                          <v>String</v>
+                        </a>
+                        <a n="ColumnNames" cet="String">
+                          <v>GVL.alarms1_hmi[INDEX].msg</v>
+                          <v>GVL.alarms1_hmi[INDEX].str_DT</v>
+                        </a>
+                        <v n="BaseType">false</v>
+                        <n n="Bounds" />
+                        <v n="ArrayType" t="EArrayType">ArrayOfStruct</v>
+                      </o>
+                    </o>
+                    <o>
+                      <v n="Id">3780258175L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">225073791L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">999869068L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">686103640L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">504859819L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1157643710L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1945283917L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4079968148L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3319648103L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3104783080L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].AxisRef"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2501879983L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].current_tote_status"</v>
+                    </o>
+                    <o>
+                      <v n="Id">7306298L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].ton_timeout"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1933151965L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].eStates"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3863566920L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].iStateTemp"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2192122294L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].errorMessage"</v>
+                    </o>
+                    <o>
+                      <v n="Id">400160035L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].xError"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1265227338L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].rPos_up"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3726181087L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].rPos_down"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4088588272L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].AxisRef"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2243050616L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].current_tote_status"</v>
+                    </o>
+                    <o>
+                      <v n="Id">516019884L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].ton_timeout"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1739542657L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].eStates"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4242324053L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].iStateTemp"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2319025000L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].errorMessage"</v>
+                    </o>
+                    <o>
+                      <v n="Id">290089404L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].xError"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1744040210L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].rPos_up"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4236254150L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].rPos_down"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1095668682L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].AxisRef"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1037165547L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].current_tote_status"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1488378029L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].ton_timeout"</v>
+                    </o>
+                    <o>
+                      <v n="Id">152217274L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].eStates"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1819647484L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].iStateTemp"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3286028342L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].errorMessage"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2797333360L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].xError"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1207913955L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].rPos_up"</v>
+                    </o>
+                    <o>
+                      <v n="Id">580417189L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].rPos_down"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4199962035L</v>
+                      <v n="Value">40</v>
+                    </o>
+                    <o>
+                      <v n="Id">594954015L</v>
+                      <v n="Value">40</v>
+                    </o>
+                    <o>
+                      <v n="Id">4024190849L</v>
+                      <v n="Value">40</v>
+                    </o>
+                    <o>
+                      <v n="Id">478857420L</v>
+                      <v n="Value">40</v>
+                    </o>
+                    <o>
+                      <v n="Id">3491809362L</v>
+                      <v n="Value">40</v>
+                    </o>
+                    <o>
+                      <v n="Id">1588580273L</v>
+                      <v n="Value" t="Int16">200</v>
+                    </o>
+                    <o>
+                      <v n="Id">2449854255L</v>
+                      <v n="Value">40</v>
+                    </o>
+                    <o>
+                      <v n="Id">2562770486L</v>
+                      <v n="Value">40</v>
+                    </o>
+                    <o>
+                      <v n="Id">1416283816L</v>
+                      <v n="Value">42</v>
+                    </o>
+                    <o>
+                      <v n="Id">658814853L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2846806207L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">130433326L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">507759982L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2955631871L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2581850125L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">931887516L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3396501993L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1679429752L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2736097922L</v>
+                      <v n="Value">4</v>
+                    </o>
+                    <o>
+                      <v n="Id">820870724L</v>
+                      <v n="Value">4</v>
+                    </o>
+                    <o>
+                      <v n="Id">4049838468L</v>
+                      <v n="Value">4</v>
+                    </o>
+                    <o>
+                      <v n="Id">3073560481L</v>
+                      <v n="Value">4</v>
+                    </o>
+                    <o>
+                      <v n="Id">1992036449L</v>
+                      <v n="Value">4</v>
+                    </o>
+                    <o>
+                      <v n="Id">4015945312L</v>
+                      <v n="Value">4</v>
+                    </o>
+                    <o>
+                      <v n="Id">785426848L</v>
+                      <v n="Value">4</v>
+                    </o>
+                    <o>
+                      <v n="Id">132889635L</v>
+                      <v n="Value">4</v>
+                    </o>
+                    <o>
+                      <v n="Id">3328533475L</v>
+                      <v n="Value">4</v>
+                    </o>
+                    <o>
+                      <v n="Id">1182699007L</v>
+                      <v n="Value">7</v>
+                    </o>
+                    <o>
+                      <v n="Id">3365202629L</v>
+                      <v n="Value">8</v>
+                    </o>
+                    <o>
+                      <v n="Id">1727822676L</v>
+                      <v n="Value">9</v>
+                    </o>
+                    <o>
+                      <v n="Id">2138699540L</v>
+                      <v n="Value">10</v>
+                    </o>
+                    <o>
+                      <v n="Id">3507578501L</v>
+                      <v n="Value">11</v>
+                    </o>
+                    <o>
+                      <v n="Id">4175024759L</v>
+                      <v n="Value">12</v>
+                    </o>
+                    <o>
+                      <v n="Id">1454457830L</v>
+                      <v n="Value">13</v>
+                    </o>
+                    <o>
+                      <v n="Id">2873670547L</v>
+                      <v n="Value">14</v>
+                    </o>
+                    <o>
+                      <v n="Id">85993986L</v>
+                      <v n="Value">15</v>
+                    </o>
+                    <o>
+                      <v n="Id">1493754254L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">3404731720L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">192858760L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">1294967981L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">2359393133L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">356719980L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">3570254508L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">4260812591L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">1014499567L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">1874240844L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">958534074L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">2754474188L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">2109297610L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">3770069692L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">2631374695L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">30963217L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">1679154385L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">4179246503L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">1128707560L</v>
+                      <v n="Value">""</v>
+                    </o>
+                    <o>
+                      <v n="Id">1636817830L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1467829077L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">208337472L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">983067315L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3125123178L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2360805529L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3617634700L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3854506369L</v>
+                      <v n="Value">"GVL.alarms1_hmi[INDEX].msg"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1892666644L</v>
+                      <v n="Value">"GVL.alarms1_hmi[INDEX].str_DT"</v>
+                    </o>
+                    <o>
+                      <v n="Id">338671338L</v>
+                      <v n="Value">"GVL.PackTags.Admin.Alarm[INDEX].Value"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2170511999L</v>
+                      <v n="Value">"GVL.PackTags.Admin.Alarm[INDEX].Message"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3723444502L</v>
+                      <v n="Value">"GVL.PackTags.Admin.Alarm[INDEX].Category"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1218418051L</v>
+                      <v n="Value">"GVL.PackTags.Admin.Alarm[INDEX].DateTime"</v>
+                    </o>
+                    <o>
+                      <v n="Id">746581629L</v>
+                      <v n="Value">"GVL.PackTags.Admin.Alarm[INDEX].AckDateTime"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2232123230L</v>
+                      <v n="Value">"Message"</v>
+                    </o>
+                    <o>
+                      <v n="Id">511219082L</v>
+                      <v n="Value">"Datetime"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1755163831L</v>
+                      <v n="Value">"GVL.PackTags.Admin.Alarm[INDEX].Value"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4092479075L</v>
+                      <v n="Value">"Message"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2237128397L</v>
+                      <v n="Value">"GVL.PackTags.Admin.Alarm[INDEX].Category"</v>
+                    </o>
+                    <o>
+                      <v n="Id">505689113L</v>
+                      <v n="Value">"DateTime"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1757482276L</v>
+                      <v n="Value">"GVL.PackTags.Admin.Alarm[INDEX].AckDateTime"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2685023577L</v>
+                      <v n="Value">"GVL.alarms1_hmi[INDEX].msg"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3312258591L</v>
+                      <v n="Value">"GVL.alarms1_hmi[INDEX].str_DT"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1791247317L</v>
+                      <v n="Value">"GVL.PackTags.Admin.Alarm[INDEX].Value"</v>
+                    </o>
+                    <o>
+                      <v n="Id">262371475L</v>
+                      <v n="Value">"GVL.PackTags.Admin.Alarm[INDEX].Message"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4008173056L</v>
+                      <v n="Value">"GVL.PackTags.Admin.Alarm[INDEX].Category"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2340480326L</v>
+                      <v n="Value">"GVL.PackTags.Admin.Alarm[INDEX].DateTime"</v>
+                    </o>
+                    <o>
+                      <v n="Id">606709900L</v>
+                      <v n="Value">"GVL.PackTags.Admin.Alarm[INDEX].AckDateTime"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4036189354L</v>
+                      <v n="Value" t="Int16">1548</v>
+                    </o>
+                    <o>
+                      <v n="Id">1010392116L</v>
+                      <v n="Value" t="Int16">500</v>
+                    </o>
+                    <o>
+                      <v n="Id">2998295511L</v>
+                      <v n="Value" t="Int16">200</v>
+                    </o>
+                    <o>
+                      <v n="Id">2115787593L</v>
+                      <v n="Value" t="Int16">1500</v>
+                    </o>
+                    <o>
+                      <v n="Id">1960399440L</v>
+                      <v n="Value" t="Int16">200</v>
+                    </o>
+                    <o>
+                      <v n="Id">3094565582L</v>
+                      <v n="Value" t="Int16">548</v>
+                    </o>
+                    <o>
+                      <v n="Id">922506541L</v>
+                      <v n="Value" t="Int16">200</v>
+                    </o>
+                    <o>
+                      <v n="Id">3669839856L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1960173153L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1562208915L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4084595458L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">244056951L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2699334374L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2301371924L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2318311169L</v>
+                      <v n="Value">20</v>
+                    </o>
+                    <o>
+                      <v n="Id">1268793537L</v>
+                      <v n="Value">20</v>
+                    </o>
+                    <o>
+                      <v n="Id">3527550656L</v>
+                      <v n="Value">10</v>
+                    </o>
+                    <o>
+                      <v n="Id">332200192L</v>
+                      <v n="Value">10</v>
+                    </o>
+                    <o>
+                      <v n="Id">989326467L</v>
+                      <v n="Value">10</v>
+                    </o>
+                    <o>
+                      <v n="Id">4219024195L</v>
+                      <v n="Value">10</v>
+                    </o>
+                    <o>
+                      <v n="Id">1654347074L</v>
+                      <v n="Value">10</v>
+                    </o>
+                    <o>
+                      <v n="Id">3146216842L</v>
+                      <v n="Value">0</v>
+                    </o>
+                    <o>
+                      <v n="Id">368043035L</v>
+                      <v n="Value">1</v>
+                    </o>
+                    <o>
+                      <v n="Id">1009209577L</v>
+                      <v n="Value">2</v>
+                    </o>
+                    <o>
+                      <v n="Id">2454700408L</v>
+                      <v n="Value">3</v>
+                    </o>
+                    <o>
+                      <v n="Id">1874213133L</v>
+                      <v n="Value">4</v>
+                    </o>
+                    <o>
+                      <v n="Id">3252594844L</v>
+                      <v n="Value">5</v>
+                    </o>
+                    <o>
+                      <v n="Id">3893763182L</v>
+                      <v n="Value">6</v>
+                    </o>
+                    <o>
+                      <v n="Id">1882453005L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">2981964749L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">677334476L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">3922825740L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">3236595599L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">23353423L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">2558934606L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">175837068L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">2541022970L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">3944074017L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">1981426263L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">283128086L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">332890263L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">2396545505L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">4072227898L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">3597700437L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">3479944212L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">3829854167L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">4151883806L</v>
+                      <v n="Value">"708"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2988197969L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">2766787066L</v>
+                      <v n="Value">"1975"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2150247123L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">2869393680L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">3979887725L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">792652967L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">3736079596L</v>
+                      <v n="Value">"708"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1893244285L</v>
+                      <v n="Value">"1723"</v>
+                    </o>
+                  </l>
+                </o>
+                <v n="VisualElementName">"Table"</v>
+                <v n="VisualElementTypeName">"VisuFbElemTable"</v>
+                <v n="VisualElementIsRectangle">true</v>
+                <v n="VisualElementIdentifier">"GenElemInst_334"</v>
+                <n n="VisualElementOfflinePaintCommands" />
+                <n n="VisualElementFrameInformation" />
+                <d n="VisualElementInputActions" t="Hashtable" />
+                <v n="VisualElementIdentification">{9ff6b76f-0ef3-461d-bc6a-9c2053c4e0b7}</v>
+                <v n="VisualElementOwningObjectGuid">{51d6440c-068c-4c8c-a478-475ae0c9cee1}</v>
+                <a n="LMGuids" cet="Guid">
+                  <v>1daa28e0-3650-409a-9d6a-2b35341a12a9</v>
+                  <v>9cb93946-8f46-46f1-9521-450d395093f9</v>
+                </a>
+                <d n="SubElements" t="Hashtable" />
+                <v n="VisualElementId">166</v>
+                <l n="UserManagementAccessRights" t="ArrayList" />
+              </o>
+              <o>
+                <a n="ConfiguredComplexInputs" et="ComplexInput" />
+                <l n="Elements" t="ArrayList" />
+                <n n="VisualElementDescription" />
+                <o n="VisualElemMemberList" t="VisualElemMemberList">
+                  <l n="VisualElemMemberList" t="VisualElemMemberCollection" cet="VisualElemMember">
+                    <o>
+                      <v n="Id">1988609688L</v>
+                      <v n="Value">"BC2A4FA5-14BB-4918-8204-CD9A59198925"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2340015797L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2565699834L</v>
+                      <v n="Value">"VCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4134387352L</v>
+                      <v n="Value">"NONE"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1603690730L</v>
+                      <v n="Value">"Arial"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4253639993L</v>
+                      <v n="Value" t="Int16">12</v>
+                    </o>
+                    <o>
+                      <v n="Id">2729990903L</v>
+                      <v n="Value">0U</v>
+                    </o>
+                    <o>
+                      <v n="Id">1213979116L</v>
+                      <v n="Value">0U</v>
+                    </o>
+                    <o>
+                      <v n="Id">3488306084L</v>
+                      <v n="Value">4278190080U</v>
+                    </o>
+                    <o>
+                      <v n="Id">1841004748L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1527138651L</v>
+                      <v n="Value">"VCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1434968226L</v>
+                      <v n="Value">"NONE"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2570670854L</v>
+                      <v n="Value">"Arial"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2962390624L</v>
+                      <v n="Value" t="Int16">12</v>
+                    </o>
+                    <o>
+                      <v n="Id">197286807L</v>
+                      <v n="Value">0U</v>
+                    </o>
+                    <o>
+                      <v n="Id">1520511911L</v>
+                      <v n="Value">0U</v>
+                    </o>
+                    <o>
+                      <v n="Id">1720799940L</v>
+                      <v n="Value">4278190080U</v>
+                    </o>
+                    <o>
+                      <v n="Id">2760174939L</v>
+                      <v n="Value">"&lt;toggle/tap variable&gt;"</v>
+                    </o>
+                    <o>
+                      <v n="Id">79858601L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4170211607L</v>
+                      <v n="Value">"VCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3237426231L</v>
+                      <v n="Value">"NONE"</v>
+                    </o>
+                    <o>
+                      <v n="Id">432620569L</v>
+                      <v n="Value">"Arial"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4263212489L</v>
+                      <v n="Value" t="Int16">12</v>
+                    </o>
+                    <o>
+                      <v n="Id">2253039221L</v>
+                      <v n="Value">0U</v>
+                    </o>
+                    <o>
+                      <v n="Id">4125473248L</v>
+                      <v n="Value">0U</v>
+                    </o>
+                    <o>
+                      <v n="Id">3944328998L</v>
+                      <v n="Value">4278190080U</v>
+                    </o>
+                    <o>
+                      <v n="Id">611646020L</v>
+                      <v n="Value">"&lt;toggle/tap variable&gt;"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3649724534L</v>
+                      <v n="Value" t="Int16">24</v>
+                    </o>
+                    <o>
+                      <v n="Id">1970058906L</v>
+                      <v n="Value" t="Int16">30</v>
+                    </o>
+                    <o>
+                      <v n="Id">494569607L</v>
+                      <v n="Value">4278190080U</v>
+                    </o>
+                    <o>
+                      <v n="Id">2812299069L</v>
+                      <v n="Value">4292137160U</v>
+                    </o>
+                    <o>
+                      <v n="Id">135947015L</v>
+                      <v n="Value">4278190080U</v>
+                    </o>
+                    <o>
+                      <v n="Id">493260384L</v>
+                      <v n="Value">4294967295U</v>
+                    </o>
+                    <o>
+                      <v n="Id">1999528970L</v>
+                      <v n="Value">"&lt;toggle/tap variable&gt;"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3719097617L</v>
+                      <v n="Value">0</v>
+                    </o>
+                    <o>
+                      <v n="Id">1649127785L</v>
+                      <v n="Value" t="Int16">0</v>
+                    </o>
+                    <o>
+                      <v n="Id">357335551L</v>
+                      <v n="Value" t="Int16">544</v>
+                    </o>
+                    <o>
+                      <v n="Id">2422045748L</v>
+                      <v n="Value" t="Int16">2048</v>
+                    </o>
+                    <o>
+                      <v n="Id">2134141914L</v>
+                      <v n="Value" t="Int16">535</v>
+                    </o>
+                    <o>
+                      <v n="Id">1668544811L</v>
+                      <o n="Value" t="StructuredTypeNode">
+                        <v n="StructuredTypeNodeIsAnimation">false</v>
+                        <l n="TypeNodeChildren" t="ArrayList">
+                          <o t="DynamicArrayNode">
+                            <o n="DynamicArrayNodeCounterNode" t="BasicTypeNode">
+                              <v n="Flags">0L</v>
+                              <v n="BasicTypeNodeValue" t="Int16">2</v>
+                              <v n="BasicTypeNodeAcceptsExpression">false</v>
+                              <n n="BasicTypeNodeFastAccess" />
+                              <a n="BasicTypeNodeEnumValues" et="String" />
+                              <n n="EnumValueDisplayTextIds" />
+                              <n n="EnumValueVisibilityAttributeValues" />
+                              <n n="EnumValueLibraryId" />
+                              <n n="DynamicEnumMemberVisibilityCheckerTypeGuid" />
+                              <l n="TypeNodeChildren" t="ArrayList" />
+                              <o n="TypeNodeType" t="TypeNodeType">
+                                <v n="TypeClass" t="TypeClass">Int</v>
+                                <v n="QualifiedName">"INT"</v>
+                                <v n="Name">"INT"</v>
+                              </o>
+                              <v n="TypeNodeName">"iColumnCount"</v>
+                              <o n="TypeNodeAttributes" t="TypeNodeAttributes2">
+                                <v n="AttrFlags">1UL</v>
+                                <d n="TypeNodeAttributesData" t="CaseInsensitiveHashtable" ckt="String" cvt="String">
+                                  <v>''DOCU__COMMENT</v>
+                                  <v> This variable holds the current number of columns in the variable "Column"</v>
+                                  <v>Visible</v>
+                                  <v>False</v>
+                                </d>
+                                <v n="ConvDone">true</v>
+                              </o>
+                              <v n="TypeNodeId" t="Int16">3</v>
+                              <v n="TypeNodeIdLong">1217457711L</v>
+                              <v n="LibraryId">"visuelemswincontrols, 3.5.13.20 (system)"</v>
+                              <n n="DisplayTextId" />
+                              <n n="DescriptionTextID" />
+                              <v n="DescriptionUseParent">false</v>
+                            </o>
+                            <n n="DynamicArrayNodeFastAccess" />
+                            <n n="ChildTemplate" />
+                            <l n="TypeNodeChildren" t="ArrayList" />
+                            <o n="TypeNodeType" t="TypeNodeType">
+                              <v n="TypeClass" t="TypeClass">Userdef</v>
+                              <v n="QualifiedName">"VisuFbTableColumnSimple"</v>
+                              <v n="Name">"VisuFbTableColumnSimple"</v>
+                            </o>
+                            <v n="TypeNodeName">"Column"</v>
+                            <o n="TypeNodeAttributes" t="TypeNodeAttributes2">
+                              <v n="AttrFlags">0UL</v>
+                              <d n="TypeNodeAttributesData" t="CaseInsensitiveHashtable" ckt="String" cvt="String">
+                                <v>DefaultArraySize</v>
+                                <v>100</v>
+                                <v>DescriptionUseFromParent</v>
+                                <v></v>
+                                <v>DisplayTextId</v>
+                                <v>TL_ElementProperties.Column</v>
+                                <v>''DOCU__COMMENT</v>
+                                <v> Points to an array, that containts the configuration of each column</v>
+                              </d>
+                              <v n="ConvDone">true</v>
+                            </o>
+                            <v n="TypeNodeId" t="Int16">2</v>
+                            <v n="TypeNodeIdLong">2702530833L</v>
+                            <v n="LibraryId">"visuelemswincontrols, 3.5.13.20 (system)"</v>
+                            <v n="DisplayTextId">"TL_ElementProperties.Column"</v>
+                            <n n="DescriptionTextID" />
+                            <v n="DescriptionUseParent">true</v>
+                          </o>
+                          <o t="BasicTypeNode">
+                            <v n="Flags">0L</v>
+                            <v n="BasicTypeNodeValue" t="Int16">2</v>
+                            <v n="BasicTypeNodeAcceptsExpression">false</v>
+                            <n n="BasicTypeNodeFastAccess" />
+                            <a n="BasicTypeNodeEnumValues" et="String" />
+                            <n n="EnumValueDisplayTextIds" />
+                            <n n="EnumValueVisibilityAttributeValues" />
+                            <n n="EnumValueLibraryId" />
+                            <n n="DynamicEnumMemberVisibilityCheckerTypeGuid" />
+                            <l n="TypeNodeChildren" t="ArrayList" />
+                            <o n="TypeNodeType" t="TypeNodeType">
+                              <v n="TypeClass" t="TypeClass">Int</v>
+                              <v n="QualifiedName">"INT"</v>
+                              <v n="Name">"INT"</v>
+                            </o>
+                            <v n="TypeNodeName">"iColumnCount"</v>
+                            <o n="TypeNodeAttributes" t="TypeNodeAttributes2">
+                              <v n="AttrFlags">1UL</v>
+                              <d n="TypeNodeAttributesData" t="CaseInsensitiveHashtable" ckt="String" cvt="String">
+                                <v>''DOCU__COMMENT</v>
+                                <v> This variable holds the current number of columns in the variable "Column"</v>
+                                <v>Visible</v>
+                                <v>False</v>
+                              </d>
+                              <v n="ConvDone">true</v>
+                            </o>
+                            <v n="TypeNodeId" t="Int16">3</v>
+                            <v n="TypeNodeIdLong">1217457711L</v>
+                            <v n="LibraryId">"visuelemswincontrols, 3.5.13.20 (system)"</v>
+                            <n n="DisplayTextId" />
+                            <n n="DescriptionTextID" />
+                            <v n="DescriptionUseParent">false</v>
+                          </o>
+                        </l>
+                        <o n="TypeNodeType" t="TypeNodeType">
+                          <v n="TypeClass" t="TypeClass">Userdef</v>
+                          <v n="QualifiedName">"VisuStructColumn"</v>
+                          <v n="Name">"VisuStructColumn"</v>
+                        </o>
+                        <v n="TypeNodeName">"Columns"</v>
+                        <o n="TypeNodeAttributes" t="TypeNodeAttributes2">
+                          <v n="AttrFlags">344064UL</v>
+                          <d n="TypeNodeAttributesData" t="CaseInsensitiveHashtable" ckt="String" cvt="String">
+                            <v>Category</v>
+                            <v>Standard|Columns</v>
+                            <v>conditionalshow</v>
+                            <v>visu_coredev</v>
+                            <v>DescriptionTextId</v>
+                            <v>TL_ElementProperties.Desc_Columns</v>
+                            <v>DisplayTextId</v>
+                            <v>TL_ElementProperties.Columns</v>
+                            <v>DisplayValue</v>
+                            <v></v>
+                            <v>''DOCU__COMMENT</v>
+                            <v> This structure contains the definition of the table columns.</v>
+                            <v>DynamicArray</v>
+                            <v></v>
+                            <v>Editable</v>
+                            <v>False</v>
+                            <v>''NORMAL__COMMENT</v>
+                            <v> the node for this element in the property view should have no value, i.e. ''</v>
+                            <v>PreventBlobInitRec</v>
+                            <v>VisuStructRectangle</v>
+                            <v>SortFlag</v>
+                            <v>60</v>
+                            <v>Storable</v>
+                            <v>True</v>
+                            <v>TableColumns</v>
+                            <v></v>
+                          </d>
+                          <v n="ConvDone">true</v>
+                        </o>
+                        <v n="TypeNodeId" t="Int16">1</v>
+                        <v n="TypeNodeIdLong">1668544811L</v>
+                        <v n="LibraryId">"visuelemswincontrols, 3.5.13.20 (system)"</v>
+                        <v n="DisplayTextId">"TL_ElementProperties.Columns"</v>
+                        <v n="DescriptionTextID">"TL_ElementProperties.Desc_Columns"</v>
+                        <v n="DescriptionUseParent">false</v>
+                      </o>
+                    </o>
+                    <o>
+                      <v n="Id">3866084034L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">538318008L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">1055805281L</v>
+                      <v n="Value" t="Int16">50</v>
+                    </o>
+                    <o>
+                      <v n="Id">1255297995L</v>
+                      <v n="Value">1</v>
+                    </o>
+                    <o>
+                      <v n="Id">3729828405L</v>
+                      <l n="Value" t="ArrayList" cet="FontDescription">
+                        <o>
+                          <v n="FontStyle">0</v>
+                          <v n="AdditionalFontStyle" t="UInt16">0</v>
+                          <v n="ExplicitColor">-16777216</v>
+                          <v n="FontName">"Tahoma"</v>
+                          <v n="FontSize">16</v>
+                          <v n="ScriptIdentification">0</v>
+                          <v n="DoubleFontSize" t="Double">0</v>
+                          <o n="NamedColor" t="NamedStyleColor">
+                            <v n="Color">-16777216</v>
+                            <v n="CanonicalName">"Font-Default-Color"</v>
+                          </o>
+                        </o>
+                      </l>
+                    </o>
+                    <o>
+                      <v n="Id">1176519758L</v>
+                      <l n="Value" t="ArrayList" cet="NamedStyleColor">
+                        <o>
+                          <v n="Color">-16714753</v>
+                          <v n="CanonicalName">"Element-Table-SelectionColor"</v>
+                        </o>
+                      </l>
+                    </o>
+                    <o>
+                      <v n="Id">1905889384L</v>
+                      <l n="Value" t="ArrayList" cet="NamedStyleColor">
+                        <o>
+                          <v n="Color">-16777216</v>
+                          <v n="CanonicalName">"Element-Table-SelectionFontColor"</v>
+                        </o>
+                      </l>
+                    </o>
+                    <o>
+                      <v n="Id">2678395525L</v>
+                      <v n="Value">1U</v>
+                    </o>
+                    <o>
+                      <v n="Id">1228257629L</v>
+                      <v n="Value">""</v>
+                    </o>
+                    <o>
+                      <v n="Id">390574330L</v>
+                      <v n="Value">""</v>
+                    </o>
+                    <o>
+                      <v n="Id">571893170L</v>
+                      <v n="Value">""</v>
+                    </o>
+                    <o>
+                      <v n="Id">2597686782L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">72808681L</v>
+                      <v n="Value">"GVL.alarms2_hmi"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1636615684L</v>
+                      <v n="Value">1</v>
+                    </o>
+                    <o>
+                      <v n="Id">3234392039L</v>
+                      <o n="Value" t="DataVariableInformation">
+                        <v n="DataArrayType">"ARRAY [1..20] OF ST_Alarm_Hmi"</v>
+                        <v n="ColumnCount">2</v>
+                        <v n="RowCount">20</v>
+                        <v n="FirstColumnIndex">0</v>
+                        <v n="FirstRowIndex">1</v>
+                        <a n="ColumnTypes" cet="TypeClass">
+                          <v>String</v>
+                          <v>String</v>
+                        </a>
+                        <a n="ColumnNames" cet="String">
+                          <v>GVL.alarms2_hmi[INDEX].msg</v>
+                          <v>GVL.alarms2_hmi[INDEX].str_DT</v>
+                        </a>
+                        <v n="BaseType">false</v>
+                        <n n="Bounds" />
+                        <v n="ArrayType" t="EArrayType">ArrayOfStruct</v>
+                      </o>
+                    </o>
+                    <o>
+                      <v n="Id">3780258175L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">225073791L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">999869068L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">686103640L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">504859819L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1157643710L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1945283917L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4079968148L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3319648103L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3104783080L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].AxisRef"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2501879983L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].current_tote_status"</v>
+                    </o>
+                    <o>
+                      <v n="Id">7306298L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].ton_timeout"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1933151965L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].eStates"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3863566920L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].iStateTemp"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2192122294L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].errorMessage"</v>
+                    </o>
+                    <o>
+                      <v n="Id">400160035L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].xError"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1265227338L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].rPos_up"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3726181087L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].rPos_down"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4088588272L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].AxisRef"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2243050616L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].current_tote_status"</v>
+                    </o>
+                    <o>
+                      <v n="Id">516019884L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].ton_timeout"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1739542657L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].eStates"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4242324053L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].iStateTemp"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2319025000L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].errorMessage"</v>
+                    </o>
+                    <o>
+                      <v n="Id">290089404L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].xError"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1744040210L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].rPos_up"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4236254150L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].rPos_down"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1095668682L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].AxisRef"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1037165547L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].current_tote_status"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1488378029L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].ton_timeout"</v>
+                    </o>
+                    <o>
+                      <v n="Id">152217274L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].eStates"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1819647484L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].iStateTemp"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3286028342L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].errorMessage"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2797333360L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].xError"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1207913955L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].rPos_up"</v>
+                    </o>
+                    <o>
+                      <v n="Id">580417189L</v>
+                      <v n="Value">"GVL.fb_buffer.fb_rollers[INDEX].rPos_down"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4199962035L</v>
+                      <v n="Value">40</v>
+                    </o>
+                    <o>
+                      <v n="Id">594954015L</v>
+                      <v n="Value">40</v>
+                    </o>
+                    <o>
+                      <v n="Id">4024190849L</v>
+                      <v n="Value">40</v>
+                    </o>
+                    <o>
+                      <v n="Id">478857420L</v>
+                      <v n="Value">40</v>
+                    </o>
+                    <o>
+                      <v n="Id">3491809362L</v>
+                      <v n="Value">40</v>
+                    </o>
+                    <o>
+                      <v n="Id">1588580273L</v>
+                      <v n="Value" t="Int16">200</v>
+                    </o>
+                    <o>
+                      <v n="Id">2449854255L</v>
+                      <v n="Value">40</v>
+                    </o>
+                    <o>
+                      <v n="Id">2562770486L</v>
+                      <v n="Value">40</v>
+                    </o>
+                    <o>
+                      <v n="Id">1416283816L</v>
+                      <v n="Value">42</v>
+                    </o>
+                    <o>
+                      <v n="Id">658814853L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2846806207L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">130433326L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">507759982L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2955631871L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2581850125L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">931887516L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3396501993L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1679429752L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2736097922L</v>
+                      <v n="Value">4</v>
+                    </o>
+                    <o>
+                      <v n="Id">820870724L</v>
+                      <v n="Value">4</v>
+                    </o>
+                    <o>
+                      <v n="Id">4049838468L</v>
+                      <v n="Value">4</v>
+                    </o>
+                    <o>
+                      <v n="Id">3073560481L</v>
+                      <v n="Value">4</v>
+                    </o>
+                    <o>
+                      <v n="Id">1992036449L</v>
+                      <v n="Value">4</v>
+                    </o>
+                    <o>
+                      <v n="Id">4015945312L</v>
+                      <v n="Value">4</v>
+                    </o>
+                    <o>
+                      <v n="Id">785426848L</v>
+                      <v n="Value">4</v>
+                    </o>
+                    <o>
+                      <v n="Id">132889635L</v>
+                      <v n="Value">4</v>
+                    </o>
+                    <o>
+                      <v n="Id">3328533475L</v>
+                      <v n="Value">4</v>
+                    </o>
+                    <o>
+                      <v n="Id">1182699007L</v>
+                      <v n="Value">7</v>
+                    </o>
+                    <o>
+                      <v n="Id">3365202629L</v>
+                      <v n="Value">8</v>
+                    </o>
+                    <o>
+                      <v n="Id">1727822676L</v>
+                      <v n="Value">9</v>
+                    </o>
+                    <o>
+                      <v n="Id">2138699540L</v>
+                      <v n="Value">10</v>
+                    </o>
+                    <o>
+                      <v n="Id">3507578501L</v>
+                      <v n="Value">11</v>
+                    </o>
+                    <o>
+                      <v n="Id">4175024759L</v>
+                      <v n="Value">12</v>
+                    </o>
+                    <o>
+                      <v n="Id">1454457830L</v>
+                      <v n="Value">13</v>
+                    </o>
+                    <o>
+                      <v n="Id">2873670547L</v>
+                      <v n="Value">14</v>
+                    </o>
+                    <o>
+                      <v n="Id">85993986L</v>
+                      <v n="Value">15</v>
+                    </o>
+                    <o>
+                      <v n="Id">1493754254L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">3404731720L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">192858760L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">1294967981L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">2359393133L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">356719980L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">3570254508L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">4260812591L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">1014499567L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">1874240844L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">958534074L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">2754474188L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">2109297610L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">3770069692L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">2631374695L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">30963217L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">1679154385L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">4179246503L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">1128707560L</v>
+                      <v n="Value">""</v>
+                    </o>
+                    <o>
+                      <v n="Id">1636817830L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1467829077L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">208337472L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">983067315L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3125123178L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2360805529L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3617634700L</v>
+                      <v n="Value">"%s"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3854506369L</v>
+                      <v n="Value">"GVL.alarms2_hmi[INDEX].msg"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1892666644L</v>
+                      <v n="Value">"GVL.alarms2_hmi[INDEX].str_DT"</v>
+                    </o>
+                    <o>
+                      <v n="Id">338671338L</v>
+                      <v n="Value">"GVL.PackTags.Admin.Alarm[INDEX].Value"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2170511999L</v>
+                      <v n="Value">"GVL.PackTags.Admin.Alarm[INDEX].Message"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3723444502L</v>
+                      <v n="Value">"GVL.PackTags.Admin.Alarm[INDEX].Category"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1218418051L</v>
+                      <v n="Value">"GVL.PackTags.Admin.Alarm[INDEX].DateTime"</v>
+                    </o>
+                    <o>
+                      <v n="Id">746581629L</v>
+                      <v n="Value">"GVL.PackTags.Admin.Alarm[INDEX].AckDateTime"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2232123230L</v>
+                      <v n="Value">"Message"</v>
+                    </o>
+                    <o>
+                      <v n="Id">511219082L</v>
+                      <v n="Value">"Datetime"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1755163831L</v>
+                      <v n="Value">"GVL.PackTags.Admin.Alarm[INDEX].Value"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4092479075L</v>
+                      <v n="Value">"Message"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2237128397L</v>
+                      <v n="Value">"GVL.PackTags.Admin.Alarm[INDEX].Category"</v>
+                    </o>
+                    <o>
+                      <v n="Id">505689113L</v>
+                      <v n="Value">"DateTime"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1757482276L</v>
+                      <v n="Value">"GVL.PackTags.Admin.Alarm[INDEX].AckDateTime"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2685023577L</v>
+                      <v n="Value">"GVL.alarms2_hmi[INDEX].msg"</v>
+                    </o>
+                    <o>
+                      <v n="Id">3312258591L</v>
+                      <v n="Value">"GVL.alarms2_hmi[INDEX].str_DT"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1791247317L</v>
+                      <v n="Value">"GVL.PackTags.Admin.Alarm[INDEX].Value"</v>
+                    </o>
+                    <o>
+                      <v n="Id">262371475L</v>
+                      <v n="Value">"GVL.PackTags.Admin.Alarm[INDEX].Message"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4008173056L</v>
+                      <v n="Value">"GVL.PackTags.Admin.Alarm[INDEX].Category"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2340480326L</v>
+                      <v n="Value">"GVL.PackTags.Admin.Alarm[INDEX].DateTime"</v>
+                    </o>
+                    <o>
+                      <v n="Id">606709900L</v>
+                      <v n="Value">"GVL.PackTags.Admin.Alarm[INDEX].AckDateTime"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4036189354L</v>
+                      <v n="Value" t="Int16">1548</v>
+                    </o>
+                    <o>
+                      <v n="Id">1010392116L</v>
+                      <v n="Value" t="Int16">500</v>
+                    </o>
+                    <o>
+                      <v n="Id">2998295511L</v>
+                      <v n="Value" t="Int16">200</v>
+                    </o>
+                    <o>
+                      <v n="Id">2115787593L</v>
+                      <v n="Value" t="Int16">1500</v>
+                    </o>
+                    <o>
+                      <v n="Id">1960399440L</v>
+                      <v n="Value" t="Int16">200</v>
+                    </o>
+                    <o>
+                      <v n="Id">3094565582L</v>
+                      <v n="Value" t="Int16">548</v>
+                    </o>
+                    <o>
+                      <v n="Id">922506541L</v>
+                      <v n="Value" t="Int16">200</v>
+                    </o>
+                    <o>
+                      <v n="Id">3669839856L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1960173153L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1562208915L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">4084595458L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">244056951L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2699334374L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2301371924L</v>
+                      <v n="Value">"HCENTER"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2318311169L</v>
+                      <v n="Value">20</v>
+                    </o>
+                    <o>
+                      <v n="Id">1268793537L</v>
+                      <v n="Value">20</v>
+                    </o>
+                    <o>
+                      <v n="Id">3527550656L</v>
+                      <v n="Value">10</v>
+                    </o>
+                    <o>
+                      <v n="Id">332200192L</v>
+                      <v n="Value">10</v>
+                    </o>
+                    <o>
+                      <v n="Id">989326467L</v>
+                      <v n="Value">10</v>
+                    </o>
+                    <o>
+                      <v n="Id">4219024195L</v>
+                      <v n="Value">10</v>
+                    </o>
+                    <o>
+                      <v n="Id">1654347074L</v>
+                      <v n="Value">10</v>
+                    </o>
+                    <o>
+                      <v n="Id">3146216842L</v>
+                      <v n="Value">0</v>
+                    </o>
+                    <o>
+                      <v n="Id">368043035L</v>
+                      <v n="Value">1</v>
+                    </o>
+                    <o>
+                      <v n="Id">1009209577L</v>
+                      <v n="Value">2</v>
+                    </o>
+                    <o>
+                      <v n="Id">2454700408L</v>
+                      <v n="Value">3</v>
+                    </o>
+                    <o>
+                      <v n="Id">1874213133L</v>
+                      <v n="Value">4</v>
+                    </o>
+                    <o>
+                      <v n="Id">3252594844L</v>
+                      <v n="Value">5</v>
+                    </o>
+                    <o>
+                      <v n="Id">3893763182L</v>
+                      <v n="Value">6</v>
+                    </o>
+                    <o>
+                      <v n="Id">1882453005L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">2981964749L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">677334476L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">3922825740L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">3236595599L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">23353423L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">2558934606L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">175837068L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">2541022970L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">3944074017L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">1981426263L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">283128086L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">332890263L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">2396545505L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">4072227898L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">3597700437L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">3479944212L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">3829854167L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">4151883806L</v>
+                      <v n="Value">"708"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2988197969L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">2766787066L</v>
+                      <v n="Value">"1975"</v>
+                    </o>
+                    <o>
+                      <v n="Id">2150247123L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">2869393680L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">3979887725L</v>
+                      <v n="Value">false</v>
+                    </o>
+                    <o>
+                      <v n="Id">792652967L</v>
+                      <v n="Value">true</v>
+                    </o>
+                    <o>
+                      <v n="Id">3736079596L</v>
+                      <v n="Value">"708"</v>
+                    </o>
+                    <o>
+                      <v n="Id">1893244285L</v>
+                      <v n="Value">"1723"</v>
+                    </o>
+                  </l>
+                </o>
+                <v n="VisualElementName">"Table"</v>
+                <v n="VisualElementTypeName">"VisuFbElemTable"</v>
+                <v n="VisualElementIsRectangle">true</v>
+                <v n="VisualElementIdentifier">"GenElemInst_336"</v>
+                <n n="VisualElementOfflinePaintCommands" />
+                <n n="VisualElementFrameInformation" />
+                <d n="VisualElementInputActions" t="Hashtable" />
+                <v n="VisualElementIdentification">{f121a5d3-a95e-4716-9262-a66dfc66420b}</v>
+                <v n="VisualElementOwningObjectGuid">{51d6440c-068c-4c8c-a478-475ae0c9cee1}</v>
+                <a n="LMGuids" cet="Guid">
+                  <v>15729f3b-90df-45ec-9a76-fa7f1e285309</v>
+                  <v>69fb4535-d897-42cc-886b-049b87072d29</v>
+                </a>
+                <d n="SubElements" t="Hashtable" />
+                <v n="VisualElementId">168</v>
+                <l n="UserManagementAccessRights" t="ArrayList" />
+              </o>
+            </l>
+            <v n="BackgroundBitmapId">""</v>
+            <v n="BackgroundColor">16777215</v>
+            <o n="Background" t="BackgroundSettings">
+              <n n="BgGradient" />
+              <n n="BgNamedColor" />
+              <v n="BgBmpId">""</v>
+              <v n="BgUseBmp">false</v>
+              <v n="BgColor">false</v>
+              <v n="BgUseColor">16777215</v>
+              <v n="BgUseGradient">false</v>
+            </o>
+          </o>
+          <o n="GeneratedLMMDescriptions" t="GeneratedLanguageModelEntriesData">
+            <o n="GeneratedVisuFbDescription" t="GenericFbDescription">
+              <d n="FbMethods" t="CaseInsensitiveHashtable_1" ckt="String" cvt="Guid">
+                <v>ContainsPoint</v>
+                <v>f2ce6bdb-5e10-4d93-8188-326213887d8c</v>
+                <v>Destruct</v>
+                <v>692a5048-9c5a-4838-b554-514b063870be</v>
+                <v>ElementInfo</v>
+                <v>efc9b0f5-b348-4fcc-bcfc-5bd838565a34</v>
+                <v>FB_Exit</v>
+                <v>cda9873c-4743-4874-a715-daf7d1c1fb2e</v>
+                <v>FB_Reinit</v>
+                <v>abdd9909-7486-4ff5-a8f1-3775bbab7f47</v>
+                <v>GetClientData</v>
+                <v>63aa574a-2aa5-43ea-8fc4-4521c9dbda02</v>
+                <v>GetElementArray</v>
+                <v>69302886-884f-4c11-9191-d2e4909f3681</v>
+                <v>GetElementIdArray</v>
+                <v>e1d9835c-b166-4ab9-8e80-98a4d07e5c8a</v>
+                <v>GetInitializeVersion</v>
+                <v>1d5e94b7-0d13-423f-84b2-49ee4072de64</v>
+                <v>GetLocalUsergroup</v>
+                <v>f8a0f8db-6dd1-4248-8c0b-fa03d4d3b642</v>
+                <v>GetName</v>
+                <v>51e5094d-c9e1-4217-9243-1713aa9cdb32</v>
+                <v>GetNamespace</v>
+                <v>119a26db-e4a1-4c78-a775-3f2c5c310133</v>
+                <v>GetSize</v>
+                <v>d038419e-830e-4e17-837d-626bbe8bd670</v>
+                <v>GetSurroundingRect</v>
+                <v>45143dd1-9b5b-4ee8-bd9f-6111f2e0a599</v>
+                <v>GetText</v>
+                <v>ade48567-c32e-4ba4-a69b-5c621aaa5c27</v>
+                <v>GetTextProperties</v>
+                <v>eb106927-811a-4445-9b1b-f380b7c8d8f2</v>
+                <v>GetTooltip</v>
+                <v>0d80904e-9610-4dca-ac12-ba8490592ac2</v>
+                <v>GetTranslator</v>
+                <v>78e6a91a-9c76-474b-8b2a-9c2e014f5a2b</v>
+                <v>GetUpdateRects</v>
+                <v>5b1318b6-5896-41fa-a431-fe6035188f8d</v>
+                <v>HandleInput</v>
+                <v>f242a04b-8915-4953-9b88-d57e197e4a1a</v>
+                <v>HasInputAccess</v>
+                <v>3777220e-2641-4482-b411-b8e684b7751d</v>
+                <v>HasInputAccessIntern</v>
+                <v>ce2f6737-eed1-454f-ada7-f9ea064c7b68</v>
+                <v>HasVisibilityAccess</v>
+                <v>1a53360d-4432-44d1-aded-609650f2ccf5</v>
+                <v>HasVisibilityAccessIntern</v>
+                <v>f5a4935a-f8ba-4960-89f0-89035818306c</v>
+                <v>Initialize</v>
+                <v>1234bab9-818e-4388-935d-0a234d3d5a38</v>
+                <v>IsAntialiasingInactive</v>
+                <v>ce01d22e-c0aa-411d-97b4-e9ef0109d668</v>
+                <v>Paint</v>
+                <v>00851fda-f60e-4712-9656-b2f74d64d0c7</v>
+                <v>SetClientData</v>
+                <v>60bfeec6-75ff-462e-bb57-6c8a346087bc</v>
+                <v>SetStaticState</v>
+                <v>22ab8c97-6bfb-4f99-bc01-c9b2a80b79c0</v>
+                <v>SetVisuFlagsInternal</v>
+                <v>63e1a024-aef9-4296-8a68-083b00950385</v>
+                <v>Update</v>
+                <v>0b771ba4-e47d-42de-b3a6-951efe22089a</v>
+              </d>
+              <v n="FbName">"NotImportant"</v>
+              <v n="FbGuid">{51d6440c-068c-4c8c-a478-475ae0c9cee1}</v>
+            </o>
+            <v n="GeneratedGlobalVisuVarsGuid">{e968d78c-0bdd-475d-bb9e-f1d66fd8ab4b}</v>
+            <v n="GeneratedGlobalTheVisuVarlistGuid">{5d9cc570-2fec-4143-b4b5-d9bea044af3f}</v>
+            <v n="GeneratedGlobalVisuConstants">{9bdff18b-3900-4b78-bc16-14b9fe3b934e}</v>
+            <d n="GeneratedAllElementsEntries" t="Hashtable" />
+            <o n="VisuRegDesc" t="GenericFbDescription">
+              <d n="FbMethods" t="CaseInsensitiveHashtable_1" ckt="String" cvt="Guid">
+                <v>FB_Exit</v>
+                <v>4777e629-7b74-43b5-bfd6-6a980c98862d</v>
+                <v>FB_Init</v>
+                <v>020b2eef-5f77-4924-a5e9-e517993c0e06</v>
+                <v>FB_Reinit</v>
+                <v>22a2e136-0c87-4ef6-9deb-eb704d83dd39</v>
+              </d>
+              <v n="FbName">"NotImportant"</v>
+              <v n="FbGuid">{be86fb8d-f085-42dc-b7c0-728523f96367}</v>
+            </o>
+            <v n="VisuRegisterGvl">{ce58afe4-25a8-4cd0-a85b-7743777929f9}</v>
+            <n n="SettingsPou" />
+            <n n="MemManPou" />
+            <o n="InputsPou" t="GenericFbDescription">
+              <d n="FbMethods" t="CaseInsensitiveHashtable_1" ckt="String" cvt="Guid">
+                <v>abstrGetDefaultCursor</v>
+                <v>1267b43f-0e3c-4307-b0c3-181671c6dbbc</v>
+                <v>ExecuteDialogClosed</v>
+                <v>20ade2a0-5d65-4176-9c65-3d0a92fdcad0</v>
+                <v>ExecuteKeyDown</v>
+                <v>6fa457cc-4061-4b27-8223-6c22c2a98880</v>
+                <v>ExecuteKeyUp</v>
+                <v>aa826af8-d409-4f52-972e-3379c41dd939</v>
+                <v>ExecuteLooseCapture</v>
+                <v>8af4179b-751f-4121-9d11-52d15c93bef2</v>
+                <v>ExecuteMouseClick</v>
+                <v>8ba14281-c9eb-4cdf-adb6-4f7a2c9c62f3</v>
+                <v>ExecuteMouseDblClick</v>
+                <v>a14db54a-c1f9-400e-a34b-5470a5d1d040</v>
+                <v>ExecuteMouseDown</v>
+                <v>dc5d944f-b8cd-4ba5-89ac-4fd50b220e04</v>
+                <v>ExecuteMouseEnter</v>
+                <v>1227ce2c-4f7a-41d0-9b51-691464e039db</v>
+                <v>ExecuteMouseLeave</v>
+                <v>6248a887-5819-4dfc-887e-15bc7be761d1</v>
+                <v>ExecuteMouseMove</v>
+                <v>748082c0-e287-49a7-88af-2e84bafc5b80</v>
+                <v>ExecuteMouseUp</v>
+                <v>25c54d31-4dc6-4df8-91e2-0597f90ac70e</v>
+                <v>GetElementInfo</v>
+                <v>2d3ee4d0-b143-40c6-bc7f-892dd3778476</v>
+                <v>Initialize</v>
+                <v>c3b8dda5-afc4-47ef-9c42-33c8e407907b</v>
+              </d>
+              <v n="FbName">"NotImportant"</v>
+              <v n="FbGuid">{8f04588a-b3af-482e-aa9d-ba2253d7d4cf}</v>
+            </o>
+            <v n="DialogDut">{5146fa2a-320c-40ed-867a-ef52b7512ca8}</v>
+          </o>
+          <v n="LastUsedIdForIdentifier">336</v>
+          <o n="TextDocument" t="TextDocument">
+            <a n="TextLines" cet="TextLine">
+              <o>
+                <v n="Id">12L</v>
+                <n n="Tag" />
+                <v n="Text">"VAR_IN_OUT"</v>
+              </o>
+              <o>
+                <v n="Id">13L</v>
+                <n n="Tag" />
+                <v n="Text">"	"</v>
+              </o>
+              <o>
+                <v n="Id">1L</v>
+                <n n="Tag" />
+                <v n="Text">"END_VAR"</v>
+              </o>
+            </a>
+          </o>
+          <v n="GvlCreated">false</v>
+          <n n="LMEntry" />
+          <v n="ProfileCompatibilityId">4140216668L</v>
+          <v n="LMVerMinor">0</v>
+          <v n="LMVerMajor">1</v>
+          <o n="Hotkeys" t="HotkeyConfiguration">
+            <v n="IdMin">481037385728L</v>
+            <v n="IdMax">549755813887L</v>
+            <v n="Id">481037385728L</v>
+            <v n="IdMask">549754765312L</v>
+            <v n="IdStep">1048576L</v>
+            <l2 n="Inputs" />
+          </o>
+          <o n="VisuSizeManager" t="VisualObjectSizeManager">
+            <d2 n="Size" ckt="Int32" cvt="VisualObjectSize">
+              <v>0</v>
+              <o>
+                <v n="Width">2048</v>
+                <v n="Height">1080</v>
+              </o>
+              <v>1</v>
+              <o>
+                <v n="Width">2048</v>
+                <v n="Height">1080</v>
+              </o>
+            </d2>
+            <v n="Version">1</v>
+          </o>
+        </o>
+      </Data>
+      <TypeList>
+        <Type n="ArrayList">System.Collections.ArrayList</Type>
+        <Type n="BackgroundSettings">{1038f12c-dd4b-4f96-87a3-a350fe8f3552}</Type>
+        <Type n="BasicTypeNode">{f7e1e748-ea0f-4fcb-b563-94837ee17e8d}</Type>
+        <Type n="Boolean">System.Boolean</Type>
+        <Type n="CaseInsensitiveHashtable">{02a85e84-ef2d-46fc-93f2-acb0bbff3eda}</Type>
+        <Type n="CaseInsensitiveHashtable_1">{7df88604-7ac5-4e36-91c4-55e4fdad3e68}</Type>
+        <Type n="ComplexInput">{1de566f6-72a7-494c-9353-9a418172c96e}</Type>
+        <Type n="DataVariableInformation">{8fac7628-4f9d-401d-8713-d78d623fa87e}</Type>
+        <Type n="Double">System.Double</Type>
+        <Type n="DynamicArrayNode">{6c16f79c-dd98-4c29-b3ba-7042e3055542}</Type>
+        <Type n="EArrayType">{ebaacb5d-5a32-412b-9087-31925070be93}</Type>
+        <Type n="FontDescription">{896a5e54-96c3-433b-96d2-4f1442fef591}</Type>
+        <Type n="GeneratedLanguageModelEntriesData">{703465dc-4679-4ff2-bcc3-c57d0a204da3}</Type>
+        <Type n="GenericFbDescription">{40d6dd8d-dfd0-493a-8e29-c9a35e1e6539}</Type>
+        <Type n="GenericVisualElem">{f86c2928-8614-4cca-824b-e819ac4d58c4}</Type>
+        <Type n="Guid">System.Guid</Type>
+        <Type n="Hashtable">System.Collections.Hashtable</Type>
+        <Type n="HotkeyConfiguration">{6b108d46-58af-4e41-a3f4-174d8f160cc4}</Type>
+        <Type n="Int16">System.Int16</Type>
+        <Type n="Int32">System.Int32</Type>
+        <Type n="Int64">System.Int64</Type>
+        <Type n="NamedStyleColor">{fa491db2-51ff-4bc1-9cd0-ce8c94ff6216}</Type>
+        <Type n="String">System.String</Type>
+        <Type n="StructuredTypeNode">{503c5b2e-e80e-4ee7-ae00-c5b93a62b1aa}</Type>
+        <Type n="TextDocument">{f3878285-8e4f-490b-bb1b-9acbb7eb04db}</Type>
+        <Type n="TextLine">{a5de0b0b-1cb5-4913-ac21-9d70293ec00d}</Type>
+        <Type n="TypeClass">{16f7aa24-038f-444e-9d81-b001bc091d35}</Type>
+        <Type n="TypeNodeAttributes2">{c1464dbe-c10d-4717-be8f-63efe8638434}</Type>
+        <Type n="TypeNodeType">{b12a9636-e818-4598-ae0d-fb6a2446102c}</Type>
+        <Type n="UInt16">System.UInt16</Type>
+        <Type n="UInt32">System.UInt32</Type>
+        <Type n="UInt64">System.UInt64</Type>
+        <Type n="VisualElemCollection">{ef9d0b20-c96e-48db-b361-2ded4063150e}</Type>
+        <Type n="VisualElemList">{f285c9a3-7019-446b-b98c-ccec3a0af8fa}</Type>
+        <Type n="VisualElemMember">{c694e3a2-5c0b-4177-ab35-cb06bd5a6a02}</Type>
+        <Type n="VisualElemMemberCollection">{a4b83bea-3742-489c-9fe8-d96d68dba7ab}</Type>
+        <Type n="VisualElemMemberList">{17e26cd1-bb9b-47fe-a3d5-18fcd63b9c96}</Type>
+        <Type n="VisualObject">{f18bec89-9fef-401d-9953-2f11739a6808}</Type>
+        <Type n="VisualObjectSize">{6ad3e88f-aee2-4766-a7ea-a8790037ef51}</Type>
+        <Type n="VisualObjectSizeManager">{5f612b0e-b404-455f-8177-27864e9f5332}</Type>
+      </TypeList>
+    </XmlArchive>
+    <ObjectProperties>
+      <XmlArchive>
+        <Data>
+          <o xml:space="preserve" t="VisualProperty">
+            <v n="VisuUsageType">0</v>
+            <v n="SizeX">2048</v>
+            <v n="SizeY">1080</v>
+            <v n="IsStartVisu">false</v>
+            <v n="VisuSizeMode" t="VisualVisuSizeMode">Specified</v>
+            <v n="Internal">false</v>
+            <v n="DialogIsOpaque">false</v>
+            <v n="DialogIsOpaqueIsSet">false</v>
+          </o>
+        </Data>
+        <TypeList>
+          <Type n="Boolean">System.Boolean</Type>
+          <Type n="Int32">System.Int32</Type>
+          <Type n="VisualProperty">{477d844b-9b2a-407e-90a4-d36fd6dde2fc}</Type>
+          <Type n="VisualVisuSizeMode">{34718b76-91f6-43de-8c65-b77e0b1ee621}</Type>
+        </TypeList>
+      </XmlArchive>
+    </ObjectProperties>
+  </Visu>
+</TcPlcObject>

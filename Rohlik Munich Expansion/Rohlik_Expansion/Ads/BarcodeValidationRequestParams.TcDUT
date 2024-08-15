@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="BarcodeValidationRequestParams" Id="{a9f13db3-3df0-403e-bba4-1d4b07e2dd3d}">
+    <Declaration><![CDATA[TYPE BarcodeValidationRequestParams :
+STRUCT
+target_id : ModelIdentifier; // Identifier for the target scan position.
+barcode_verification_result : BarcodeVerificationResult; // Barcode verification result
+barcode : STRING(255); // String to hold the barcode data.
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,226 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_StateMachine" Id="{6569500b-2c43-42f6-bdd7-e60566048578}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_StateMachine
+VAR_INPUT
+	
+	pPackTags				: POINTER TO ST_PackMLv30;
+	pMachine				: POINTER TO FB_Machine;	
+	pMachine_control_cmd	: POINTER TO MachineCommandStructure;	
+	pAirSystem				: POINTER TO FB_AirPressure_Subsystem;
+	pSafetySystem			: POINTER TO FB_Safety_Subsystem;	
+	pMcp					: POINTER TO FB_mcp;
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	rTrig_error	:ARRAY[1..10] OF R_TRIG;
+	i	: INT;
+		
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*command from 1:PLC HMI buttons;2:APP;3:Safety module;4:each modules*)
+/////////////////////////////abort/////////////////////////////	
+IF 	pMachine^.eState <> ePMLState_Aborted AND pMachine^.eState <> ePMLState_Clearing THEN	
+	IF pPackTags^.Command.CntrlCmd = ePMLCommand_Abort OR M_CheckError() THEN
+		IF pMachine^.M_UnitsActive(ePMLCommand_Abort) THEN
+			pMachine^.eCommand	:= ePMLCommand_Abort;
+			pMachine_control_cmd^.command	:= MachineControlCommand.DO_NOTHING;
+		END_IF
+	END_IF
+END_IF
+/////////////////////////////stop/////////////////////////////
+IF M_CheckError() THEN
+	//
+ELSE					
+	IF (pPackTags^.Command.CntrlCmd = ePMLCommand_Stop OR 
+		pMachine_control_cmd^.command = MachineControlCommand.STOP OR 
+		pSafetySystem^.pml_command=ePMLCommand_Stop) AND pMachine^.eState <> ePMLState_Stopped
+	THEN
+		IF pMachine^.M_UnitsActive(ePMLCommand_Stop) THEN
+			pMachine^.eCommand	:= ePMLCommand_Stop;
+		END_IF
+	END_IF
+END_IF
+
+CASE pMachine^.eState OF
+			
+	ePMLState_Aborted:
+		IF pMcp^.st_safety_door.button_reset THEN
+			pPackTags^.Command.CntrlCmd := ePMLCommand_Clear;
+		END_IF
+		IF 	pPackTags^.Command.CntrlCmd = ePMLCommand_Clear OR
+			(pSafetySystem^.safety_status=SafetyStatus.READY AND pMachine_control_cmd^.command=MachineControlCommand.RESET)//while safety is ready,can be reset remotely	 
+		THEN
+			IF pSafetySystem^.M_reset() THEN	//reset safety first
+				IF pSafetySystem^.xError THEN
+					pPackTags^.Command.CntrlCmd		:= ePMLCommand_Undefined;
+					pMachine_control_cmd^.command	:= MachineControlCommand.DO_NOTHING;
+				ELSE
+					IF pMachine^.M_UnitsActive(ePMLCommand_Clear) THEN
+						pMachine^.eCommand	:= ePMLCommand_Clear;
+					END_IF					
+				END_IF
+			END_IF	
+		END_IF
+		//reset command
+		IF pMachine^.eCommand = ePMLCommand_Abort THEN
+			pMachine^.eCommand	:= ePMLCommand_Undefined;
+		END_IF
+			
+	ePMLState_Complete:		
+		IF (pPackTags^.Command.CntrlCmd = ePMLCommand_Reset OR pMachine_control_cmd^.command = MachineControlCommand.RESET (*OR
+		 	pMcp^.st_safety_door.button_reset*)) 
+		THEN
+			pMachine^.eCommand	:= ePMLCommand_Reset;
+		END_IF
+			
+			
+	ePMLState_Idle:
+		IF (pPackTags^.Command.CntrlCmd = ePMLCommand_Start OR pMachine_control_cmd^.command = MachineControlCommand.START)	AND
+			(NOT (pPackTags^.Command.Parameter[1].Value <= 0) OR NOT (pMachine^.eMode = 1))
+		THEN	
+			IF pMachine^.M_UnitsActive(ePMLCommand_Start) THEN
+				pMachine^.eCommand	:= ePMLCommand_Start;
+			END_IF
+		END_IF
+		IF pMachine_control_cmd^.command = MachineControlCommand.RESET THEN
+			pMachine_control_cmd^.command	:= MachineControlCommand.DO_NOTHING;
+		END_IF
+		//reset command
+		IF pMachine^.eCommand = ePMLCommand_Reset THEN
+			pMachine^.eCommand	:= ePMLCommand_Undefined;
+		END_IF
+			
+			
+	ePMLState_Stopped:
+		IF pPackTags^.Command.CntrlCmd = ePMLCommand_Reset OR pMachine_control_cmd^.command = MachineControlCommand.RESET THEN		
+			IF pMachine^.M_UnitsActive(ePMLCommand_Reset) THEN
+				pMachine^.eCommand	:= ePMLCommand_Reset;
+			END_IF
+		END_IF		
+		IF (pPackTags^.Command.CntrlCmd = ePMLCommand_Start OR pMachine_control_cmd^.command = MachineControlCommand.START)	AND
+			(NOT (pPackTags^.Command.Parameter[1].Value <= 0) OR NOT (pMachine^.eMode = 1)) AND
+			stPMLUnitModeConfiguration[pMachine^.eMode].aStateDisabled[ePMLState_Idle] 
+		THEN	
+			IF pMachine^.M_UnitsActive(ePMLCommand_Start) THEN
+				pMachine^.eCommand	:= ePMLCommand_Start; 	
+			END_IF			
+		END_IF	
+		IF pMachine_control_cmd^.command = MachineControlCommand.STOP THEN
+			pMachine_control_cmd^.command	:= MachineControlCommand.DO_NOTHING;
+		END_IF	
+		//reset command
+		IF pMachine^.eCommand = ePMLCommand_Clear OR pMachine^.eCommand = ePMLCommand_Stop THEN
+			pMachine^.eCommand	:= ePMLCommand_Undefined;
+		END_IF
+			
+			
+	ePMLState_Execute:	
+		IF pMachine_control_cmd^.command = MachineControlCommand.START THEN
+			pMachine_control_cmd^.command	:= MachineControlCommand.DO_NOTHING;
+		END_IF
+		IF pPackTags^.Command.CntrlCmd = ePMLCommand_Hold	AND	
+			(pMachine^.eMode =  1 OR pMachine^.eMode =  4 OR pMachine^.eMode = 2)  
+		THEN
+			pMachine^.eCommand	:= ePMLCommand_Hold;
+		END_IF	
+		IF pPackTags^.Command.CntrlCmd = ePMLCommand_Suspend AND (pMachine^.eMode = 4 OR pMachine^.eMode = 1)THEN
+		 
+			pMachine^.eCommand	:= ePMLCommand_Suspend;
+		END_IF	 
+		//reset command
+		IF pMachine^.eCommand = ePMLCommand_Start THEN
+			pMachine^.eCommand	:= ePMLCommand_Undefined;
+		END_IF
+			
+			
+	ePMLState_Held:	 
+		IF pPackTags^.Command.CntrlCmd = ePMLCommand_Unhold THEN
+			pMachine^.eCommand	:= ePMLCommand_Unhold;
+		END_IF
+			
+			
+	ePMLState_Suspended:
+		IF pPackTags^.Command.CntrlCmd = ePMLCommand_Unsuspend THEN
+			pMachine^.eCommand	:= ePMLCommand_Unsuspend;
+		END_IF
+			
+			
+	ePMLState_Aborting,ePMLState_Clearing,ePMLState_Resetting,ePMLState_Starting,ePMLState_Stopping:
+		pPackTags^.Command.CntrlCmd	:= ePMLCommand_Undefined;
+
+		
+		
+END_CASE
+
+
+
+
+
+]]></ST>
+    </Implementation>
+    <Method Name="M_CheckError" Id="{6136ed69-7a29-43b1-8cdc-948de0d0885f}">
+      <Declaration><![CDATA[METHOD M_CheckError : BOOL
+
+VAR
+	
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[M_CheckError	:= FALSE;
+
+FOR i:=1 TO GlobalParameters.MaxAlarms DO
+	IF pPackTags^.Admin.Alarm[i].Trigger THEN
+		M_CheckError	:= TRUE;
+	END_IF
+END_FOR
+//RETURN;//remove this while safety and air is ready
+IF pSafetySystem^.xError OR pAirSystem^.air_pressure_status=AirPressureStatus.ERROR THEN
+	M_CheckError	:= TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_StateMachine">
+      <LineId Id="211" Count="0" />
+      <LineId Id="262" Count="7" />
+      <LineId Id="261" Count="0" />
+      <LineId Id="272" Count="11" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="29" Count="3" />
+      <LineId Id="302" Count="2" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="306" Count="0" />
+      <LineId Id="305" Count="0" />
+      <LineId Id="228" Count="0" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="236" Count="1" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="233" Count="1" />
+      <LineId Id="231" Count="1" />
+      <LineId Id="229" Count="0" />
+      <LineId Id="39" Count="5" />
+      <LineId Id="46" Count="25" />
+      <LineId Id="74" Count="53" />
+      <LineId Id="192" Count="0" />
+      <LineId Id="218" Count="0" />
+      <LineId Id="191" Count="0" />
+      <LineId Id="128" Count="1" />
+      <LineId Id="132" Count="1" />
+      <LineId Id="142" Count="0" />
+      <LineId Id="260" Count="0" />
+      <LineId Id="147" Count="0" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_StateMachine.M_CheckError">
+      <LineId Id="15" Count="0" />
+      <LineId Id="92" Count="0" />
+      <LineId Id="79" Count="3" />
+      <LineId Id="78" Count="0" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="97" Count="1" />
+      <LineId Id="39" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

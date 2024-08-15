@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ModelIdentifier" Id="{6c6e585a-79fc-4385-8ddf-be69523dd3b7}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE ModelIdentifier :
+(
+	inbounding_position := 1,
+    working_position := 2,
+    outbound_position:= 3
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

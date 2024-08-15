@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ToteStatus" Id="{59d2e8b6-1a92-4a18-8811-9aaf280a7bf4}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE ToteStatus:
+(
+    UNKNOWN := 0,  (* when system is down *)
+    VACANT := 1, (* no tote here *)
+    LOADED := 2,  (* a tote loaded in current position *)
+    AWAITING_INBOUND_AVAILABILITY := 3,  (* waiting for an available inbound tote *)
+    INBOUNDING := 4,  (* inbounding tote from upper line *)
+    AWAITING_OUTBOUND_AVAILABILITY := 5,  (* waiting for an available outbound space *)
+    OUTBOUNDING := 6,  (* outbound tote to lower line *)
+    PERTURBING := 7, (* Tote vibrating *)
+
+    UNKNOWN_ERROR := 50, (* in error state, we should extend the error in the future	*)
+    MECHANICAL_ERROR := 51,
+    ELECTRICAL_ERROR := 52,
+    SAFETY_ERROR := 53,
+    UPSTREAM_NOT_READY := 54,
+    TIMEOUT_WAITING_FOR_NEW_TOTE := 55,
+    DOWNSTREAM_NOT_READY := 56,
+    TIMEOUT_WAITING_FOR_SPACE := 57,
+	
+	BAG_OPEN_FAILED := 100
+    (* Custom error starts with 100, default error reserved from [50-100)*)
+
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

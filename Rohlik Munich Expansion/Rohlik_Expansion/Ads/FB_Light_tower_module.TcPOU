@@ -1,0 +1,170 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Light_tower_module" Id="{76a2423a-0702-4258-b0ae-9c01d7e6ca39}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Light_tower_module
+VAR_INPUT
+	pHeartBeat	: POINTER TO FB_HeartBeat_Subsystem;
+	pLightTower	: POINTER TO ST_LightTower;
+END_VAR
+VAR_OUTPUT
+	
+END_VAR
+VAR
+	lightTowerAction				: ST_LightTowerAction;
+	light_tower_params 				: UpdateLightTowerParams;
+	light_tower_params_empty	 	: UpdateLightTowerParams;
+	Light_PWM:FB_GPWM;
+	
+	bTest	: BOOL;	//manual test method
+	light_tower_params_test	 		: UpdateLightTowerParams;
+	AA: INT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+Light_PWM(i_udiCycle:=ULINT_TO_UDINT(light_tower_params.flash_period_ms*2),
+	      i_udiTime:=ULINT_TO_UDINT(light_tower_params.flash_period_ms),
+		  i_xEnable:=TRUE,
+          );
+
+IF lightTowerAction.GREEN THEN
+	pLightTower^.GREEN:=TRUE;
+END_IF
+IF lightTowerAction.GREEN_FLASHING THEN
+	pLightTower^.GREEN:=Light_PWM.q_xOut;
+END_IF
+
+IF lightTowerAction.RED THEN
+	pLightTower^.RED:=TRUE;
+END_IF
+IF lightTowerAction.RED_FLASHING THEN
+	pLightTower^.RED:=Light_PWM.q_xOut;
+END_IF
+
+IF lightTowerAction.BLUE THEN
+	pLightTower^.BLUE:=TRUE;
+END_IF
+IF lightTowerAction.BLUE_FLASHING THEN
+	pLightTower^.BLUE:=Light_PWM.q_xOut;
+END_IF
+
+IF lightTowerAction.WHITE THEN
+	pLightTower^.WHITE:=TRUE;
+END_IF
+IF lightTowerAction.WHITE_FLASHING THEN
+	pLightTower^.WHITE:=Light_PWM.q_xOut;
+END_IF
+
+IF lightTowerAction.YELLOW THEN
+	pLightTower^.YELLOW:=TRUE;
+END_IF
+IF lightTowerAction.YELLOW_FLASHING THEN
+	pLightTower^.YELLOW:=Light_PWM.q_xOut;
+END_IF
+
+
+IF lightTowerAction.BEEPING THEN
+	pLightTower^.BEEPING:=TRUE;
+END_IF
+IF lightTowerAction.BEEPING_FLASHING THEN
+	pLightTower^.BEEPING:=Light_PWM.q_xOut;
+END_IF
+
+
+
+IF pHeartBeat^.heart_timeout_Alarm THEN
+	update_light_tower(light_tower_params_empty);
+END_IF 	
+
+IF bTest THEN
+	update_light_tower(light_tower_params_test);
+	bTest	:= FALSE;
+END_IF 
+]]></ST>
+    </Implementation>
+    <Method Name="update_light_tower" Id="{972896c5-5b3b-459f-a81c-d8dd8173ee54}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD update_light_tower : UDINT
+VAR_INPUT
+	update_light_tower_params	: UpdateLightTowerParams;
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[update_light_tower			:= 1;
+
+(********************clear Light tower current status*****************)
+
+pLightTower^.BLUE:=FALSE;
+pLightTower^.BEEPING:=FALSE;
+pLightTower^.GREEN:=FALSE;
+pLightTower^.RED:=FALSE;
+pLightTower^.WHITE:=FALSE;
+pLightTower^.YELLOW:=FALSE;
+
+(*******************Updata Light tower current status*****************)	
+light_tower_params					:= update_light_tower_params;	 
+lightTowerAction.GREEN				:= light_tower_params.color.0;
+lightTowerAction.GREEN_FLASHING		:= light_tower_params.color.1;
+lightTowerAction.RED				:= light_tower_params.color.2;
+lightTowerAction.RED_FLASHING		:= light_tower_params.color.3;
+lightTowerAction.BLUE				:= light_tower_params.color.4;
+lightTowerAction.BLUE_FLASHING		:= light_tower_params.color.5;
+lightTowerAction.WHITE				:= light_tower_params.color.6;
+lightTowerAction.WHITE_FLASHING		:= light_tower_params.color.7;
+lightTowerAction.YELLOW				:= light_tower_params.color.8;
+lightTowerAction.YELLOW_FLASHING	:= light_tower_params.color.9;
+lightTowerAction.BEEPING			:= light_tower_params.color.10;
+lightTowerAction.BEEPING_FLASHING	:= light_tower_params.color.11;
+
+
+update_light_tower	:= 0;
+
+
+
+AA:=AA+1;
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_Light_tower_module">
+      <LineId Id="29" Count="0" />
+      <LineId Id="79" Count="3" />
+      <LineId Id="85" Count="6" />
+      <LineId Id="201" Count="0" />
+      <LineId Id="93" Count="1" />
+      <LineId Id="202" Count="0" />
+      <LineId Id="96" Count="16" />
+      <LineId Id="149" Count="0" />
+      <LineId Id="115" Count="14" />
+      <LineId Id="137" Count="1" />
+      <LineId Id="181" Count="1" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="167" Count="0" />
+      <LineId Id="166" Count="0" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="169" Count="0" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="30" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Light_tower_module.update_light_tower">
+      <LineId Id="16" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="102" Count="0" />
+      <LineId Id="80" Count="6" />
+      <LineId Id="115" Count="0" />
+      <LineId Id="114" Count="0" />
+      <LineId Id="116" Count="10" />
+      <LineId Id="89" Count="0" />
+      <LineId Id="131" Count="0" />
+      <LineId Id="130" Count="0" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="128" Count="1" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="101" Count="0" />
+      <LineId Id="45" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

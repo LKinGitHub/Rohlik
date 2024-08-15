@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_Condition" Id="{dd140d84-8436-450b-b1ad-86ead8f5c86a}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE E_Condition :
+(
+	IDLE 				:= 0,
+	PLACE_MOUDULE_UP	:= 1,
+	PLACE_MOUDULE_DOWN	:= 2,
+	BAG_OPENED			:= 3,
+	BAG_CLOSED			:= 4,
+	NO_TOTE				:= 5,
+	TOTE_IN				:= 6,
+	READY_LOADING_TOTE	:= 7,
+	TOTE_READY			:= 8
+	
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

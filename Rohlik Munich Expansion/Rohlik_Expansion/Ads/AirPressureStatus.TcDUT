@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="AirPressureStatus" Id="{b4f6917d-b4e8-410e-a1c1-448b6eb74fcc}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE AirPressureStatus :
+(
+	UNKNOWN := 0,
+	ERROR	:= 1,
+	WARNING := 2,          
+    HEALTH  := 3,      
+    OVERTOP := 4       
+
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

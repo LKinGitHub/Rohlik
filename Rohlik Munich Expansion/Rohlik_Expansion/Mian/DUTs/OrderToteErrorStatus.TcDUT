@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="OrderToteErrorStatus" Id="{da7fa11f-0330-47c3-8dbb-f400769c83a6}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE OrderToteErrorStatus:
+(
+	UNKNOWN							:=0,
+  	NO_ERROR						:=1,
+	MACHINE_NOT_RUNNING				:=2,
+	ELECTRICAL_ERROR				:=3,
+ 	MECHANICAL_ERROR				:=4,
+ 	SAFETY_ERROR					:=5,
+	UPSTREAM_NOT_READY				:=6,
+	TIMEOUT_WAITING_FOR_NEW_TOTE	:=7,
+	DOWNSTREAM_NOT_READY			:=8,
+	TIMEOUT_WAITING_FOR_SPACE		:=9,
+	BAG_OPEN_FAILED					:=10
+);
+END_TYPE
+
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

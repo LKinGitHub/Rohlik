@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_Alarm_Hmi" Id="{be96a815-c410-4051-b2e1-b69dfb5f4496}">
+    <Declaration><![CDATA[TYPE ST_Alarm_Hmi :
+STRUCT
+	msg		: STRING(255);
+	str_DT	: STRING(255);
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

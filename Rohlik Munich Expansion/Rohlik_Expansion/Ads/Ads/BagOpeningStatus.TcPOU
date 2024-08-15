@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="BagOpeningStatus" Id="{72a48fb8-6f11-4a1d-8d25-a42e6fe94f8f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK BagOpeningStatus
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	bag_status	: BagStatus;
+	sensor_status	: STRING;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="_bagStatus" Id="{cc5662e5-94ab-4fce-b65c-e245d9be907b}">
+      <Declaration><![CDATA[PROPERTY _bagStatus : BagStatus]]></Declaration>
+      <Get Name="Get" Id="{43025794-314b-448d-a8a0-7f53a3a332d3}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_bagStatus	:= bag_status;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{c51c65fa-aa26-402e-8b22-9daa006dee15}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[bag_status	:= _bagStatus;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="_sensor_status" Id="{ea2ce233-2f2f-43e1-85da-0d2cb272fd7d}">
+      <Declaration><![CDATA[PROPERTY _sensor_status : STRING]]></Declaration>
+      <Get Name="Get" Id="{795f57d0-0089-47b7-a0b7-4928e3fc5b6d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_sensor_status	:= sensor_status;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{2f3aa1ff-65ce-4d47-80d4-25add53989ca}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[sensor_status	:=_sensor_status;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <LineIds Name="BagOpeningStatus">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="BagOpeningStatus._bagStatus.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="BagOpeningStatus._bagStatus.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="BagOpeningStatus._sensor_status.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="BagOpeningStatus._sensor_status.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,489 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Sample" Id="{ac745d2e-72a6-4e96-8fa5-22b4fc8ce3be}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Sample EXTENDS FB_Generic
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	lamp			: BOOL;	
+	eStates			: E_SampleStates := E_SampleStates.IDLE;;
+	eStateTemp		: E_SampleStates := E_SampleStates.IDLE;
+	
+END_VAR
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[SUPER^();
+IF NOT subscribed THEN
+	GVL.PubSubService.Subscribe(E_Topics.SAMPLE_SUBSCRRIBE_1,sInstanceName,THIS^);
+	GVL.PubSubService.Subscribe(E_Topics.SAMPLE_SUBSCRRIBE_2,sInstanceName,THIS^);
+	GVL.PubSubService.Subscribe(E_Topics.SAMPLE_SUBSCRRIBE_3,sInstanceName,THIS^);
+END_IF
+subscribed	:= TRUE;
+
+
+//sComponent_name		:= _sInstanceName;
+//iComponetID			:= ModuleID.SAMPLE1;
+
+infoLevel	:= ServerityLevelType.WARNING;
+
+]]></ST>
+    </Implementation>
+    <Method Name="Callback" Id="{13854ea2-63bf-4c04-b365-8df7edd8bd07}">
+      <Declaration><![CDATA[(*
+Description: 
+the callback that will be invoked when there is a publish for what the subscriber was subscribed to.
+*)
+METHOD Callback
+VAR_INPUT
+	data : PubSubData;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE data.Topic OF
+	E_Topics.SAMPLE_SUBSCRRIBE_1:
+		ADSLOGSTR(msgCtrlMask:= ADSLOG_MSGTYPE_LOG,msgFmtStr:='get data from publish 1',strArg:='');
+	E_Topics.SAMPLE_SUBSCRRIBE_2:
+		ADSLOGSTR(msgCtrlMask:= ADSLOG_MSGTYPE_LOG,msgFmtStr:='get data from publish 2',strArg:='');
+	E_Topics.SAMPLE_SUBSCRRIBE_3:
+		ADSLOGSTR(msgCtrlMask:= ADSLOG_MSGTYPE_LOG,msgFmtStr:='get data from publish 3',strArg:='');		
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Aborting" Id="{f930da81-89da-4559-a375-c186df3db1b8}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Aborting'}
+METHOD M_Aborting
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE fbUnitModeManager.eModeStatus OF	
+	ePMLProtUnitMode_Production, ePMLProtUnitMode_Manual:		
+		lamp	:= FALSE;		
+		M_StateComplete();
+			
+	ePMLProtUnitMode_Maintenance, ePMLUnitMode_Service:
+		
+		M_StateComplete();
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_agingTest" Id="{9adad55d-8892-40fc-95e1-f07bfd3eee84}">
+      <Declaration><![CDATA[METHOD M_agingTest : BOOL
+VAR_INPUT
+	rVelocity_percent	: REAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Completing" Id="{1875369d-a175-4514-bc9e-11555728be77}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Completing'}
+METHOD M_Completing
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE fbUnitModeManager.eModeStatus OF
+	ePMLProtUnitMode_Production:
+		;
+END_CASE
+
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Execute" Id="{b3a6d44f-7c14-4bb5-8960-02311e08736a}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Execute'}
+METHOD M_Execute
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+CASE fbUnitModeManager.eModeStatus OF
+	ePMLProtUnitMode_Production:		//Mode Production
+//////////////////////////////////////////////////////////timeout//////////////////////////////////////////	
+		iStateTemp	:= eStateTemp;
+		ton_timeout();
+		IF eStateTemp=eStates THEN
+			ton_timeout.IN	:=TRUE;
+		ELSE
+			ton_timeout.IN	:=FALSE;
+			eStateTemp	:= eStates;	
+			M_Log(eLogType:=ServerityLevelType.INFO,sTextLog:='');
+			IF ton_timeout.Q THEN
+				RETURN;
+			END_IF
+		END_IF
+		IF ton_timeout.Q THEN	
+			ton_timeout.IN	:=FALSE;
+			CASE eStates OF	
+				E_SampleStates.ERROR:	
+					alarm_temp.Message	:= GenerateErrorMsg(errorType:='M',iState := iStateTemp,errorMsg:='in error state.');
+				ELSE
+				alarm_temp.Message	:= GenerateErrorMsg(errorType:='M',iState := iStateTemp,errorMsg:='time out');
+			END_CASE
+//////////////////////////////////////////////////////////states don't want to timeout and trig error//////////////////////////////////////////				
+			IF 	eStates<>E_SampleStates.IDLE AND
+				eStates<>E_SampleStates.WAIT_ON AND 
+				eStates<>E_SampleStates.WAIT_OFF THEN
+					GVL.pml_adminAlarm.M_SetAlarm(stAdmin:=GVL.PackTags.Admin,stAlarm:=alarm_temp);
+			END_IF
+		END_IF
+//////////////////////////////////////////////////////////auto running process//////////////////////////////////////////			
+		CASE eStates OF 
+				E_SampleStates.IDLE:
+					ton_timeout.PT	:= T#1MS;						
+					eStates	:= E_SampleStates.INIT;				
+				E_SampleStates.INIT:
+					ton_timeout.PT	:= T#1S;
+					eStates	:= E_SampleStates.WAIT_ON; 
+				E_SampleStates.DETECTION:
+					ton_timeout.PT	:= T#3S;
+				E_SampleStates.WAIT:
+					ton_timeout.PT	:= T#200MS;					
+				E_SampleStates.WAIT_ON:
+					lamp	:= TRUE;
+					IF ton_timeout.Q THEN
+						eStates	:= E_SampleStates.WAIT_OFF;
+					END_IF
+				E_SampleStates.WAIT_OFF:
+					lamp	:= FALSE;
+					IF ton_timeout.Q THEN
+						eStates	:= E_SampleStates.IDLE;
+					END_IF
+				E_SampleStates.ERROR:
+					;
+			END_CASE
+		
+		
+	ePMLProtUnitMode_Maintenance, ePMLUnitMode_Service:		
+		//
+		
+	ePMLProtUnitMode_Manual:		//Manaul
+
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Holding" Id="{86cff955-61e4-408b-b2d8-f2046d06f0f0}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Holding'}
+METHOD M_Holding
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE fbUnitModeManager.eModeStatus OF
+	ePMLProtUnitMode_Production:		//Mode Production
+		//Finisch the actual seperationstep	
+		
+
+	ePMLProtUnitMode_Maintenance:
+		M_StateComplete();
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Idle" Id="{dfe9aba3-d5d0-42e7-b1ed-60e2c724fc75}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Idle'}
+METHOD M_Idle
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF G_HMI.bAging_test THEN
+	//M_agingTest();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_mapping" Id="{e0693328-8ff4-4bc0-a41b-371557aa2a9c}">
+      <Declaration><![CDATA[METHOD M_mapping : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Reset" Id="{f9a92c2c-cd0f-45e4-9799-65850bce3e92}">
+      <Declaration><![CDATA[METHOD M_Reset
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//Take away all commands
+IF GVL.stChangeIntoProduction.bYesReset THEN
+;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Resetting" Id="{4d657083-4b7f-4b47-b48f-38e10cf86d4a}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Resetting'}
+METHOD M_Resetting
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE fbUnitModeManager.eModeStatus OF
+	ePMLProtUnitMode_Production:		//Production, Mantainance, Manual
+		lamp	:= FALSE;
+		eStates :=E_SampleStates.IDLE;
+		M_StateComplete();
+	
+	ePMLProtUnitMode_Maintenance, ePMLProtUnitMode_Manual, ePMLUnitMode_Service:
+		M_StateComplete();
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Starting" Id="{96856410-7941-4359-a2ce-673531411158}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Starting'}
+METHOD M_Starting
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE fbUnitModeManager.eModeStatus OF
+	ePMLProtUnitMode_Production:		//Production, Mantainance, Manual
+		
+		M_StateComplete();
+	ePMLProtUnitMode_Maintenance, ePMLProtUnitMode_Manual, ePMLUnitMode_Service:
+		M_StateComplete();
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Stopping" Id="{77c3cee3-a1f2-4fa1-aa43-d4090b723217}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Stopping'}
+METHOD M_Stopping
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE fbUnitModeManager.eModeStatus OF
+	ePMLProtUnitMode_Production, ePMLProtUnitMode_Manual:
+				//////////////////////////////////////////////////////////timeout//////////////////////////////////////////	
+		iStateTemp	:= eStateTemp;
+		ton_timeout();
+		IF eStateTemp=eStates THEN
+			ton_timeout.IN	:=TRUE;
+		ELSE
+			ton_timeout.IN	:=FALSE;
+			eStateTemp	:= eStates;	
+		END_IF
+		IF ton_timeout.Q THEN	
+			ton_timeout.IN	:=FALSE;
+			CASE eStates OF		
+				E_SampleStates.IDLE:						
+					;
+				E_SampleStates.INIT:
+					;
+				E_SampleStates.WAIT_ON:
+					;
+				E_SampleStates.WAIT_OFF:
+					;			
+				E_SampleStates.ERROR:	
+					alarm_temp.Message	:= 'Sample in error state';
+				ELSE
+					alarm_temp.Message	:= 'UNKNOWN STATES in Sample module';
+			END_CASE
+			IF eStates<>E_SampleStates.IDLE AND eStates<>E_SampleStates.WAIT_ON AND eStates<>E_SampleStates.WAIT_OFF THEN
+				GVL.pml_adminAlarm.M_SetAlarm(stAdmin:=GVL.PackTags.Admin,stAlarm:=alarm_temp);
+			END_IF
+		END_IF
+		
+		CASE eStates OF 
+				E_SampleStates.IDLE:						
+					eStates	:= E_SampleStates.INIT;				
+				E_SampleStates.INIT:
+					ton_timeout.PT	:= T#1S;
+					eStates	:= E_SampleStates.WAIT_ON; 
+				E_SampleStates.WAIT_ON:
+					lamp	:= TRUE;
+					IF ton_timeout.Q THEN
+						eStates	:= E_SampleStates.WAIT_OFF;
+					END_IF
+				E_SampleStates.WAIT_OFF:
+					lamp	:= FALSE;
+					IF ton_timeout.Q THEN
+						eStates	:= E_SampleStates.IDLE;
+						M_StateComplete();	
+					END_IF
+				E_SampleStates.ERROR:
+					;
+			END_CASE			
+	ePMLProtUnitMode_Maintenance, ePMLUnitMode_Service:
+		M_StateComplete();	
+			//not defined
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Undefined" Id="{cdf2588c-c0af-48d6-a8bb-b7f419f8fb70}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Undefined'}
+METHOD M_Undefined
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+bUndefinedDone					:= TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ParseStateToString" Id="{5bca744c-9c54-4623-a6b9-77393438f207}">
+      <Declaration><![CDATA[METHOD ParseStateToString : STRING
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE THIS^.eStates OF
+	E_SampleStates.IDLE:
+		ParseStateToString	:='IDLE';
+	E_SampleStates.INIT:
+		ParseStateToString	:='INIT';
+	E_SampleStates.CHECK:
+		ParseStateToString	:='CHECK';
+	E_SampleStates.DETECTION:	
+		ParseStateToString	:='DETECTION';
+	E_SampleStates.LAMP_ON:
+		ParseStateToString	:='LAMP_ON';
+	E_SampleStates.LAMP_OFF:
+		ParseStateToString	:='LAMP_OFF';
+	E_SampleStates.WAIT:
+		ParseStateToString	:='WAIT';
+	E_SampleStates.WAIT_ON:
+		ParseStateToString	:='WAIT_ON';
+	E_SampleStates.WAIT_OFF:
+		ParseStateToString	:='WAIT_OFF';
+	E_SampleStates.DONE:	
+		ParseStateToString	:='DONE';
+	E_SampleStates.ERROR:
+		ParseStateToString	:='ERROR';
+	ELSE
+		ParseStateToString	:='UNKNOW STATE';
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_Sample">
+      <LineId Id="9" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="35" Count="1" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="52" Count="3" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="70" Count="0" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="14" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Sample.Callback">
+      <LineId Id="10" Count="1" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Sample.M_Aborting">
+      <LineId Id="3" Count="1" />
+      <LineId Id="11" Count="3" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Sample.M_agingTest">
+      <LineId Id="41" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Sample.M_Completing">
+      <LineId Id="3" Count="1" />
+      <LineId Id="8" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Sample.M_Execute">
+      <LineId Id="242" Count="0" />
+      <LineId Id="5" Count="1" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="187" Count="0" />
+      <LineId Id="145" Count="5" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="226" Count="2" />
+      <LineId Id="151" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="237" Count="3" />
+      <LineId Id="236" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="174" Count="0" />
+      <LineId Id="251" Count="1" />
+      <LineId Id="175" Count="5" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="182" Count="3" />
+      <LineId Id="243" Count="1" />
+      <LineId Id="248" Count="0" />
+      <LineId Id="245" Count="0" />
+      <LineId Id="189" Count="0" />
+      <LineId Id="197" Count="0" />
+      <LineId Id="193" Count="2" />
+      <LineId Id="198" Count="1" />
+      <LineId Id="201" Count="1" />
+      <LineId Id="192" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="203" Count="1" />
+      <LineId Id="129" Count="6" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Sample.M_Holding">
+      <LineId Id="3" Count="2" />
+      <LineId Id="40" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Sample.M_Idle">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="1" />
+    </LineIds>
+    <LineIds Name="FB_Sample.M_mapping">
+      <LineId Id="85" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Sample.M_Reset">
+      <LineId Id="3" Count="1" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Sample.M_Resetting">
+      <LineId Id="3" Count="1" />
+      <LineId Id="58" Count="0" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="45" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Sample.M_Starting">
+      <LineId Id="3" Count="1" />
+      <LineId Id="12" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Sample.M_Stopping">
+      <LineId Id="3" Count="1" />
+      <LineId Id="134" Count="44" />
+      <LineId Id="182" Count="0" />
+      <LineId Id="179" Count="2" />
+      <LineId Id="133" Count="0" />
+      <LineId Id="14" Count="2" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Sample.M_Undefined">
+      <LineId Id="10" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Sample.ParseStateToString">
+      <LineId Id="5" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="31" Count="1" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

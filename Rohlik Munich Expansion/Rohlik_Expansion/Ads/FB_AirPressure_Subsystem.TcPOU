@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_AirPressure_Subsystem" Id="{ee2a3eaf-27ef-4f1c-9e3b-5c87ef24b50d}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_AirPressure_Subsystem EXTENDS FB_Generic
+VAR_INPUT
+
+	 pPackTags		: POINTER TO ST_PackMLv30;
+END_VAR
+VAR_OUTPUT
+END_VAR
+
+VAR
+ton1	: TON;
+iCase	 : INT;
+iAng_airPress	: INT;
+iAng_airFlow		: INT;
+air_pressure_status AT%Q* : AirPressureStatus; (* Current Air pressure status *)
+air_pressure AT%Q*: REAL; (* Current air pressure value, MPa *)
+air_flow AT%Q*: REAL; (* Current air flow value, L/min *)
+
+rCurrent_flow	: REAL;
+current_air_flow	: REAL; //unit: L/min
+rTrig_error	:ARRAY[1..20] OF R_TRIG;
+END_VAR
+
+VAR CONSTANT
+	air_pressure_threshold_error AT%Q*: REAL:=0.4;//0.4*100 setting in PLC   (* Constant threshold of ERROR state for air pressure *)
+	air_pressure_threshold_warning AT%Q*: REAL:=0.5;//0.5*100 setting in PLC (* Constant threshold of WARNING state for air pressure *)
+    air_pressure_threshold_overtop AT%Q*: REAL:=1;//1*100 setting in PLC (* Constant threshold of OVERTOP state for air pressure *)
+	
+	rMin_voltage_flow	: REAL	:= 0.974;
+	rMax_voltage_flow	: REAL	:= 5;
+	rMaxFlow_L_per_minute		: REAL	:= 2000;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[SUPER^();
+IF sInstanceName='air_pressure1' THEN
+	iAng_airPress	:=GVL.iAng_airPress_left;
+	iAng_airFlow		:= GVL.iAng_AirFlow_left;	
+END_IF
+IF sInstanceName='air_pressure2' THEN
+	iAng_airPress	:=GVL.iAng_airPress_right;
+	iAng_airFlow		:= GVL.iAng_AirFlow_right;	
+END_IF
+
+///////////////////air_pressure//////////////////////////////
+air_pressure	:= INT_TO_REAL(DINT_TO_INT(iAng_airPress*100/16#8000))/100;
+IF air_pressure<air_pressure_threshold_error THEN
+	air_pressure_status	:= AirPressureStatus.ERROR;
+ELSIF air_pressure<air_pressure_threshold_warning THEN
+	air_pressure_status	:= AirPressureStatus.WARNING;
+ELSIF air_pressure<air_pressure_threshold_overtop THEN
+	air_pressure_status	:= AirPressureStatus.HEALTH;
+ELSE
+	air_pressure_status	:= AirPressureStatus.OVERTOP;
+END_IF
+		
+///////////////////air_flow//////////////////////////////
+rCurrent_flow	:= INT_TO_REAL(iAng_airFlow*10)/16#8000;
+IF rCurrent_flow>=1 THEN
+	current_air_flow	:= rMaxFlow_L_per_minute*(rCurrent_flow-rMin_voltage_flow)/(rMax_voltage_flow-rMin_voltage_flow);
+ELSE
+	current_air_flow	:= 0;
+END_IF		
+
+air_flow:=REAL_TO_INT(current_air_flow);
+
+
+
+
+
+
+rTrig_error[1](CLK:=air_pressure_status=AirPressureStatus.ERROR AND pPackTags^.Status.StateCurrent<>E_PMLState.ePMLState_Clearing);
+IF pPackTags^.Status.StateCurrent<>E_PMLState.ePMLState_Resetting THEN
+	FOR i:=1 TO 20 DO
+		IF rTrig_error[i].Q THEN
+			THIS^.packTags.Admin.Alarm[i].ID	:= i;
+			CASE i OF
+				1:
+					THIS^.packTags.Admin.Alarm[1].Message	:= GenerateErrorMsg(errorType:='A',iState := i,errorMsg:='Air pressure is low');
+			END_CASE
+			THIS^.pml_adminAlarm.M_SetAlarm(stAdmin:=pPackTags^.Admin,stAlarm := THIS^.packTags.Admin.Alarm[i]);
+		END_IF
+	END_FOR
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="FB_AirPressure_Subsystem">
+      <LineId Id="47" Count="0" />
+      <LineId Id="263" Count="0" />
+      <LineId Id="266" Count="0" />
+      <LineId Id="264" Count="1" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="262" Count="0" />
+      <LineId Id="260" Count="1" />
+      <LineId Id="172" Count="0" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="58" Count="8" />
+      <LineId Id="128" Count="1" />
+      <LineId Id="139" Count="4" />
+      <LineId Id="130" Count="0" />
+      <LineId Id="67" Count="1" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="89" Count="0" />
+      <LineId Id="86" Count="0" />
+      <LineId Id="99" Count="0" />
+      <LineId Id="221" Count="0" />
+      <LineId Id="95" Count="0" />
+      <LineId Id="208" Count="11" />
+      <LineId Id="94" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

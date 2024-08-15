@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_UnitName" Id="{38fb3a11-736e-4cc8-89e9-4c4bd7e49aca}">
+    <Declaration><![CDATA[//Enumeration for Machineunits
+TYPE E_UnitName :
+(
+	eMachine		:= 1,
+	eMachine1		:= 2,
+	eMachine2		:= 3,
+	eWorking1		:= 4,
+	eLoading		:= 5, 		
+	eWorking2		:= 6,
+	eSample			:= 7		
+)DINT;
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

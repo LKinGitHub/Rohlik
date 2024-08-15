@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_RollerStates" Id="{1cfca53e-7cac-4b5e-8419-2328d088c002}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE E_RollerStates :
+(
+	IDLE := 0,
+	INIT,
+	DETECTION,
+	LOADING,
+	UNLOADING,
+	STOPPER_DOWN,
+	STOPPER_UP,
+	ROLLER_UNLOAD,
+	WAIT_MUTE_OFF,
+	UNLOAD_LIFT_MODULE,
+	AGING_STATE_0,
+	AGING_STATE_1,
+	WAIT,
+	WAIT_1,
+	DONE,
+	ERROR
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

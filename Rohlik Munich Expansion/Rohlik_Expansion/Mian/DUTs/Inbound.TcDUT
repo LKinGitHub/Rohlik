@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="Inbound" Id="{3c45f76f-b107-4a7f-8658-42ef4037bda9}">
+    <Declaration><![CDATA[TYPE Inbound :
+STRUCT
+	roller	: Roller;
+	//photo_sensor_mute	 : FB_DigitalInput;
+	//photo_sensor	: FB_DigitalInput;
+	photo_sensor:ARRAY[0..1]OF FB_DigitalInput;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

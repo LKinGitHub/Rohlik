@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Itf Name="I_PubSubService" Id="{8034fd04-d222-4a74-b449-6135efbd990d}">
+    <Declaration><![CDATA[(*
+Description:
+An interface to form the contract for a basic Publisher/Subscriber service.
+explaination for each method is located at the method's place.
+*)
+INTERFACE I_PubSubService
+]]></Declaration>
+    <Method Name="Publish" Id="{89011bfc-78d5-40bd-99bb-18c02ccfe15d}">
+      <Declaration><![CDATA[(*
+Description:
+Through this method you can publish data to a certain topic domain
+
+Params: topic - the type of topic you wish to publish data to.
+Params: data - the data you wish to send to said topic.
+*)
+METHOD Publish
+VAR_INPUT
+	topic : E_Topics;
+	data  : PubSubData;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="Subscribe" Id="{6c8cd33d-93cc-41fe-bb87-288ba53d5507}">
+      <Declaration><![CDATA[(*
+Description:
+Through this method you can subcribe to a topic and be notified via the I_SubCallback interface.
+
+Params: topic - the type of topic you wish to subscribe to
+Params: subCallback - is a reference to subscribe who needs to implement the O_SubCallback interface.
+Return: INT - this is an ID you need to keep in order to be able to use the Unsubscribe method.
+		ID > 0 is a valid ID, ID = -1 meaning the you've failed to subscribe.
+*)
+METHOD Subscribe : INT
+VAR_INPUT
+	topic	: E_Topics;
+	sInstance	: STRING;
+	subCallback	: I_SubCallback;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="Unsubscribe" Id="{50141c5d-5f0a-4cfe-a032-1652e1f11c9e}">
+      <Declaration><![CDATA[(*
+Description:
+Through this method you can unsubcribe to a topic you've already subscribed beforehand.
+
+Params: topic - the type of topic you wish to unsubscribe to
+Params: subscriberID - the ID you've received from the subscribe method.
+*)
+METHOD Unsubscribe
+VAR_INPUT
+	topic : E_Topics;
+	subscriberID : INT;
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

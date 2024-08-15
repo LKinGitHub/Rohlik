@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_topic_sample" Id="{def330aa-0bf4-4a2b-8964-dcadf539921b}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE E_topic_sample :
+(
+	UNKNOWN := 0,
+	TEST1,
+	TEST2,
+	TEST3
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

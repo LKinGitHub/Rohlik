@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_mcp" Id="{95855287-162e-42db-95f8-8863eff62dc1}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_mcp
+VAR_INPUT
+	id	: INT;
+END_VAR
+VAR_OUTPUT
+	
+END_VAR
+VAR_IN_OUT
+	
+END_VAR
+VAR
+	lightTower			: ST_LightTower;
+	EDM_EES				: BOOL;
+	EDM_EAS				: BOOL;
+	st_safety_door	    : ST_safetyDoor;
+	st_control_pannel	: ST_control_pannel;
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[M_mapping();
+
+
+
+]]></ST>
+    </Implementation>
+    <Method Name="M_mapping" Id="{c22e5ccb-b81e-43ce-8676-642b34cf9f06}">
+      <Declaration><![CDATA[METHOD M_mapping : BOOL
+VAR_INPUT
+END_VAR
+VAR
+	flashPeriodMs 		: ULINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE id OF	
+	1:
+		/////////////////////////////////////digital input////////////////////////////////////////
+		EDM_EES								:= G_IO.arDI[0].Ch[0];   //EDM_EES1
+		EDM_EAS								:= G_IO.arDI[0].Ch[1];	 //EDM_EAS1		
+		st_safety_door.button_reset			:= G_IO.arDI[0].Ch[2];
+		st_safety_door.button_unlock		:= G_IO.arDI[0].Ch[3];
+		st_safety_door.button_lock			:= G_IO.arDI[0].Ch[4];
+		st_safety_door.door_locked			:= G_IO.arSI[0].Ch[3] AND G_IO.arSI[0].Ch[4];
+		st_safety_door.door_closed			:= G_IO.arSI[2].Ch[3];		
+		/////////////////////////////////////digital output////////////////////////////////////////	
+		G_IO.arDO[0].Ch[0]	:= lightTower.RED;
+		G_IO.arDO[0].Ch[1]	:= lightTower.YELLOW;
+		G_IO.arDO[0].Ch[2]	:= lightTower.GREEN;
+		G_IO.arDO[0].Ch[3]	:= lightTower.BLUE;
+		G_IO.arDO[0].Ch[4]	:= lightTower.WHITE;
+		G_IO.arDO[0].Ch[5]	:= lightTower.BEEPING;
+		G_IO.arDO[0].Ch[8]	:= st_safety_door.lamp_reset; 
+		G_IO.arDO[0].Ch[9]	:= st_safety_door.lamp_unlock;
+		G_IO.arDO[0].Ch[10]	:= st_safety_door.lamp_lock;
+	2:
+		/////////////////////////////////////digital input////////////////////////////////////////
+		EDM_EES								:= G_IO.arDI[0].Ch[8];   //EDM_EES2
+		EDM_EAS								:= G_IO.arDI[0].Ch[9];	 //EDM_EAS2
+		st_safety_door.button_reset		    := G_IO.arDI[0].Ch[10];
+		st_safety_door.button_unlock		:= G_IO.arDI[0].Ch[11];
+		st_safety_door.button_lock			:= G_IO.arDI[0].Ch[12];
+		st_safety_door.door_locked			:= G_IO.arSI[1].Ch[3] AND G_IO.arSI[1].Ch[4];
+		st_safety_door.door_closed			:= G_IO.arSI[2].Ch[4];
+		/////////////////////////////////////digital output////////////////////////////////////////	
+		G_IO.arDO[1].Ch[0]	:= lightTower.RED;
+		G_IO.arDO[1].Ch[1]	:= lightTower.YELLOW;
+		G_IO.arDO[1].Ch[2]	:= lightTower.GREEN;
+		G_IO.arDO[1].Ch[3]	:= lightTower.BLUE;
+		G_IO.arDO[1].Ch[4]	:= lightTower.WHITE;
+		G_IO.arDO[1].Ch[5]	:= lightTower.BEEPING;	
+		G_IO.arDO[1].Ch[8]	:= st_safety_door.lamp_reset;
+		G_IO.arDO[1].Ch[9]	:= st_safety_door.lamp_unlock;	
+		G_IO.arDO[1].Ch[10]	:= st_safety_door.lamp_lock;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_mcp">
+      <LineId Id="186" Count="3" />
+      <LineId Id="36" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_mcp.M_mapping">
+      <LineId Id="205" Count="0" />
+      <LineId Id="423" Count="0" />
+      <LineId Id="422" Count="0" />
+      <LineId Id="206" Count="1" />
+      <LineId Id="211" Count="1" />
+      <LineId Id="462" Count="0" />
+      <LineId Id="283" Count="0" />
+      <LineId Id="286" Count="0" />
+      <LineId Id="215" Count="0" />
+      <LineId Id="309" Count="0" />
+      <LineId Id="227" Count="0" />
+      <LineId Id="419" Count="2" />
+      <LineId Id="228" Count="0" />
+      <LineId Id="455" Count="0" />
+      <LineId Id="454" Count="0" />
+      <LineId Id="464" Count="0" />
+      <LineId Id="424" Count="0" />
+      <LineId Id="427" Count="0" />
+      <LineId Id="442" Count="0" />
+      <LineId Id="446" Count="2" />
+      <LineId Id="463" Count="0" />
+      <LineId Id="452" Count="0" />
+      <LineId Id="435" Count="6" />
+      <LineId Id="425" Count="0" />
+      <LineId Id="453" Count="0" />
+      <LineId Id="426" Count="0" />
+      <LineId Id="465" Count="0" />
+      <LineId Id="30" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

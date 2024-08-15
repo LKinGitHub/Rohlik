@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_WorkingStates" Id="{6f75a5c4-44ff-4fb1-9d15-0d913b000b2e}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE E_WorkingStates ://can't divide into 2 states for load and unload,for sometimes if not unload,then call load,can cause accident
+(
+	IDLE := 0,
+	INIT,
+	CHECK,
+	WAIT_NEW_TOTE,
+	LOADING,
+	WAIT_FINISHED,
+	TOTE_LOAD,
+	TOTE_UNLOAD,
+	BAG_OPEN,
+	BAG_OPEN_DETECTION,
+	BAG_CLOSE_STEP_0,
+	BAG_CLOSE_STEP_1,
+	BAG_CLOSE,
+	BAG_OPEN_INIT,
+	TOTE_LIFT_UP,
+	TOTE_LIFT_DOWN,
+	BAG_OPEN_UP,
+	BAG_OPEN_DOWN,
+	TOTE_OUT,
+	WAIT_1,
+	
+	WAIT_LOGTECH_OUTBOUND,
+	TOTE_STATUS_DETECTION,
+	
+	NOTIFY_LOADING_OUTBOUND,
+	
+	AGING_STATE_0,
+	AGING_STATE_1,
+
+	WAIT,
+	
+	WAIT_UNLOADING,
+	WAIT_SENSOR_ON,
+	WAIT_SENSOR_OFF,
+	WAIT_MUTE_SENSOR_ON,
+	WAIT_MUTE_SENSOR_OFF,
+	WAIT_LOAD_SENSOR_ON,
+	WAIT_LOAD_SENSOR_OFF,
+	WAIT_RECEIVE_TOTE_FINISHED,
+	WAIT_TOTE_DETECTION_ON,
+	WAIT_TOTE_DETECTION_OFF,
+	DONE,
+	ERROR
+	
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

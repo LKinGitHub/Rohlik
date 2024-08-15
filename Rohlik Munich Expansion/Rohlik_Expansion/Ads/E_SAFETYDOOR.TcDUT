@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_SAFETYDOOR" Id="{5b3f7e85-5778-4f82-bc9f-18824c990806}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE E_SAFETYDOOR :
+(
+	IDLE := 0,
+	SAFETY,
+	LOCKING,
+	UNLOCKING,
+	UNLOCKED,
+	LOCKED,
+	WAIT_LOCKED,
+	WAIT_UNLOCKED,
+	WAIT_UNLOCK_EN,
+	REQUEST_LOCK,
+	WAIT_ROBOT,
+	WATI_LODING_DOOR,
+	RESET_SAFETY
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

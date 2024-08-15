@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_GPWM" Id="{8bc82758-ebed-4e99-8faa-1c8ee63ebdc9}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_GPWM
+VAR_INPUT
+	i_xEnable			: BOOL;
+	i_udiTime			: UDINT;//PWM宽度时间，最小值为0，单位ms
+	i_udiCycle			: UDINT;//PWM周期时间，最小值为1，单位ms
+END_VAR
+VAR_OUTPUT
+	q_xOut				: BOOL;//占空比输出
+END_VAR
+VAR
+	fbTon				: TON;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//数据保护
+IF i_udiCycle < 1 THEN
+	i_udiCycle := 1;
+END_IF
+
+IF i_udiTime > i_udiCycle THEN
+	i_udiTime := i_udiCycle;
+END_IF
+
+
+//逻辑代码
+IF i_xEnable THEN
+	fbTon(IN:= TRUE, PT:= UDINT_TO_TIME(i_udiCycle));
+	IF fbTon.Q THEN
+		fbTon(IN:= FALSE);
+	END_IF
+	IF fbTon.ET <= UDINT_TO_TIME(i_udiTime) THEN
+		q_xOut := TRUE;
+	ELSE
+		q_xOut := FALSE;
+	END_IF
+ELSE
+	fbTon(IN:= FALSE);
+	q_xOut := FALSE;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="FB_GPWM">
+      <LineId Id="22" Count="23" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

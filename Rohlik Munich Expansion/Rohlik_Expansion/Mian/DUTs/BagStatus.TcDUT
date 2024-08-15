@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="BagStatus" Id="{de4e9ee0-6896-4392-bfe6-b4e8e6e3e624}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE BagStatus:
+(
+	UNKNOWN				:=0,
+  	OPENED				:=1,
+	UNOPENED			:=2,
+	ERROR				:=3
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

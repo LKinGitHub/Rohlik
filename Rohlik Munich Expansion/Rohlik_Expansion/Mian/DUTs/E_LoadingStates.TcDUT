@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_LoadingStates" Id="{871266a5-332c-4c7f-8e7c-bfe1d5515cfe}">
+    <Declaration><![CDATA[
+{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE E_LoadingStates :
+(
+	IDLE := 0,
+	INIT,
+	CHECK,
+	WAIT,
+	WAIT_1,
+	DETECTION,
+	LOADING,
+	UNLOADING,
+	WAIT_WORKING1_READY_LOAD,
+	WAIT_WORKING2_READY_LOAD,
+	LIFT_POSITION_LOAD,
+	LIFT_POSITION_UNLOAD,
+	LIFT_UP,
+	ROLLER_LOAD,
+	ROLLER_UNLOAD_WORKING1,
+	ROLLER_UNLOAD_WORKING2,
+	WAIT_FINISH_OUTBOUND1,
+	WAIT_FINISH_OUTBOUND2,
+	AGING_STATE_0,
+	AGING_STATE_1,
+	DONE,
+	WAIT_READY_TO_TRANSFER,
+	LOAD_UP_POSITION,
+	LOAD_DOWN_POSITION,
+	ROLLER_Y_LOAD,
+	WORKING1_INBOUND_TOTE,
+	WORKING2_INBOUND_TOTE,
+	ERROR
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

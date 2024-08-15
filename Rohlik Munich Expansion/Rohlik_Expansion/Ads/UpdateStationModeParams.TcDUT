@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="UpdateStationModeParams" Id="{9a24d9e1-bfc6-456d-a2c5-b15bbfa573da}">
+    <Declaration><![CDATA[{attribute 'pack_mode':='1'}
+TYPE UpdateStationModeParams :
+STRUCT
+	station_mode: StationMode; // The current station mode
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

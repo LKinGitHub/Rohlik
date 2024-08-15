@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="GVL_SAFETY" Id="{56d7f6c6-7561-45b1-8a93-b9ed961517d9}">
+    <Declaration><![CDATA[//{attribute 'qualified_only'}
+VAR_GLOBAL
+    	                                        	                                         
+SO0_0              AT%I*  :BOOL           ;   //Robot1_EES急停         
+SO0_1              AT%I*  :BOOL           ;   //Robot1_EAS安全门        
+SO0_2              AT%I*  :BOOL           ;   //Robot2_EES急停  	                    
+SO0_3              AT%I*  :BOOL           ;   //Robot2_EAS安全门  	    
+                  
+SO1_0              AT%I*  :BOOL           ;   //liftServo_STO1    升降伺服STO1
+SO1_1              AT%I*  :BOOL           ;   //liftServo_STO2    升降伺服STO1
+SO1_2              AT%I*  :BOOL           ;   //rollerBelt_Power  滚筒皮带电源STO控制	                    
+SO1_3              AT%I*  :BOOL           ;   //NA
+	                    
+SO2_0              AT%I*  :BOOL           ;   //Place1_Servo_STO1 分拣1伺服STO1     
+SO2_1              AT%I*  :BOOL           ;   //Place1_Servo_STO2 分拣1伺服STO2
+SO2_2              AT%I*  :BOOL           ;   //rollerBelt_Power  滚筒皮带电源STO控制	
+SO2_3              AT%I*  :BOOL           ;   //NA	
+                    
+SO3_0              AT%I*  :BOOL           ;   //Place2_Servo_STO1 分拣2伺服STO1    
+SO3_1              AT%I*  :BOOL           ;   //Place_Servo_STO2  分拣2伺服STO2          
+SO3_2              AT%I*  :BOOL           ;   //rollerBelt_Power  滚筒皮带电源STO控制
+SO3_3              AT%I*  :BOOL           ;   //NA	       
+
+SO4_0              AT%I*  :BOOL           ;   //Place2_Servo_STO1 分拣2伺服STO1    
+SO4_1              AT%I*  :BOOL           ;   //Place_Servo_STO2  分拣2伺服STO2          
+SO4_2              AT%I*  :BOOL           ;   //rollerBelt_Power  滚筒皮带电源STO控制
+SO4_3              AT%I*  :BOOL           ;   //NA	                                                       
+	                                        	 
+
+b_FBerror					AT %I*	: BOOL;//安全功能块错误
+b_ComError					AT %I*	: BOOL;//安全端口错误
+	 
+b_GroupRun					AT %Q*  : BOOL :=1;   //安全模块运行
+b_ErrorAck					AT %Q*  : BOOL;     //安全模块错误确认
+b_EStopRestart 				AT %Q* 	: BOOL;	//安全模块复位 	
+bSafetyRestart_left			AT %Q* 	: BOOL; 
+bSafetyRestart_right		AT %Q* 	: BOOL;
+bSafetyReset_airDump	 	AT %Q* 	: BOOL;
+
+bLeftDoorUnlock_Request 	AT %Q* : BOOL;	//TRUE:UNLOCK 	 
+bRightDoorUnlock_Request 	AT %Q* : BOOL;	//TRUE:UNLOCK 
+
+
+robots_ees_edm  			AT %Q* : BOOL ;
+
+Robot1_EES_EDM  			AT %Q* : BOOL;
+Robot2_EES_EDM  			AT %Q* : BOOL;
+Robot1_EAS_EDM  			AT %Q* : BOOL;
+Robot2_EAS_EDM  			AT %Q* : BOOL;
+Lift_STO_EDM           		AT %Q* : BOOL;
+Place1_STO_EDM         		AT %Q* : BOOL; 
+Place2_STO_EDM        		AT %Q* : BOOL; 
+
+robot1_STO_EES				AT %I* : BOOL;
+robot1_STO_EAS				AT %I* : BOOL;	
+robot2_STO_EES				AT %I* : BOOL;
+robot2_STO_EAS				AT %I* : BOOL;
+Lift_STO  		        	AT %I* : BOOL; 
+Place1_STO	         		AT %I* : BOOL;
+Place2_STO	        		AT %I* : BOOL; 
+bAirDump1					AT %I* : BOOL; 
+bAirDump2					AT %I* : BOOL; 
+
+
+
+               
+ END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

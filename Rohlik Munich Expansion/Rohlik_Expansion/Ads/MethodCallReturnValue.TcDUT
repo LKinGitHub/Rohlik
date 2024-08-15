@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="MethodCallReturnValue" Id="{08494289-2809-49de-9c4c-a7c971907568}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE MethodCallReturnValue :
+(
+	ACCEPTED     := 0, // Action request accepted
+	DECLINED_BUSY    := 1, // Request declined, busy
+	DECLINED_UNINITIALIZED := 2, // Request declined, has not been initialized
+	DECLINED_ERROR    := 3 // Request declined, there is an error
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

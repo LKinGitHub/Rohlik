@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="InitToteRequestParams" Id="{baeb2183-429b-4331-98cf-72437eb37aec}">
+    <Declaration><![CDATA[{attribute 'pack_mode':='1'}
+TYPE InitToteRequestParams :
+STRUCT
+	source_id : ModelIdentifier;
+	target_id: ModelIdentifier;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

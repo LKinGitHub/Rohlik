@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ModuleID" Id="{daed2171-74de-425b-95d1-43df6987b7bc}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE ModuleID :
+(
+	UNKNOWN					:= 0,
+	SAFETY					:= 1,
+	AIR						:= 2,
+	
+	
+	
+	LOADING					:= 3,
+	WORKING1				:= 4,
+	WORKING2				:= 5,
+	
+	SAMPLE1					:= 98,
+	SAMPLE2					:= 99
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

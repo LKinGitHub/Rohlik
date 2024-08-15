@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="DigitalOutputStatus" Id="{bf8724bb-82a8-44ad-9915-4228400520cc}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE DigitalOutputStatus:
+(
+        OFF := 0,
+        ON := 1
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

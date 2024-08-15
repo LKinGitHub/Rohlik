@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="OrderToteCommand" Id="{fc60511a-b62a-4b85-91eb-62075f2f3daa}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE OrderToteCommand:
+(
+DO_NOTHING	:=0,
+LOAD		:=1,
+UNLOAD		:=2,
+SWAP		:=3,
+OPEN_BAG	:=4,
+STOP		:=5 ,//FOR STOP THE LOAD OR UNLOAD COMMNAND
+LOAD_LEFT := 6,
+LOAD_RIGHT := 7,
+UNLOAD_LEFT := 8,
+UNLOAD_RIGHT := 9
+);
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>
