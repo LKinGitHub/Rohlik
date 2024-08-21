@@ -77,7 +77,8 @@ VAR
 	
 	
 	
-	
+	stSubModuleInfo		: ARRAY [1..iSubModule] OF ST_PMLSubUnitInfo;	//Informations about the Subunits
+	bMachineStartedUp	: BOOL;
 END_VAR
 
 VAR CONSTANT
@@ -86,6 +87,7 @@ VAR CONSTANT
 	rMax_bag	: REAL	:= 56;
 	rMin_bag	: REAL	:= -0.5;	
 	
+	iSubModule		: UDINT:=1;
 END_VAR
 
 VAR PERSISTENT
@@ -224,8 +226,38 @@ END_IF
 //	str4debug	:= CONCAT(STR1:=str4debug,STR2:='OFF');
 //	ADSLOGSTR(msgCtrlMask:=ADSLOG_MSGTYPE_LOG,msgFmtStr:=str4debug,strArg:='');
 //END_IF
+IF sInstanceName='working1' THEN
+	GVL.fb_autoStore1(	eModeCommand:=eModeCommand,
+						eCommand:=eCommand,
+						eMode	=>,
+						eState =>stSubModuleInfo[1].eState
+					);
+	stSubModuleInfo[1].Active			:= TRUE;
+	IF  GVL.fb_autoStore1.bUndefinedDone THEN
+		bUndefinedDone := TRUE;
+	END_IF	
+END_IF
+IF sInstanceName='working2' THEN
+	GVL.fb_autoStore2(	eModeCommand:=eModeCommand,
+						eCommand:=eCommand,
+						eMode	=>,
+						eState =>stSubModuleInfo[1].eState
+					);
+	stSubModuleInfo[1].Active			:= TRUE;
+	IF  GVL.fb_autoStore2.bUndefinedDone THEN
+		bUndefinedDone := TRUE;
+	END_IF		
+END_IF
 
-]]></ST>
+
+IF bUndefinedDone AND NOT bMachineStartedUp THEN
+	eCommand	:= ePMLCommand_Abort;
+	bMachineStartedUp			:= TRUE;
+END_IF
+//The fbStateMachine from FB_Machine gets the Information about the states and activity from the subunits
+fbStateMachine.stSubUnitInfoRef.ArraySize		:= SIZEOF(stSubModuleInfo);
+fbStateMachine.stSubUnitInfoRef.NoOfSubUnits	:= iSubModule;
+fbStateMachine.stSubUnitInfoRef.pArray			:= ADR(stSubModuleInfo);]]></ST>
     </Implementation>
     <Folder Name="methods" Id="{8bc87918-8563-4692-8444-34bb90973d43}" />
     <Method Name="Callback" Id="{57de051f-9cdc-4d76-89c1-6c8bc23eec59}">
@@ -298,6 +330,10 @@ METHOD M_Aborting
 		roller_inbound.roller.forward	:= FALSE;
 		roller_outbound.roller.forward		:= FALSE;
 		roller_outbound_assist.roller.forward	:= FALSE;	
+		st_mcAxis_lift.mcMoveAbsolute.Execute	:= FALSE;
+		st_mcAxis_bag.mcMoveAbsolute.Execute	:= FALSE;
+		st_mcAxis_lift.mcStop.Execute			:= TRUE;
+		st_mcAxis_bag.mcStop.Execute			:= TRUE;	
 		xInbound	:= FALSE;
 		xOutbound	:= FALSE;
 		iAging_test	:= 0;
@@ -1618,7 +1654,17 @@ END_CASE
       <LineId Id="1077" Count="0" />
       <LineId Id="1053" Count="1" />
       <LineId Id="1049" Count="0" />
+      <LineId Id="1215" Count="4" />
       <LineId Id="462" Count="0" />
+      <LineId Id="1241" Count="1" />
+      <LineId Id="1240" Count="0" />
+      <LineId Id="1214" Count="0" />
+      <LineId Id="1221" Count="6" />
+      <LineId Id="1244" Count="1" />
+      <LineId Id="1243" Count="0" />
+      <LineId Id="1220" Count="0" />
+      <LineId Id="1231" Count="8" />
+      <LineId Id="1228" Count="0" />
     </LineIds>
     <LineIds Name="FB_working_tote.Callback">
       <LineId Id="36" Count="1" />
@@ -1667,6 +1713,9 @@ END_CASE
       <LineId Id="3" Count="1" />
       <LineId Id="11" Count="0" />
       <LineId Id="30" Count="1" />
+      <LineId Id="68" Count="1" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="70" Count="0" />
       <LineId Id="61" Count="1" />
       <LineId Id="65" Count="0" />
       <LineId Id="34" Count="1" />

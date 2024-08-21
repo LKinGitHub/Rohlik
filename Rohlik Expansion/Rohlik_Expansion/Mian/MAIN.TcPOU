@@ -71,16 +71,15 @@ VAR
 	tote_1					:	FB_Tote_Subsystem;
 	tote_2					:	FB_Tote_Subsystem;
 	safety_1				:	FB_Safety_Subsystem;
-	machine_control_1		:	FB_MachineControl_Subsystem;
-	heartbeat_1				:	FB_HeartBeat_Subsystem;
 	safety_2				:	FB_Safety_Subsystem;
+	machine_control_1		:	FB_MachineControl_Subsystem;
+	machine_control_2		:	FB_MachineControl_Subsystem;
+	heartbeat_1				:	FB_HeartBeat_Subsystem;
+	heartbeat_2				:	FB_HeartBeat_Subsystem;
 	
 	air_pressure_1			:	FB_AirPressure_Subsystem;
-
 	air_pressure_2			:	FB_AirPressure_Subsystem;
 	
-	machine_control_2		:	FB_MachineControl_Subsystem;
-	heartbeat_2				:	FB_HeartBeat_Subsystem;
 	
 	heartbeat_data_test : HeartbeatParams;	
 	update_light_tower_params_test	: UpdateLightTowerParams;
@@ -165,7 +164,12 @@ GVL.fb_working2._sInstanceName	:= 'working2';
 GVL.fb_loading();
 GVL.fb_working1();
 GVL.fb_working2();
-
+GVL.fb_autoStore1();
+GVL.fb_autoStore1._sInstanceName	:= 'autoStore_1';
+GVL.fb_autoStore1._iModuleID	:= ModuleID.AUTOSTORE1;
+GVL.fb_autoStore2();
+GVL.fb_autoStore2._sInstanceName	:= 'autoStore_2';
+GVL.fb_autoStore2._iModuleID	:= ModuleID.AUTOSTORE2;
 
 fbMachine1(	eModeCommand:= GVL.PackTags.Command.UnitMode,
   			eMode => GVL.PackTags1.Status.UnitModeCurrent, 
@@ -517,7 +521,11 @@ GVL.aUnitInfo[eWorking2].ActState		:= GVL.fb_working2.eState;
       <LineId Id="2394" Count="4" />
       <LineId Id="2393" Count="0" />
       <LineId Id="2166" Count="2" />
-      <LineId Id="1781" Count="7" />
+      <LineId Id="2604" Count="1" />
+      <LineId Id="1781" Count="0" />
+      <LineId Id="2611" Count="1" />
+      <LineId Id="2610" Count="0" />
+      <LineId Id="1782" Count="6" />
       <LineId Id="1840" Count="0" />
       <LineId Id="1789" Count="7" />
       <LineId Id="1839" Count="0" />

@@ -4,9 +4,9 @@
     <Declaration><![CDATA[{attribute 'global_init_slot' := '40600'}
 VAR_GLOBAL CONSTANT
 	{attribute 'global_init_slot'}
-	DiMouduleMAX 			:	INT	:=	16;
+	DiMouduleMAX 			:	INT	:=	30;
 	{attribute 'global_init_slot'}
-	DOMODULEMAX 			:	INT	:=	16;
+	DOMODULEMAX 			:	INT	:=	30;
 	{attribute 'global_init_slot'}
 	SiMouduleMAX 			:	INT	:=	16;
 	{attribute 'global_init_slot'}

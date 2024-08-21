@@ -38,6 +38,7 @@ VAR
 	bOutbound		: BOOL;
 	bAbortInbound	: BOOL;
 	bAbortOutbound	: BOOL;
+	bAutostore_exchange	: BOOL;
 	inboundToteParams_temp	: InboundToteParams;
 	outboundToteParams_temp	: OutboundToteParams;
 	abortToreParams_temp	: AbortToteRequestParams;
@@ -103,7 +104,10 @@ IF bAbortOutbound THEN
 	abort_tote_request(abort_tote_request_params:=abortToreParams_temp);
 	bAbortOutbound	:= FALSE;
 END_IF
-
+IF bAutostore_exchange THEN
+	autostore_control_command(Command:=AutostoreControlCommand.START);
+	bAutostore_exchange	:= FALSE;
+END_IF
 
 ]]></ST>
     </Implementation>
@@ -175,6 +179,25 @@ IF sInstanceName='tote_2' THEN
 END_IF
 	
 ]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="autostore_control_command" Id="{133828ae-6310-4a05-8287-119e8426a197}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD autostore_control_command : BOOL
+VAR_INPUT
+	Command	: AutostoreControlCommand;
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF sInstanceName='tote_1' THEN
+	subData.Topic	:= E_Topics.AUTOSTORE1_EXCHANGE;
+	GVL.PubSubService.Publish(topic:= E_Topics.AUTOSTORE1_EXCHANGE,data:= subData);
+END_IF
+IF sInstanceName='tote_2' THEN
+	subData.Topic	:= E_Topics.AUTOSTORE2_EXCHANGE;
+	GVL.PubSubService.Publish(topic:= E_Topics.AUTOSTORE2_EXCHANGE,data:= subData);
+END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="barcode_validation_request" Id="{23a3884d-0782-4064-9104-e388dc1c5efc}">
@@ -406,6 +429,8 @@ END_IF]]></ST>
       <LineId Id="841" Count="0" />
       <LineId Id="838" Count="1" />
       <LineId Id="262" Count="0" />
+      <LineId Id="898" Count="0" />
+      <LineId Id="901" Count="1" />
       <LineId Id="844" Count="0" />
       <LineId Id="843" Count="0" />
       <LineId Id="60" Count="0" />
@@ -438,6 +463,13 @@ END_IF]]></ST>
       <LineId Id="342" Count="0" />
       <LineId Id="378" Count="1" />
       <LineId Id="248" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Tote_Subsystem.autostore_control_command">
+      <LineId Id="11" Count="0" />
+      <LineId Id="18" Count="1" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="21" Count="2" />
+      <LineId Id="20" Count="0" />
     </LineIds>
     <LineIds Name="FB_Tote_Subsystem.barcode_validation_request">
       <LineId Id="5" Count="0" />

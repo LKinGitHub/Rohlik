@@ -60,10 +60,12 @@ Id;Default
 1803;bLoad_up
 808;Breaker OFF
 486;Breaker ON
+2216;Btton Start
 1159;buffer
 327;BUFFER SAFETY
 732;Buffer Stopper
 481;bUsingOpenBag
+1712;Button stop
 1438;b_EStopRestart
 16;Clear
 32;Clearing
@@ -81,6 +83,7 @@ Id;Default
 68;Do you want to change tp production mode?
 662;DOG
 2636;DOOR CLOSED
+2225;Door Closed
 1080;Down
 673;error
 586;EStop Restart
@@ -193,8 +196,11 @@ Id;Default
 1137;sensor[5]
 794;sensor[6]
 512;sensor[7]
+2929;sensor_lift_atDownPos
 681;sensor_start[0]
 1006;sensor_start[1]
+2179;sensor_transfer_atFeedingPos
+3056;sensor_transfer_atWorkingPos
 62;Seperated Boxes: %i
 415;Service
 102;sStepID

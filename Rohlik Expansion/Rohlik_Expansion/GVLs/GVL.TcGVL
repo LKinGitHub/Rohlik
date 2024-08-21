@@ -63,8 +63,8 @@ VAR_GLOBAL
 	fb_loading					: FB_loading_tote;
 	fb_working1					: FB_working_tote;
 	fb_working2					: FB_working_tote;
-//	fb_working2					: FB_working_tote_Right;
-
+	fb_autoStore1				: FB_autoStore;
+	fb_autoStore2				: FB_autoStore;
 	
 	PubSubService				: PubSubService;
 	

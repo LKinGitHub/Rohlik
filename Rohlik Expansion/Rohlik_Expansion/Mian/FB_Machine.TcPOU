@@ -6,7 +6,7 @@ VAR_INPUT
 	pPML_Instance1	: POINTER TO FB_Generic;
 	pPML_Instance2	: POINTER TO FB_Generic;//instance for couple and uncouple
 	pPackTags		: POINTER TO ST_PackMLv30;
-	pSafetySystem			: POINTER TO FB_Safety_Subsystem;
+	pSafetySystem	: POINTER TO FB_Safety_Subsystem;
 END_VAR
 VAR_OUTPUT
 
@@ -117,8 +117,6 @@ IF stSubModuleInfo[2].Active THEN
 	pPML_Instance2^.eCommand	:= arrCmd[2];
 END_IF	
 stSubModuleInfo[2].Active		:= arrCouple[2];
-
-
 
 
 IF  pPML_Instance1^.bUndefinedDone AND 
@@ -551,7 +549,7 @@ END_CASE]]></ST>
       <LineId Id="275" Count="0" />
       <LineId Id="860" Count="8" />
       <LineId Id="871" Count="12" />
-      <LineId Id="885" Count="7" />
+      <LineId Id="887" Count="5" />
       <LineId Id="102" Count="0" />
       <LineId Id="59" Count="5" />
       <LineId Id="67" Count="3" />

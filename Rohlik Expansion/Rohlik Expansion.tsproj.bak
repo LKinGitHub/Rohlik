@@ -1424,15 +1424,6 @@ External Setpoint Generation:
 			</Relations>
 		</DataType>
 		<DataType>
-			<Name GUID="{9FC64FD6-2F79-DDE1-36AE-D3E654C53F16}" IecBaseType="true" AutoDeleteType="true">ARRAY [0..15] OF BYTE</Name>
-			<BitSize>128</BitSize>
-			<BaseType GUID="{18071995-0000-0000-0000-000000000001}">BYTE</BaseType>
-			<ArrayInfo>
-				<LBound>0</LBound>
-				<Elements>16</Elements>
-			</ArrayInfo>
-		</DataType>
-		<DataType>
 			<Name GUID="{96E58E73-E3F3-3227-1848-F7F6AB281E2C}" AutoDeleteType="true">ST_IO_16</Name>
 			<BitSize>128</BitSize>
 			<SubItem>
@@ -1447,13 +1438,13 @@ External Setpoint Generation:
 			</SubItem>
 		</DataType>
 		<DataType>
-			<Name GUID="{003E2C93-507B-41AD-E558-099E697CB51B}" IecBaseType="true" AutoDeleteType="true">ARRAY [0..16] OF ST_IO_16</Name>
+			<Name IecBaseType="true">ARRAY [0..30] OF ST_IO_16</Name>
 			<Comment><![CDATA[  links to Digital input  Modules ]]></Comment>
-			<BitSize>2176</BitSize>
+			<BitSize>3968</BitSize>
 			<BaseType GUID="{96E58E73-E3F3-3227-1848-F7F6AB281E2C}">ST_IO_16</BaseType>
 			<ArrayInfo>
 				<LBound>0</LBound>
-				<Elements>17</Elements>
+				<Elements>31</Elements>
 			</ArrayInfo>
 		</DataType>
 		<DataType>
@@ -1516,6 +1507,96 @@ External Setpoint Generation:
 				<BitSize>64</BitSize>
 				<BitOffs>0</BitOffs>
 			</SubItem>
+		</DataType>
+		<DataType>
+			<Name GUID="{9FC64FD6-2F79-DDE1-36AE-D3E654C53F16}" IecBaseType="true" AutoDeleteType="true">ARRAY [0..15] OF BYTE</Name>
+			<BitSize>128</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000001}">BYTE</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>16</Elements>
+			</ArrayInfo>
+		</DataType>
+		<DataType>
+			<Name GUID="{111E3B8C-8BC0-DE34-3E51-D5F322503DAC}" AutoDeleteType="true">MachineStatus</Name>
+			<BitSize>16</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000006}">INT</BaseType>
+			<EnumInfo>
+				<Text><![CDATA[UNKNOWN]]></Text>
+				<Enum>0</Enum>
+				<Comment><![CDATA[ Unknown status. ]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[STOPPED]]></Text>
+				<Enum>1</Enum>
+				<Comment><![CDATA[ Machine is stopped. ]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[RESETTING]]></Text>
+				<Enum>2</Enum>
+				<Comment><![CDATA[ Machine is resetting. ]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[READY]]></Text>
+				<Enum>3</Enum>
+				<Comment><![CDATA[ Machine is ready to be started. ]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[INITIALIZING]]></Text>
+				<Enum>4</Enum>
+				<Comment><![CDATA[ Machine is during the transition from Ready to
+Running. ]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[RUNNING]]></Text>
+				<Enum>5</Enum>
+				<Comment><![CDATA[ Machine is currently in normal operation. ]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[STOPPING]]></Text>
+				<Enum>6</Enum>
+				<Comment><![CDATA[ Machine is coming to a stop. ]]></Comment>
+			</EnumInfo>
+			<EnumInfo>
+				<Text><![CDATA[ERROR]]></Text>
+				<Enum>7</Enum>
+				<Comment><![CDATA[ Machine is in an error state and requires human
+intervention. ]]></Comment>
+			</EnumInfo>
+			<Properties>
+				<Property>
+					<Name>qualified_only</Name>
+				</Property>
+				<Property>
+					<Name>strict</Name>
+				</Property>
+				<Property>
+					<Name>generate_implicit_init_function</Name>
+				</Property>
+			</Properties>
+		</DataType>
+		<DataType>
+			<Name GUID="{90D46422-3281-3F19-C95D-018C24A2D40A}" AutoDeleteType="true">ST_Ifm_RX</Name>
+			<BitSize>32</BitSize>
+			<SubItem>
+				<Name>OutputByte</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<ArrayInfo>
+					<LBound>0</LBound>
+					<Elements>4</Elements>
+				</ArrayInfo>
+				<BitSize>32</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+		</DataType>
+		<DataType>
+			<Name GUID="{6014C461-4D11-6A8A-C28A-81E6B1A60AE4}" IecBaseType="true" AutoDeleteType="true">ARRAY [0..7] OF ST_Ifm_RX</Name>
+			<BitSize>256</BitSize>
+			<BaseType GUID="{90D46422-3281-3F19-C95D-018C24A2D40A}">ST_Ifm_RX</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>8</Elements>
+			</ArrayInfo>
 		</DataType>
 		<DataType>
 			<Name GUID="{FCB29B8E-8500-EC12-5D99-39F0E32188D2}" AutoDeleteType="true">ToteStatus</Name>
@@ -1843,64 +1924,6 @@ External Setpoint Generation:
 			</Properties>
 		</DataType>
 		<DataType>
-			<Name GUID="{111E3B8C-8BC0-DE34-3E51-D5F322503DAC}" AutoDeleteType="true">MachineStatus</Name>
-			<BitSize>16</BitSize>
-			<BaseType GUID="{18071995-0000-0000-0000-000000000006}">INT</BaseType>
-			<EnumInfo>
-				<Text><![CDATA[UNKNOWN]]></Text>
-				<Enum>0</Enum>
-				<Comment><![CDATA[ Unknown status. ]]></Comment>
-			</EnumInfo>
-			<EnumInfo>
-				<Text><![CDATA[STOPPED]]></Text>
-				<Enum>1</Enum>
-				<Comment><![CDATA[ Machine is stopped. ]]></Comment>
-			</EnumInfo>
-			<EnumInfo>
-				<Text><![CDATA[RESETTING]]></Text>
-				<Enum>2</Enum>
-				<Comment><![CDATA[ Machine is resetting. ]]></Comment>
-			</EnumInfo>
-			<EnumInfo>
-				<Text><![CDATA[READY]]></Text>
-				<Enum>3</Enum>
-				<Comment><![CDATA[ Machine is ready to be started. ]]></Comment>
-			</EnumInfo>
-			<EnumInfo>
-				<Text><![CDATA[INITIALIZING]]></Text>
-				<Enum>4</Enum>
-				<Comment><![CDATA[ Machine is during the transition from Ready to
-Running. ]]></Comment>
-			</EnumInfo>
-			<EnumInfo>
-				<Text><![CDATA[RUNNING]]></Text>
-				<Enum>5</Enum>
-				<Comment><![CDATA[ Machine is currently in normal operation. ]]></Comment>
-			</EnumInfo>
-			<EnumInfo>
-				<Text><![CDATA[STOPPING]]></Text>
-				<Enum>6</Enum>
-				<Comment><![CDATA[ Machine is coming to a stop. ]]></Comment>
-			</EnumInfo>
-			<EnumInfo>
-				<Text><![CDATA[ERROR]]></Text>
-				<Enum>7</Enum>
-				<Comment><![CDATA[ Machine is in an error state and requires human
-intervention. ]]></Comment>
-			</EnumInfo>
-			<Properties>
-				<Property>
-					<Name>qualified_only</Name>
-				</Property>
-				<Property>
-					<Name>strict</Name>
-				</Property>
-				<Property>
-					<Name>generate_implicit_init_function</Name>
-				</Property>
-			</Properties>
-		</DataType>
-		<DataType>
 			<Name GUID="{84AA89B4-FFDD-5296-D3D9-670AEFE53837}" AutoDeleteType="true">AirPressureStatus</Name>
 			<BitSize>16</BitSize>
 			<BaseType GUID="{18071995-0000-0000-0000-000000000006}">INT</BaseType>
@@ -1935,29 +1958,6 @@ intervention. ]]></Comment>
 					<Name>generate_implicit_init_function</Name>
 				</Property>
 			</Properties>
-		</DataType>
-		<DataType>
-			<Name GUID="{90D46422-3281-3F19-C95D-018C24A2D40A}" AutoDeleteType="true">ST_Ifm_RX</Name>
-			<BitSize>32</BitSize>
-			<SubItem>
-				<Name>OutputByte</Name>
-				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
-				<ArrayInfo>
-					<LBound>0</LBound>
-					<Elements>4</Elements>
-				</ArrayInfo>
-				<BitSize>32</BitSize>
-				<BitOffs>0</BitOffs>
-			</SubItem>
-		</DataType>
-		<DataType>
-			<Name GUID="{6014C461-4D11-6A8A-C28A-81E6B1A60AE4}" IecBaseType="true" AutoDeleteType="true">ARRAY [0..7] OF ST_Ifm_RX</Name>
-			<BitSize>256</BitSize>
-			<BaseType GUID="{90D46422-3281-3F19-C95D-018C24A2D40A}">ST_Ifm_RX</BaseType>
-			<ArrayInfo>
-				<LBound>0</LBound>
-				<Elements>8</Elements>
-			</ArrayInfo>
 		</DataType>
 		<DataType>
 			<Name GUID="{2438F91B-E188-4ED7-8594-54354F9ED6A4}" Namespace="Safety" TcBaseType="true">FSOE_6</Name>
@@ -2835,12 +2835,624 @@ intervention. ]]></Comment>
 						</Var>
 					</Vars>
 				</Axis>
+				<Axis Id="6" CreateSymbols="true" AxisType="1">
+					<Name>autostore1_transfer</Name>
+					<AxisPara>
+						<OtherSettings AllowMotionCmdToSlave="true"/>
+					</AxisPara>
+					<Encoder Name="Enc" EncType="1">
+						<Vars VarGrpType="1">
+							<Name>Inputs</Name>
+							<Var>
+								<Name>In</Name>
+								<Type GUID="{901C2423-655B-45CE-B7E3-21F174F0F99F}" Namespace="MC">NCENCODERSTRUCT_IN2B</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn6</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn7</Name>
+									<Comment><![CDATA[Drive Velocity Actual Value
+]]></Comment>
+								</SubVar>
+							</Var>
+						</Vars>
+						<Vars VarGrpType="2">
+							<Name>Outputs</Name>
+							<Var>
+								<Name>Out</Name>
+								<Type GUID="{9CC50AB2-5D79-4869-A3C2-1FA7761BAFEA}" Namespace="MC">NCENCODERSTRUCT_OUT2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+					</Encoder>
+					<Drive Name="Drive" DrvType="5">
+						<DrvPara>
+							<Analog TorqueSetpointScale="10" ScaleFactorActTorque="0.1"/>
+						</DrvPara>
+						<Vars VarGrpType="1">
+							<Name>Inputs</Name>
+							<Var>
+								<Name>In</Name>
+								<Type GUID="{F95C7C69-0C87-46C4-9559-1285CCA5B23A}" Namespace="MC">NCDRIVESTRUCT_IN2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+						<Vars VarGrpType="2">
+							<Name>Outputs</Name>
+							<Var>
+								<Name>Out</Name>
+								<Type GUID="{644DC4BD-3D15-4DCB-94C7-24F3A5D579AA}" Namespace="MC">NCDRIVESTRUCT_OUT2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut2</Name>
+								</SubVar>
+								<SubVar>
+									<Name>nCtrl2</Name>
+									<Comment><![CDATA[Digital Outputs Setpoint Generator:
+0x41 (0100 0001) = Minus (0x42 for inverse motor polarity)
+0x42 (0100 0010) = Plus (0x41 for inverse motor polarity)
+0x80 (1000 0000) = Stop
+]]></Comment>
+								</SubVar>
+								<SubVar>
+									<Name>nCtrl3</Name>
+									<Comment><![CDATA[Digital Outputs (Setpoint Generator + Position Controller):
+0x41 (0100 0001) = Minus (0x42 for inverse motor polarity)
+0x42 (0100 0010) = Plus (0x41 for inverse motor polarity)
+0x80 (1000 0000) = Stop
+]]></Comment>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+					</Drive>
+					<Controller Name="Ctrl" CtrType="1">
+						<CtrPara PriorControlFactor="1">
+							<Observer BandWidth="20"/>
+						</CtrPara>
+					</Controller>
+					<Vars VarGrpType="1" InsertType="1">
+						<Name>Inputs</Name>
+						<Var>
+							<Name>FromPlc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+					</Vars>
+					<Vars VarGrpType="2" InsertType="1">
+						<Name>Outputs</Name>
+						<Var>
+							<Name>ToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+					</Vars>
+				</Axis>
+				<Axis Id="7" CreateSymbols="true" AxisType="1">
+					<Name>autostore1_lift</Name>
+					<AxisPara>
+						<OtherSettings AllowMotionCmdToSlave="true"/>
+					</AxisPara>
+					<Encoder Name="Enc" EncType="1">
+						<Vars VarGrpType="1">
+							<Name>Inputs</Name>
+							<Var>
+								<Name>In</Name>
+								<Type GUID="{901C2423-655B-45CE-B7E3-21F174F0F99F}" Namespace="MC">NCENCODERSTRUCT_IN2B</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn6</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn7</Name>
+									<Comment><![CDATA[Drive Velocity Actual Value
+]]></Comment>
+								</SubVar>
+							</Var>
+						</Vars>
+						<Vars VarGrpType="2">
+							<Name>Outputs</Name>
+							<Var>
+								<Name>Out</Name>
+								<Type GUID="{9CC50AB2-5D79-4869-A3C2-1FA7761BAFEA}" Namespace="MC">NCENCODERSTRUCT_OUT2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+					</Encoder>
+					<Drive Name="Drive" DrvType="5">
+						<DrvPara>
+							<Analog TorqueSetpointScale="10" ScaleFactorActTorque="0.1"/>
+						</DrvPara>
+						<Vars VarGrpType="1">
+							<Name>Inputs</Name>
+							<Var>
+								<Name>In</Name>
+								<Type GUID="{F95C7C69-0C87-46C4-9559-1285CCA5B23A}" Namespace="MC">NCDRIVESTRUCT_IN2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+						<Vars VarGrpType="2">
+							<Name>Outputs</Name>
+							<Var>
+								<Name>Out</Name>
+								<Type GUID="{644DC4BD-3D15-4DCB-94C7-24F3A5D579AA}" Namespace="MC">NCDRIVESTRUCT_OUT2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut2</Name>
+								</SubVar>
+								<SubVar>
+									<Name>nCtrl2</Name>
+									<Comment><![CDATA[Digital Outputs Setpoint Generator:
+0x41 (0100 0001) = Minus (0x42 for inverse motor polarity)
+0x42 (0100 0010) = Plus (0x41 for inverse motor polarity)
+0x80 (1000 0000) = Stop
+]]></Comment>
+								</SubVar>
+								<SubVar>
+									<Name>nCtrl3</Name>
+									<Comment><![CDATA[Digital Outputs (Setpoint Generator + Position Controller):
+0x41 (0100 0001) = Minus (0x42 for inverse motor polarity)
+0x42 (0100 0010) = Plus (0x41 for inverse motor polarity)
+0x80 (1000 0000) = Stop
+]]></Comment>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+					</Drive>
+					<Controller Name="Ctrl" CtrType="1">
+						<CtrPara PriorControlFactor="1">
+							<Observer BandWidth="20"/>
+						</CtrPara>
+					</Controller>
+					<Vars VarGrpType="1" InsertType="1">
+						<Name>Inputs</Name>
+						<Var>
+							<Name>FromPlc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+					</Vars>
+					<Vars VarGrpType="2" InsertType="1">
+						<Name>Outputs</Name>
+						<Var>
+							<Name>ToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+					</Vars>
+				</Axis>
+				<Axis Id="8" CreateSymbols="true" AxisType="1">
+					<Name>autostore2_transfer</Name>
+					<AxisPara>
+						<OtherSettings AllowMotionCmdToSlave="true"/>
+					</AxisPara>
+					<Encoder Name="Enc" EncType="1">
+						<Vars VarGrpType="1">
+							<Name>Inputs</Name>
+							<Var>
+								<Name>In</Name>
+								<Type GUID="{901C2423-655B-45CE-B7E3-21F174F0F99F}" Namespace="MC">NCENCODERSTRUCT_IN2B</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn6</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn7</Name>
+									<Comment><![CDATA[Drive Velocity Actual Value
+]]></Comment>
+								</SubVar>
+							</Var>
+						</Vars>
+						<Vars VarGrpType="2">
+							<Name>Outputs</Name>
+							<Var>
+								<Name>Out</Name>
+								<Type GUID="{9CC50AB2-5D79-4869-A3C2-1FA7761BAFEA}" Namespace="MC">NCENCODERSTRUCT_OUT2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+					</Encoder>
+					<Drive Name="Drive" DrvType="5">
+						<DrvPara>
+							<Analog TorqueSetpointScale="10" ScaleFactorActTorque="0.1"/>
+						</DrvPara>
+						<Vars VarGrpType="1">
+							<Name>Inputs</Name>
+							<Var>
+								<Name>In</Name>
+								<Type GUID="{F95C7C69-0C87-46C4-9559-1285CCA5B23A}" Namespace="MC">NCDRIVESTRUCT_IN2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+						<Vars VarGrpType="2">
+							<Name>Outputs</Name>
+							<Var>
+								<Name>Out</Name>
+								<Type GUID="{644DC4BD-3D15-4DCB-94C7-24F3A5D579AA}" Namespace="MC">NCDRIVESTRUCT_OUT2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut2</Name>
+								</SubVar>
+								<SubVar>
+									<Name>nCtrl2</Name>
+									<Comment><![CDATA[Digital Outputs Setpoint Generator:
+0x41 (0100 0001) = Minus (0x42 for inverse motor polarity)
+0x42 (0100 0010) = Plus (0x41 for inverse motor polarity)
+0x80 (1000 0000) = Stop
+]]></Comment>
+								</SubVar>
+								<SubVar>
+									<Name>nCtrl3</Name>
+									<Comment><![CDATA[Digital Outputs (Setpoint Generator + Position Controller):
+0x41 (0100 0001) = Minus (0x42 for inverse motor polarity)
+0x42 (0100 0010) = Plus (0x41 for inverse motor polarity)
+0x80 (1000 0000) = Stop
+]]></Comment>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+					</Drive>
+					<Controller Name="Ctrl" CtrType="1">
+						<CtrPara PriorControlFactor="1">
+							<Observer BandWidth="20"/>
+						</CtrPara>
+					</Controller>
+					<Vars VarGrpType="1" InsertType="1">
+						<Name>Inputs</Name>
+						<Var>
+							<Name>FromPlc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+					</Vars>
+					<Vars VarGrpType="2" InsertType="1">
+						<Name>Outputs</Name>
+						<Var>
+							<Name>ToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+					</Vars>
+				</Axis>
+				<Axis Id="9" CreateSymbols="true" AxisType="1">
+					<Name>autostore2_lift</Name>
+					<AxisPara>
+						<OtherSettings AllowMotionCmdToSlave="true"/>
+					</AxisPara>
+					<Encoder Name="Enc" EncType="1">
+						<Vars VarGrpType="1">
+							<Name>Inputs</Name>
+							<Var>
+								<Name>In</Name>
+								<Type GUID="{901C2423-655B-45CE-B7E3-21F174F0F99F}" Namespace="MC">NCENCODERSTRUCT_IN2B</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn6</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn7</Name>
+									<Comment><![CDATA[Drive Velocity Actual Value
+]]></Comment>
+								</SubVar>
+							</Var>
+						</Vars>
+						<Vars VarGrpType="2">
+							<Name>Outputs</Name>
+							<Var>
+								<Name>Out</Name>
+								<Type GUID="{9CC50AB2-5D79-4869-A3C2-1FA7761BAFEA}" Namespace="MC">NCENCODERSTRUCT_OUT2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+					</Encoder>
+					<Drive Name="Drive" DrvType="5">
+						<DrvPara>
+							<Analog TorqueSetpointScale="10" ScaleFactorActTorque="0.1"/>
+						</DrvPara>
+						<Vars VarGrpType="1">
+							<Name>Inputs</Name>
+							<Var>
+								<Name>In</Name>
+								<Type GUID="{F95C7C69-0C87-46C4-9559-1285CCA5B23A}" Namespace="MC">NCDRIVESTRUCT_IN2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn2</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataIn6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+						<Vars VarGrpType="2">
+							<Name>Outputs</Name>
+							<Var>
+								<Name>Out</Name>
+								<Type GUID="{644DC4BD-3D15-4DCB-94C7-24F3A5D579AA}" Namespace="MC">NCDRIVESTRUCT_OUT2</Type>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut1</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut2</Name>
+								</SubVar>
+								<SubVar>
+									<Name>nCtrl2</Name>
+									<Comment><![CDATA[Digital Outputs Setpoint Generator:
+0x41 (0100 0001) = Minus (0x42 for inverse motor polarity)
+0x42 (0100 0010) = Plus (0x41 for inverse motor polarity)
+0x80 (1000 0000) = Stop
+]]></Comment>
+								</SubVar>
+								<SubVar>
+									<Name>nCtrl3</Name>
+									<Comment><![CDATA[Digital Outputs (Setpoint Generator + Position Controller):
+0x41 (0100 0001) = Minus (0x42 for inverse motor polarity)
+0x42 (0100 0010) = Plus (0x41 for inverse motor polarity)
+0x80 (1000 0000) = Stop
+]]></Comment>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut3</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut4</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut5</Name>
+								</SubVar>
+								<SubVar TypeFormatIndex="2">
+									<Name>nDataOut6</Name>
+								</SubVar>
+							</Var>
+						</Vars>
+					</Drive>
+					<Controller Name="Ctrl" CtrType="1">
+						<CtrPara PriorControlFactor="1">
+							<Observer BandWidth="20"/>
+						</CtrPara>
+					</Controller>
+					<Vars VarGrpType="1" InsertType="1">
+						<Name>Inputs</Name>
+						<Var>
+							<Name>FromPlc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+					</Vars>
+					<Vars VarGrpType="2" InsertType="1">
+						<Name>Outputs</Name>
+						<Var>
+							<Name>ToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+					</Vars>
+				</Axis>
 			</NC>
 		</Motion>
 		<Plc>
-			<Project GUID="{6D202D54-030C-410D-B649-C97C3EE97249}" Name="R_Expansion" PrjFilePath="R_Expansion\R_Expansion.plcproj" TmcFilePath="R_Expansion\R_Expansion.tmc" ReloadTmc="true" AmsPort="851" TargetArchiveSettings="#x000f" FileArchiveSettings="#x000e" CopyTmcToTarget="true" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" TmcPath="R_Expansion_New\R_Expansion_New.tmc" TmcHash="{7E6A06BF-290A-5D40-9CF8-09C10C44043B}">
-					<Name>R_Expansion Instance</Name>
+			<Project GUID="{6D202D54-030C-410D-B649-C97C3EE97249}" Name="Rohlik_Expansion" PrjFilePath="Rohlik_Expansion\Rohlik_Expansion.plcproj" TmcFilePath="Rohlik_Expansion\Rohlik_Expansion.tmc" ReloadTmc="true" AmsPort="851" TargetArchiveSettings="#x000f" FileArchiveSettings="#x000e" CopyTmcToTarget="true" SymbolicMapping="true">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" TmcPath="Rohlik_Expansion\Rohlik_Expansion.tmc" TmcHash="{08CF85D0-8761-1C87-01A1-9BA35442691B}">
+					<Name>Rohlik_Expansion Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="1" ContextId="1" AreaNo="16">
 						<Name>MianTask Inputs</Name>
@@ -2888,51 +3500,6 @@ intervention. ]]></Comment>
 							<Name>GVL_SAFETY.SO1_0</Name>
 							<Comment><![CDATA[liftServo_STO1    升降伺服STO1]]></Comment>
 							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>GVL.fb_loading.st_mcAxis.rActTorque</Name>
-							<Type>LREAL</Type>
-						</Var>
-						<Var>
-							<Name>GVL.fb_loading.AxisRef.NcToPlc</Name>
-							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>GVL.fb_loading.byteIn</Name>
-							<Comment><![CDATA[[0]:transfer status;[1]:heart_ beat;[2]:logtech station status;[3]:logtech_load_status]]></Comment>
-							<Type GUID="{9FC64FD6-2F79-DDE1-36AE-D3E654C53F16}">ARRAY [0..15] OF BYTE</Type>
-						</Var>
-						<Var>
-							<Name>GVL.fb_working1.st_mcAxis_lift.rActTorque</Name>
-							<Type>LREAL</Type>
-						</Var>
-						<Var>
-							<Name>GVL.fb_working1.AxisRef_lift.NcToPlc</Name>
-							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>GVL.fb_working1.st_mcAxis_bag.rActTorque</Name>
-							<Type>LREAL</Type>
-						</Var>
-						<Var>
-							<Name>GVL.fb_working1.AxisRef_bag.NcToPlc</Name>
-							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>GVL.fb_working2.st_mcAxis_lift.rActTorque</Name>
-							<Type>LREAL</Type>
-						</Var>
-						<Var>
-							<Name>GVL.fb_working2.AxisRef_lift.NcToPlc</Name>
-							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>GVL.fb_working2.st_mcAxis_bag.rActTorque</Name>
-							<Type>LREAL</Type>
-						</Var>
-						<Var>
-							<Name>GVL.fb_working2.AxisRef_bag.NcToPlc</Name>
-							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
 						</Var>
 						<Var>
 							<Name>GVL_SAFETY.SO1_1</Name>
@@ -3058,7 +3625,7 @@ intervention. ]]></Comment>
 						<Var>
 							<Name>G_IO.arDI</Name>
 							<Comment><![CDATA[  links to Digital input  Modules ]]></Comment>
-							<Type GUID="{003E2C93-507B-41AD-E558-099E697CB51B}">ARRAY [0..16] OF ST_IO_16</Type>
+							<Type GUID="{B3944B71-9A71-1E6B-E4DE-C6C7424D73A0}">ARRAY [0..30] OF ST_IO_16</Type>
 						</Var>
 						<Var>
 							<Name>G_IO.arSI</Name>
@@ -3110,9 +3677,185 @@ intervention. ]]></Comment>
 							<Name>G_IO.devState_Device1</Name>
 							<Type>UINT</Type>
 						</Var>
+						<Var>
+							<Name>GVL.fb_loading.st_mcAxis.rActTorque</Name>
+							<Type>LREAL</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_loading.AxisRef.NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_loading.byteIn</Name>
+							<Comment><![CDATA[[0]:transfer status;[1]:heart_ beat;[2]:logtech station status;[3]:logtech_load_status]]></Comment>
+							<Type GUID="{9FC64FD6-2F79-DDE1-36AE-D3E654C53F16}">ARRAY [0..15] OF BYTE</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_working1.st_mcAxis_lift.rActTorque</Name>
+							<Type>LREAL</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_working1.AxisRef_lift.NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_working1.st_mcAxis_bag.rActTorque</Name>
+							<Type>LREAL</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_working1.AxisRef_bag.NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_working2.st_mcAxis_lift.rActTorque</Name>
+							<Type>LREAL</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_working2.AxisRef_lift.NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_working2.st_mcAxis_bag.rActTorque</Name>
+							<Type>LREAL</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_working2.AxisRef_bag.NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_autoStore1.st_mcAxis_lift.rActTorque</Name>
+							<Type>LREAL</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_autoStore1.AxisRef_lift.NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_autoStore1.st_mcAxis_transfer.rActTorque</Name>
+							<Type>LREAL</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_autoStore1.AxisRef_transfer.NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_autoStore2.st_mcAxis_lift.rActTorque</Name>
+							<Type>LREAL</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_autoStore2.AxisRef_lift.NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_autoStore2.st_mcAxis_transfer.rActTorque</Name>
+							<Type>LREAL</Type>
+						</Var>
+						<Var>
+							<Name>GVL.fb_autoStore2.AxisRef_transfer.NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
 					</Vars>
 					<Vars VarGrpType="2" ContextId="1" AreaNo="17">
 						<Name>MianTask Outputs</Name>
+						<Var>
+							<Name>MAIN.machine_control_1.machine_status</Name>
+							<Type GUID="{111E3B8C-8BC0-DE34-3E51-D5F322503DAC}">MachineStatus</Type>
+						</Var>
+						<Var>
+							<Name>MAIN.machine_control_2.machine_status</Name>
+							<Type GUID="{111E3B8C-8BC0-DE34-3E51-D5F322503DAC}">MachineStatus</Type>
+						</Var>
+						<Var>
+							<Name>GVL_SAFETY.b_GroupRun</Name>
+							<Comment><![CDATA[安全模块运行]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>GVL_SAFETY.b_ErrorAck</Name>
+							<Comment><![CDATA[安全模块错误确认]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>GVL_SAFETY.b_EStopRestart</Name>
+							<Comment><![CDATA[安全模块复位 	]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>GVL_SAFETY.bSafetyRestart_left</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>GVL_SAFETY.bSafetyRestart_right</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>GVL_SAFETY.bSafetyReset_airDump</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>GVL_SAFETY.bLeftDoorUnlock_Request</Name>
+							<Comment><![CDATA[TRUE:UNLOCK 	 ]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>GVL_SAFETY.bRightDoorUnlock_Request</Name>
+							<Comment><![CDATA[TRUE:UNLOCK ]]></Comment>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>GVL_SAFETY.robots_ees_edm</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>GVL_SAFETY.Robot1_EES_EDM</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>GVL_SAFETY.Robot2_EES_EDM</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>GVL_SAFETY.Robot1_EAS_EDM</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>GVL_SAFETY.Robot2_EAS_EDM</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>GVL_SAFETY.Lift_STO_EDM</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>GVL_SAFETY.Place1_STO_EDM</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>GVL_SAFETY.Place2_STO_EDM</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>G_IO.arDO</Name>
+							<Comment><![CDATA[  links to Digital output Modules	]]></Comment>
+							<Type GUID="{B3944B71-9A71-1E6B-E4DE-C6C7424D73A0}">ARRAY [0..30] OF ST_IO_16</Type>
+						</Var>
+						<Var>
+							<Name>G_IO.arSO</Name>
+							<Comment><![CDATA[  links to safety output  Modules]]></Comment>
+							<Type GUID="{CD534BA3-F1A9-6C1D-591F-004B6A3A2DF0}">ARRAY [0..16] OF ST_SafetyIO</Type>
+						</Var>
+						<Var>
+							<Name>G_IO.arIOLinkRx_Lift</Name>
+							<Type GUID="{6014C461-4D11-6A8A-C28A-81E6B1A60AE4}">ARRAY [0..7] OF ST_Ifm_RX</Type>
+						</Var>
+						<Var>
+							<Name>G_IO.arIOLinkRx_Place1</Name>
+							<Type GUID="{6014C461-4D11-6A8A-C28A-81E6B1A60AE4}">ARRAY [0..7] OF ST_Ifm_RX</Type>
+						</Var>
+						<Var>
+							<Name>G_IO.arIOLinkRx_Place2</Name>
+							<Type GUID="{6014C461-4D11-6A8A-C28A-81E6B1A60AE4}">ARRAY [0..7] OF ST_Ifm_RX</Type>
+						</Var>
 						<Var>
 							<Name>MAIN.tote_1.tote_status_array</Name>
 							<Type GUID="{41649743-A080-0E02-EBD0-514B9C6171E1}">ARRAY [0..99] OF ToteStatus</Type>
@@ -3157,10 +3900,6 @@ intervention. ]]></Comment>
 						<Var>
 							<Name>MAIN.safety_1.safety_status</Name>
 							<Type GUID="{ACE84B7A-9542-A943-0D2C-59C23C7466D6}">GeneralStatus</Type>
-						</Var>
-						<Var>
-							<Name>MAIN.machine_control_1.machine_status</Name>
-							<Type GUID="{111E3B8C-8BC0-DE34-3E51-D5F322503DAC}">MachineStatus</Type>
 						</Var>
 						<Var>
 							<Name>MAIN.safety_2.button_array</Name>
@@ -3260,10 +3999,6 @@ intervention. ]]></Comment>
 							<Type>REAL</Type>
 						</Var>
 						<Var>
-							<Name>MAIN.machine_control_2.machine_status</Name>
-							<Type GUID="{111E3B8C-8BC0-DE34-3E51-D5F322503DAC}">MachineStatus</Type>
-						</Var>
-						<Var>
 							<Name>GVL.fb_loading.AxisRef.PlcToNc</Name>
 							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
 						</Var>
@@ -3289,95 +4024,20 @@ intervention. ]]></Comment>
 							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
 						</Var>
 						<Var>
-							<Name>GVL_SAFETY.b_GroupRun</Name>
-							<Comment><![CDATA[安全模块运行]]></Comment>
-							<Type>BOOL</Type>
+							<Name>GVL.fb_autoStore1.AxisRef_lift.PlcToNc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
 						</Var>
 						<Var>
-							<Name>GVL_SAFETY.b_ErrorAck</Name>
-							<Comment><![CDATA[安全模块错误确认]]></Comment>
-							<Type>BOOL</Type>
+							<Name>GVL.fb_autoStore1.AxisRef_transfer.PlcToNc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
 						</Var>
 						<Var>
-							<Name>GVL_SAFETY.b_EStopRestart</Name>
-							<Comment><![CDATA[安全模块复位 	]]></Comment>
-							<Type>BOOL</Type>
+							<Name>GVL.fb_autoStore2.AxisRef_lift.PlcToNc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
 						</Var>
 						<Var>
-							<Name>GVL_SAFETY.bSafetyRestart_left</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>GVL_SAFETY.bSafetyRestart_right</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>GVL_SAFETY.bSafetyReset_airDump</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>GVL_SAFETY.bLeftDoorUnlock_Request</Name>
-							<Comment><![CDATA[TRUE:UNLOCK 	 ]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>GVL_SAFETY.bRightDoorUnlock_Request</Name>
-							<Comment><![CDATA[TRUE:UNLOCK ]]></Comment>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>GVL_SAFETY.robots_ees_edm</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>GVL_SAFETY.Robot1_EES_EDM</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>GVL_SAFETY.Robot2_EES_EDM</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>GVL_SAFETY.Robot1_EAS_EDM</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>GVL_SAFETY.Robot2_EAS_EDM</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>GVL_SAFETY.Lift_STO_EDM</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>GVL_SAFETY.Place1_STO_EDM</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>GVL_SAFETY.Place2_STO_EDM</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>G_IO.arDO</Name>
-							<Comment><![CDATA[  links to Digital output Modules	]]></Comment>
-							<Type GUID="{003E2C93-507B-41AD-E558-099E697CB51B}">ARRAY [0..16] OF ST_IO_16</Type>
-						</Var>
-						<Var>
-							<Name>G_IO.arSO</Name>
-							<Comment><![CDATA[  links to safety output  Modules]]></Comment>
-							<Type GUID="{CD534BA3-F1A9-6C1D-591F-004B6A3A2DF0}">ARRAY [0..16] OF ST_SafetyIO</Type>
-						</Var>
-						<Var>
-							<Name>G_IO.arIOLinkRx_Lift</Name>
-							<Type GUID="{6014C461-4D11-6A8A-C28A-81E6B1A60AE4}">ARRAY [0..7] OF ST_Ifm_RX</Type>
-						</Var>
-						<Var>
-							<Name>G_IO.arIOLinkRx_Place1</Name>
-							<Type GUID="{6014C461-4D11-6A8A-C28A-81E6B1A60AE4}">ARRAY [0..7] OF ST_Ifm_RX</Type>
-						</Var>
-						<Var>
-							<Name>G_IO.arIOLinkRx_Place2</Name>
-							<Type GUID="{6014C461-4D11-6A8A-C28A-81E6B1A60AE4}">ARRAY [0..7] OF ST_Ifm_RX</Type>
+							<Name>GVL.fb_autoStore2.AxisRef_transfer.PlcToNc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
 						</Var>
 					</Vars>
 					<UnrestoredVarLinks ImportTime="2023-04-15T15:06:24">
@@ -10742,7 +11402,7 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 				<Link VarA="Enc^Outputs^Out^nCtrl6" VarB="Outputs^Touch probe function" Size="8" OffsB="8"/>
 			</OwnerB>
 		</OwnerA>
-		<OwnerA Name="TIPC^R_Expansion^R_Expansion Instance">
+		<OwnerA Name="TIPC^Rohlik_Expansion^Rohlik_Expansion Instance">
 			<OwnerB Name="TIID^Device 1 (EtherCAT Automation Protocol)">
 				<Link VarA="MianTask Inputs^G_IO.devState_Device1" VarB="Inputs^DevState"/>
 			</OwnerB>
@@ -11363,6 +12023,22 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 				<Link VarA="MianTask Outputs^G_IO.arDO[7]^Ch[7]" VarB="Channel 8^Output"/>
 				<Link VarA="MianTask Outputs^G_IO.arDO[7]^Ch[8]" VarB="Channel 9^Output"/>
 				<Link VarA="MianTask Outputs^G_IO.arDO[7]^Ch[9]" VarB="Channel 10^Output"/>
+			</OwnerB>
+			<OwnerB Name="TINC^NC-Task 1 SAF^Axes^autostore1_lift">
+				<Link VarA="MianTask Inputs^GVL.fb_autoStore1.AxisRef_lift.NcToPlc" VarB="Outputs^ToPlc"/>
+				<Link VarA="MianTask Outputs^GVL.fb_autoStore1.AxisRef_lift.PlcToNc" VarB="Inputs^FromPlc"/>
+			</OwnerB>
+			<OwnerB Name="TINC^NC-Task 1 SAF^Axes^autostore1_transfer">
+				<Link VarA="MianTask Inputs^GVL.fb_autoStore1.AxisRef_transfer.NcToPlc" VarB="Outputs^ToPlc"/>
+				<Link VarA="MianTask Outputs^GVL.fb_autoStore1.AxisRef_transfer.PlcToNc" VarB="Inputs^FromPlc"/>
+			</OwnerB>
+			<OwnerB Name="TINC^NC-Task 1 SAF^Axes^autostore2_lift">
+				<Link VarA="MianTask Inputs^GVL.fb_autoStore2.AxisRef_lift.NcToPlc" VarB="Outputs^ToPlc"/>
+				<Link VarA="MianTask Outputs^GVL.fb_autoStore2.AxisRef_lift.PlcToNc" VarB="Inputs^FromPlc"/>
+			</OwnerB>
+			<OwnerB Name="TINC^NC-Task 1 SAF^Axes^autostore2_transfer">
+				<Link VarA="MianTask Inputs^GVL.fb_autoStore2.AxisRef_transfer.NcToPlc" VarB="Outputs^ToPlc"/>
+				<Link VarA="MianTask Outputs^GVL.fb_autoStore2.AxisRef_transfer.PlcToNc" VarB="Inputs^FromPlc"/>
 			</OwnerB>
 			<OwnerB Name="TINC^NC-Task 1 SAF^Axes^lift_motor">
 				<Link VarA="MianTask Inputs^GVL.fb_loading.AxisRef.NcToPlc" VarB="Outputs^ToPlc"/>

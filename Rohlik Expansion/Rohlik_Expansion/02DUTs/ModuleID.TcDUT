@@ -15,6 +15,9 @@ TYPE ModuleID :
 	WORKING1				:= 4,
 	WORKING2				:= 5,
 	
+	AUTOSTORE1				:= 6,
+	AUTOSTORE2				:= 7,
+	
 	SAMPLE1					:= 98,
 	SAMPLE2					:= 99
 );

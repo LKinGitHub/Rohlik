@@ -43,6 +43,9 @@
     <Compile Include="Ads\Ads\ST_LightTowerAction.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Ads\AutostoreControlCommand.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Ads\BarcodeValidationRequestParams.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -243,6 +246,9 @@
     <Compile Include="Mian\DUTs\E_RollerStates.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Mian\DUTs\E_AutoStore_States.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Mian\DUTs\E_topic_sample.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -321,6 +327,9 @@
     <Compile Include="Mian\FB_loading_tote.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Mian\FB_autoStore.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Mian\FB_StateMachine.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -366,6 +375,10 @@
     <Compile Include="VISUs\ImagePool.TcIPO">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="VISUs\Templates\visu_autoStore.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>VisualizationManager.TcVMO</DependentUpon>
+    </Compile>
     <Compile Include="VISUs\Templates\VIS_TemplateCommand.TcVIS">
       <SubType>Code</SubType>
       <DependentUpon>VisualizationManager.TcVMO</DependentUpon>
@@ -383,6 +396,10 @@
       <DependentUpon>VisualizationManager.TcVMO</DependentUpon>
     </Compile>
     <Compile Include="VISUs\Templates\VIS_TemplateToProduction.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>VisualizationManager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\Templates\v_io_autoStore.TcVIS">
       <SubType>Code</SubType>
       <DependentUpon>VisualizationManager.TcVMO</DependentUpon>
     </Compile>
@@ -411,6 +428,10 @@
       <DependentUpon>VisualizationManager.TcVMO</DependentUpon>
     </Compile>
     <Compile Include="VISUs\VISUs\visu_working1.TcVIS">
+      <SubType>Code</SubType>
+      <DependentUpon>VisualizationManager.TcVMO</DependentUpon>
+    </Compile>
+    <Compile Include="VISUs\VISUs\visu_autoStore1.TcVIS">
       <SubType>Code</SubType>
       <DependentUpon>VisualizationManager.TcVMO</DependentUpon>
     </Compile>

@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="E_AutoStore_States" Id="{beb44dc1-6892-4eb7-b12b-8f5cdf0cd780}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE E_AutoStore_States :
+(
+	IDLE := 0,
+	INIT,
+	CHECK,//IF AT WORKING POSITION 
+	WAIT,
+	WAIT_CMD,
+	STATUS_DETECTED,
+	START,
+	STOP,
+	LIFT_MOVE_DOWN,
+	LIFT_DOWN_SENSOR_DETECTED,
+	TRANSFER_MOVE_WORKING,
+	TRANSFER_MOVE_FEEDING,
+	TRANSFER_WORKING_SENSOR_DETECTED,
+	TRANSFER_FEEDING_SENSOR_DETECTED,
+	LIFT_MOVE_UP,
+	DONE,
+
+	ERROR
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

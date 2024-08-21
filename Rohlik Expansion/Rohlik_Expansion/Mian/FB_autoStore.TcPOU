@@ -1,0 +1,685 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_autoStore" Id="{928a0155-c36c-415e-9368-ea4c51d98670}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_autoStore EXTENDS FB_Generic
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	lamp			: BOOL;	
+	eStates			: E_AutoStore_States := E_AutoStore_States.IDLE;;
+	eStateTemp		: E_AutoStore_States := E_AutoStore_States.IDLE;
+	
+	mcAxis_lift 			: FB_MotionAxis_MC;
+	st_mcAxis_lift 			: ST_MotionAxis_MC;
+	AxisRef_lift			: AXIS_REF;
+	
+	mcAxis_transfer 		: FB_MotionAxis_MC;
+	st_mcAxis_transfer		: ST_MotionAxis_MC;
+	AxisRef_transfer		: AXIS_REF;
+	
+	door_closed						: BOOL;
+	button_start					: BOOL;	
+	button_stop						: BOOL;	
+	sensor_lift_atDownPos			: BOOL;
+	sensor_transfer_atWorkingPos	: BOOL;
+	sensor_transfer_atFeedingPos	: BOOL;
+	
+	bUpStairs						: BOOL;
+	bExchangeTote					: BOOL;
+END_VAR	
+VAR PERSISTENT
+	rPos_lift_up				: REAL;
+	rPos_lift_down				: REAL;
+	rPos_transfer_feeding		: REAL;
+	rPos_transfer_working		: REAL;	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[SUPER^();
+
+IF sInstanceName='autoStore_1' THEN
+	IF NOT subscribed THEN
+		GVL.PubSubService.Subscribe(E_Topics.AUTOSTORE1_EXCHANGE,sInstanceName,THIS^);
+		subscribed	:= TRUE;
+	END_IF
+END_IF
+IF sInstanceName='autoStore_2' THEN
+	IF NOT subscribed THEN
+		GVL.PubSubService.Subscribe(E_Topics.AUTOSTORE2_EXCHANGE,sInstanceName,THIS^);
+		subscribed	:= TRUE;
+	END_IF
+END_IF
+
+
+//sComponent_name		:= _sInstanceName;
+//iComponetID			:= ModuleID.SAMPLE1;
+
+infoLevel	:= ServerityLevelType.WARNING;
+
+]]></ST>
+    </Implementation>
+    <Method Name="Callback" Id="{a6bbd39f-2150-4ac8-bd46-3426611ab3aa}">
+      <Declaration><![CDATA[(*
+Description: 
+the callback that will be invoked when there is a publish for what the subscriber was subscribed to.
+*)
+METHOD Callback
+VAR_INPUT
+	data : PubSubData;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+IF sInstanceName='autoStore_1' THEN
+	CASE data.Topic OF
+		E_Topics.AUTOSTORE1_EXCHANGE:
+			bExchangeTote	:= TRUE;		
+	END_CASE	
+END_IF
+IF sInstanceName='autoStore_2' THEN
+	CASE data.Topic OF
+		E_Topics.AUTOSTORE2_EXCHANGE:
+			bExchangeTote	:= TRUE;		
+	END_CASE	
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Aborting" Id="{43d30a98-ba2d-4ee3-a388-632bc0ec3cf0}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Aborting'}
+METHOD M_Aborting
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE fbUnitModeManager.eModeStatus OF	
+	ePMLProtUnitMode_Production, ePMLProtUnitMode_Manual:		
+
+		st_mcAxis_lift.mcMoveAbsolute.Execute		:= FALSE;
+		st_mcAxis_lift.mcStop.Execute				:= TRUE;	
+		st_mcAxis_transfer.mcMoveAbsolute.Execute	:= FALSE;
+		st_mcAxis_transfer.mcStop.Execute			:= TRUE;
+		iAging_test	:= 0;
+		M_StateComplete();
+			
+	ePMLProtUnitMode_Maintenance, ePMLUnitMode_Service:
+		
+		M_StateComplete();
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_agingTest" Id="{586b505d-8f43-40e1-8ab9-a036d9d23d49}">
+      <Declaration><![CDATA[METHOD M_agingTest : BOOL
+VAR_INPUT
+	rVelocity_percent	: REAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Completing" Id="{05e8a900-f003-4d6c-b3a8-567bb1951b3a}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Completing'}
+METHOD M_Completing
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE fbUnitModeManager.eModeStatus OF
+	ePMLProtUnitMode_Production:
+		;
+END_CASE
+
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Execute" Id="{6f10dd64-04f0-4b2a-8681-455f4d918556}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Execute'}
+METHOD M_Execute
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+CASE fbUnitModeManager.eModeStatus OF
+	ePMLProtUnitMode_Production:		//Mode Production
+//////////////////////////////////////////////////////////timeout//////////////////////////////////////////	
+		iStateTemp	:= eStateTemp;
+		ton_timeout();
+		IF eStateTemp=eStates THEN
+			ton_timeout.IN	:=TRUE;
+		ELSE
+			ton_timeout.IN	:=FALSE;
+			eStateTemp	:= eStates;	
+			M_Log(eLogType:=ServerityLevelType.INFO,sTextLog:='');
+			IF ton_timeout.Q THEN
+				RETURN;
+			END_IF
+		END_IF
+		IF ton_timeout.Q THEN	
+			ton_timeout.IN	:=FALSE;
+			CASE eStates OF	
+				E_AutoStore_States.ERROR:	
+					alarm_temp.Message	:= GenerateErrorMsg(errorType:='M',iState := iStateTemp,errorMsg:='in error state.');
+				ELSE
+				alarm_temp.Message	:= GenerateErrorMsg(errorType:='M',iState := iStateTemp,errorMsg:='time out');
+			END_CASE
+//////////////////////////////////////////////////////////states don't want to timeout and trig error//////////////////////////////////////////				
+			IF 	eStates<>E_AutoStore_States.IDLE AND
+				eStates<>E_AutoStore_States.WAIT AND
+				eStates<>E_AutoStore_States.WAIT_CMD
+			THEN 
+				IF sInstanceName='autoStore_1' THEN
+					GVL.pml_adminAlarm.M_SetAlarm(stAdmin:=GVL.PackTags1.Admin,stAlarm:=alarm_temp);
+				END_IF
+				IF sInstanceName='autoStore_2' THEN
+					GVL.pml_adminAlarm.M_SetAlarm(stAdmin:=GVL.PackTags2.Admin,stAlarm:=alarm_temp);
+				END_IF					
+			END_IF
+		END_IF
+//////////////////////////////////////////////////////////auto running process//////////////////////////////////////////			
+		CASE eStates OF 
+				E_AutoStore_States.IDLE:
+					ton_timeout.PT	:= T#1MS;						
+					eStates	:= E_AutoStore_States.INIT;				
+				E_AutoStore_States.INIT:
+					ton_timeout.PT	:= T#1S;
+					eStates	:= E_AutoStore_States.WAIT; 
+				E_AutoStore_States.WAIT:
+					ton_timeout.PT	:= T#10S;
+					eStates	:= E_AutoStore_States.WAIT_CMD; 
+				E_AutoStore_States.WAIT_CMD:
+					IF bExchangeTote THEN
+						bExchangeTote	:= FALSE;
+						eStates	:= E_AutoStore_States.LIFT_MOVE_DOWN;
+					END_IF
+				////////////////////////////lift move down///////////////////////////////////		
+				E_AutoStore_States.LIFT_MOVE_DOWN:	
+					st_mcAxis_lift.mcMoveAbsolute.Execute	:= TRUE;					
+					st_mcAxis_lift.rActualPosSet	:= rPos_lift_down;
+					st_mcAxis_lift.rVelocitySet		:= 100;					
+					IF st_mcAxis_lift.mcMoveAbsolute.Done THEN
+						eStates	:= E_AutoStore_States.LIFT_DOWN_SENSOR_DETECTED;
+					END_IF
+				E_AutoStore_States.LIFT_DOWN_SENSOR_DETECTED:	
+					IF sensor_lift_atDownPos THEN
+						IF bUpStairs THEN
+							eStates	:= E_AutoStore_States.TRANSFER_MOVE_FEEDING;
+							bUpStairs	:= FALSE;
+						ELSE
+							eStates	:= E_AutoStore_States.TRANSFER_MOVE_WORKING;
+							bUpStairs	:= TRUE;
+						END_IF					
+					END_IF
+				////////////////////////////upstairs///////////////////////////////////	
+				E_AutoStore_States.TRANSFER_MOVE_FEEDING:	
+					st_mcAxis_transfer.mcMoveAbsolute.Execute	:= TRUE;					
+					st_mcAxis_transfer.rActualPosSet	:= rPos_transfer_feeding;
+					st_mcAxis_transfer.rVelocitySet		:= 100;					
+					IF st_mcAxis_transfer.mcMoveAbsolute.Done THEN
+						eStates	:= E_AutoStore_States.TRANSFER_FEEDING_SENSOR_DETECTED;
+					END_IF				
+
+				E_AutoStore_States.TRANSFER_FEEDING_SENSOR_DETECTED:
+					IF sensor_transfer_atFeedingPos OR TRUE THEN//todo:add this sensor
+						eStates	:= E_AutoStore_States.LIFT_MOVE_UP;
+					END_IF									
+				////////////////////////////downstairs///////////////////////////////////		
+				E_AutoStore_States.TRANSFER_MOVE_WORKING:	
+					st_mcAxis_transfer.mcMoveAbsolute.Execute	:= TRUE;					
+					st_mcAxis_transfer.rActualPosSet	:= rPos_transfer_working;
+					st_mcAxis_transfer.rVelocitySet		:= 100;					
+					IF st_mcAxis_transfer.mcMoveAbsolute.Done THEN
+						eStates	:= E_AutoStore_States.TRANSFER_WORKING_SENSOR_DETECTED;
+					END_IF					
+				E_AutoStore_States.TRANSFER_WORKING_SENSOR_DETECTED:
+					IF sensor_transfer_atWorkingPos THEN
+						eStates	:= E_AutoStore_States.LIFT_MOVE_UP;
+					END_IF
+					
+				////////////////////////////lift move up///////////////////////////////////	
+				E_AutoStore_States.LIFT_MOVE_UP:
+					st_mcAxis_lift.mcMoveAbsolute.Execute	:= TRUE;					
+					st_mcAxis_lift.rActualPosSet	:= rPos_lift_up;
+					st_mcAxis_lift.rVelocitySet		:= 100;					
+					IF st_mcAxis_lift.mcMoveAbsolute.Done THEN
+						eStates	:= E_AutoStore_States.DONE;
+					END_IF		
+
+				
+				E_AutoStore_States.DONE:
+					eStates	:= E_AutoStore_States.IDLE;
+				E_AutoStore_States.ERROR:
+					;
+			END_CASE
+		
+		
+	ePMLProtUnitMode_Maintenance, ePMLUnitMode_Service:		
+		//
+		
+	ePMLProtUnitMode_Manual:		//Manaul
+
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Holding" Id="{9f18e7fa-a28d-4512-ac0f-c8ef5c3137ca}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Holding'}
+METHOD M_Holding
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE fbUnitModeManager.eModeStatus OF
+	ePMLProtUnitMode_Production:		//Mode Production
+		//Finisch the actual seperationstep	
+		
+
+	ePMLProtUnitMode_Maintenance:
+		M_StateComplete();
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Idle" Id="{02d44905-2bed-4a37-9a21-0d818428d446}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Idle'}
+METHOD M_Idle
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF G_HMI.bAging_test THEN
+	//M_agingTest();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_mapping" Id="{fe3409f9-2642-4d57-8c0c-03b05bca0fc4}">
+      <Declaration><![CDATA[METHOD M_mapping : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+		
+		
+		
+	(****************************digital input***************************************************)
+	st_mcAxis_lift.limit_sensor_positive		:= 	arDI[20].Ch[0] ;
+	st_mcAxis_lift.limit_sensor_negative		:= 	arDI[20].Ch[1] ;
+	door_closed									:= 	arDI[20].Ch[2] ;
+	button_start								:= 	arDI[20].Ch[3] ;
+	button_stop									:= 	arDI[20].Ch[4] ;
+	sensor_lift_atDownPos						:= 	arDI[20].Ch[5] ;
+	st_mcAxis_transfer.limit_sensor_positive	:= 	arDI[20].Ch[6] ;
+	st_mcAxis_transfer.limit_sensor_negative	:= 	arDI[20].Ch[7] ;	
+	sensor_transfer_atWorkingPos				:= 	arDI[20].Ch[8] ;	
+//	sensor_transfer_atFeedingPos				:= 	arDI[20].Ch[9] ;	
+		
+
+	/////////////////////////////////////axis config////////////////////////////////////////
+	mcAxis_lift
+	(
+		ZSN		:=   st_mcAxis_lift.limit_sensor_negative OR st_mcAxis_lift.xHoming, //TODO link to digital input
+		ZSP		:=   (st_mcAxis_lift.limit_sensor_positive AND sensor_transfer_atWorkingPos)  OR st_mcAxis_lift.xHoming, //TODO link to digital input
+		IN_OUT	:= st_mcAxis_lift	, 
+		AXIS	:= AxisRef_lift	, 
+	);
+	st_mcAxis_lift.bPosSensorShow	:= TRUE;
+	st_mcAxis_lift.bNegSensorShow	:= TRUE;
+	st_mcAxis_lift.bStopButtonShow	:= TRUE;
+	st_mcAxis_lift.rMaxAcceleration	:= 50000;
+	st_mcAxis_lift.rMaxDeceleration	:= 50000;
+	st_mcAxis_lift.rMaxJerk			:= 500000;
+	st_mcAxis_lift.rAcceleration	:= 2500;
+	st_mcAxis_lift.rDeceleration	:= 2500;
+	st_mcAxis_lift.rJerk			:= 12500;
+	st_mcAxis_lift.rMaxVelocity		:= 100;
+	st_mcAxis_lift.rMaxDistance		:= 50;
+	st_mcAxis_lift.bPosSen	:=  st_mcAxis_lift.limit_sensor_positive ;//TODO link to digital input
+	st_mcAxis_lift.bNegSen	:=  st_mcAxis_lift.limit_sensor_negative ;//TODO link to digital input
+	st_mcAxis_lift.mcHome.bCalibrationCam	:= TRUE;//TODO link to digital input origin
+	st_mcAxis_lift.bPositionSensor	:= TRUE;//TODO link to digital input origin
+	st_mcAxis_lift.bdirFW	:= TRUE;
+	st_mcAxis_lift.sNetID := '192.168.17.27.6.1';
+	st_mcAxis_lift.nSlaveAddr	:= 1009;
+	st_mcAxis_lift.rToqueLimitSet	:= 80;
+	
+	mcAxis_transfer
+	(
+		ZSN		:=   (st_mcAxis_transfer.limit_sensor_negative AND sensor_lift_atDownPos) OR st_mcAxis_transfer.xHoming, //TODO link to digital input
+		ZSP		:=   (st_mcAxis_transfer.limit_sensor_positive AND sensor_lift_atDownPos) OR st_mcAxis_transfer.xHoming, //TODO link to digital input
+		IN_OUT	:= st_mcAxis_transfer	, 
+		AXIS	:= AxisRef_transfer	, 
+	);
+	st_mcAxis_transfer.bPosSensorShow	:= TRUE;
+	st_mcAxis_transfer.bNegSensorShow	:= TRUE;
+	st_mcAxis_transfer.bStopButtonShow	:= TRUE;
+	st_mcAxis_transfer.rMaxAcceleration	:= 50000;
+	st_mcAxis_transfer.rMaxDeceleration	:= 50000;
+	st_mcAxis_transfer.rMaxJerk			:= 500000;
+	st_mcAxis_transfer.rAcceleration	:= 2500;
+	st_mcAxis_transfer.rDeceleration	:= 2500;
+	st_mcAxis_transfer.rJerk			:= 12500;
+	st_mcAxis_transfer.rMaxVelocity		:= 100;
+	st_mcAxis_transfer.rMaxDistance		:= 50;
+	st_mcAxis_transfer.bPosSen	:=  st_mcAxis_transfer.limit_sensor_positive ;//TODO link to digital input
+	st_mcAxis_transfer.bNegSen	:=  st_mcAxis_transfer.limit_sensor_negative ;//TODO link to digital input
+	st_mcAxis_transfer.mcHome.bCalibrationCam	:= TRUE;//TODO link to digital input origin
+	st_mcAxis_transfer.bPositionSensor	:= TRUE;//TODO link to digital input origin
+	st_mcAxis_transfer.bdirFW	:= TRUE;
+	st_mcAxis_transfer.sNetID := '192.168.17.27.6.1';
+	st_mcAxis_transfer.nSlaveAddr	:= 1009;
+	st_mcAxis_transfer.rToqueLimitSet	:= 80;	]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Reset" Id="{4f94f8a4-a16d-43ea-b0f0-409e3aade142}">
+      <Declaration><![CDATA[METHOD M_Reset
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//Take away all commands
+IF GVL.stChangeIntoProduction.bYesReset THEN
+;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Resetting" Id="{51654668-1d9f-43f1-be34-eaae0b34b683}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Resetting'}
+METHOD M_Resetting
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE fbUnitModeManager.eModeStatus OF
+	ePMLProtUnitMode_Production:		//Production, Mantainance, Manual
+		lamp	:= FALSE;
+		eStates :=E_SampleStates.IDLE;
+		M_StateComplete();
+	
+	ePMLProtUnitMode_Maintenance, ePMLProtUnitMode_Manual, ePMLUnitMode_Service:
+		M_StateComplete();
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Starting" Id="{6bf2a7b8-ba0a-443d-9bd9-157b795c08a2}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Starting'}
+METHOD M_Starting
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE fbUnitModeManager.eModeStatus OF
+	ePMLProtUnitMode_Production:		//Production, Mantainance, Manual
+		
+		M_StateComplete();
+	ePMLProtUnitMode_Maintenance, ePMLProtUnitMode_Manual, ePMLUnitMode_Service:
+		M_StateComplete();
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Stopping" Id="{f43f7b4b-ef4e-433f-a431-82b654dcfe16}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Stopping'}
+METHOD M_Stopping
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE fbUnitModeManager.eModeStatus OF
+	ePMLProtUnitMode_Production, ePMLProtUnitMode_Manual:
+				//////////////////////////////////////////////////////////timeout//////////////////////////////////////////	
+		iStateTemp	:= eStateTemp;
+		ton_timeout();
+		IF eStateTemp=eStates THEN
+			ton_timeout.IN	:=TRUE;
+		ELSE
+			ton_timeout.IN	:=FALSE;
+			eStateTemp	:= eStates;	
+		END_IF
+		IF ton_timeout.Q THEN	
+			ton_timeout.IN	:=FALSE;
+			CASE eStates OF		
+				E_SampleStates.IDLE:						
+					;
+				E_SampleStates.INIT:
+					;
+				E_SampleStates.WAIT_ON:
+					;
+				E_SampleStates.WAIT_OFF:
+					;			
+				E_SampleStates.ERROR:	
+					alarm_temp.Message	:= 'Sample in error state';
+				ELSE
+					alarm_temp.Message	:= 'UNKNOWN STATES in Sample module';
+			END_CASE
+			IF eStates<>E_SampleStates.IDLE AND eStates<>E_SampleStates.WAIT_ON AND eStates<>E_SampleStates.WAIT_OFF THEN
+				GVL.pml_adminAlarm.M_SetAlarm(stAdmin:=GVL.PackTags.Admin,stAlarm:=alarm_temp);
+			END_IF
+		END_IF
+		
+		CASE eStates OF 
+				E_SampleStates.IDLE:						
+					eStates	:= E_SampleStates.INIT;				
+				E_SampleStates.INIT:
+					ton_timeout.PT	:= T#1S;
+					eStates	:= E_SampleStates.WAIT_ON; 
+				E_SampleStates.WAIT_ON:
+					lamp	:= TRUE;
+					IF ton_timeout.Q THEN
+						eStates	:= E_SampleStates.WAIT_OFF;
+					END_IF
+				E_SampleStates.WAIT_OFF:
+					lamp	:= FALSE;
+					IF ton_timeout.Q THEN
+						eStates	:= E_SampleStates.IDLE;
+						M_StateComplete();	
+					END_IF
+				E_SampleStates.ERROR:
+					;
+			END_CASE			
+	ePMLProtUnitMode_Maintenance, ePMLUnitMode_Service:
+		M_StateComplete();	
+			//not defined
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="M_Undefined" Id="{1523c926-ded0-4f2e-8d47-c558e8648371}">
+      <Declaration><![CDATA[{attribute 'object_name' := 'M_Undefined'}
+METHOD M_Undefined
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+bUndefinedDone					:= TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ParseStateToString" Id="{29842482-7149-4ae9-b12c-8be8de69ff66}">
+      <Declaration><![CDATA[METHOD ParseStateToString : STRING
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE THIS^.eStates OF
+	E_AutoStore_States.IDLE:
+		ParseStateToString	:='IDLE';
+	E_AutoStore_States.INIT:
+		ParseStateToString	:='INIT';
+	E_AutoStore_States.CHECK:
+		ParseStateToString	:='CHECK';
+
+	E_AutoStore_States.WAIT:
+		ParseStateToString	:='WAIT';
+
+	E_AutoStore_States.DONE:	
+		ParseStateToString	:='DONE';
+	E_AutoStore_States.ERROR:
+		ParseStateToString	:='ERROR';
+	ELSE
+		ParseStateToString	:='UNKNOW STATE';
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_autoStore">
+      <LineId Id="9" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="125" Count="0" />
+      <LineId Id="129" Count="1" />
+      <LineId Id="132" Count="0" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="133" Count="1" />
+      <LineId Id="136" Count="2" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="52" Count="3" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="70" Count="0" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="14" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_autoStore.Callback">
+      <LineId Id="12" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="29" Count="1" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="27" Count="1" />
+      <LineId Id="37" Count="4" />
+      <LineId Id="36" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_autoStore.M_Aborting">
+      <LineId Id="3" Count="1" />
+      <LineId Id="35" Count="2" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="39" Count="1" />
+      <LineId Id="12" Count="2" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_autoStore.M_agingTest">
+      <LineId Id="41" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_autoStore.M_Completing">
+      <LineId Id="3" Count="1" />
+      <LineId Id="8" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_autoStore.M_Execute">
+      <LineId Id="242" Count="0" />
+      <LineId Id="5" Count="1" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="187" Count="0" />
+      <LineId Id="145" Count="5" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="226" Count="2" />
+      <LineId Id="151" Count="2" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="237" Count="3" />
+      <LineId Id="236" Count="0" />
+      <LineId Id="235" Count="0" />
+      <LineId Id="174" Count="0" />
+      <LineId Id="251" Count="0" />
+      <LineId Id="348" Count="0" />
+      <LineId Id="252" Count="0" />
+      <LineId Id="343" Count="4" />
+      <LineId Id="175" Count="5" />
+      <LineId Id="223" Count="0" />
+      <LineId Id="182" Count="3" />
+      <LineId Id="243" Count="1" />
+      <LineId Id="339" Count="0" />
+      <LineId Id="255" Count="0" />
+      <LineId Id="337" Count="0" />
+      <LineId Id="340" Count="0" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="338" Count="0" />
+      <LineId Id="336" Count="0" />
+      <LineId Id="272" Count="1" />
+      <LineId Id="277" Count="0" />
+      <LineId Id="275" Count="0" />
+      <LineId Id="274" Count="0" />
+      <LineId Id="278" Count="3" />
+      <LineId Id="284" Count="1" />
+      <LineId Id="289" Count="0" />
+      <LineId Id="287" Count="1" />
+      <LineId Id="290" Count="0" />
+      <LineId Id="286" Count="0" />
+      <LineId Id="283" Count="0" />
+      <LineId Id="331" Count="0" />
+      <LineId Id="291" Count="0" />
+      <LineId Id="296" Count="4" />
+      <LineId Id="292" Count="0" />
+      <LineId Id="320" Count="4" />
+      <LineId Id="313" Count="0" />
+      <LineId Id="301" Count="5" />
+      <LineId Id="293" Count="1" />
+      <LineId Id="307" Count="0" />
+      <LineId Id="309" Count="1" />
+      <LineId Id="332" Count="1" />
+      <LineId Id="308" Count="0" />
+      <LineId Id="315" Count="4" />
+      <LineId Id="314" Count="0" />
+      <LineId Id="342" Count="0" />
+      <LineId Id="341" Count="0" />
+      <LineId Id="295" Count="0" />
+      <LineId Id="266" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="203" Count="1" />
+      <LineId Id="129" Count="6" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_autoStore.M_Holding">
+      <LineId Id="3" Count="2" />
+      <LineId Id="40" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_autoStore.M_Idle">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="1" />
+    </LineIds>
+    <LineIds Name="FB_autoStore.M_mapping">
+      <LineId Id="92" Count="6" />
+      <LineId Id="142" Count="3" />
+      <LineId Id="147" Count="0" />
+      <LineId Id="146" Count="0" />
+      <LineId Id="100" Count="2" />
+      <LineId Id="115" Count="26" />
+      <LineId Id="85" Count="0" />
+      <LineId Id="148" Count="0" />
+      <LineId Id="150" Count="24" />
+      <LineId Id="149" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_autoStore.M_Reset">
+      <LineId Id="3" Count="1" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="12" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_autoStore.M_Resetting">
+      <LineId Id="3" Count="1" />
+      <LineId Id="58" Count="0" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="45" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_autoStore.M_Starting">
+      <LineId Id="3" Count="1" />
+      <LineId Id="12" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_autoStore.M_Stopping">
+      <LineId Id="3" Count="1" />
+      <LineId Id="134" Count="44" />
+      <LineId Id="182" Count="0" />
+      <LineId Id="179" Count="2" />
+      <LineId Id="133" Count="0" />
+      <LineId Id="14" Count="2" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_autoStore.M_Undefined">
+      <LineId Id="10" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_autoStore.ParseStateToString">
+      <LineId Id="5" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="31" Count="1" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

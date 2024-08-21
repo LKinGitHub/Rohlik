@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="AutostoreControlCommand" Id="{92c937d9-f38e-456a-a4fc-df36484f4ae0}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE AutostoreControlCommand :
+(
+	DO_NOTHING := 0,
+	START	:= 1,
+	STOP	:= 2
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

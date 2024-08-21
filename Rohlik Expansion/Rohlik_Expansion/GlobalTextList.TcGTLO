@@ -492,6 +492,11 @@
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>
+              <v n="TextID">"2216"</v>
+              <v n="TextDefault">"Btton Start"</v>
+              <l n="LanguageTexts" t="ArrayList" />
+            </o>
+            <o>
               <v n="TextID">"1159"</v>
               <v n="TextDefault">"buffer"</v>
               <l n="LanguageTexts" t="ArrayList" />
@@ -509,6 +514,11 @@
             <o>
               <v n="TextID">"481"</v>
               <v n="TextDefault">"bUsingOpenBag"</v>
+              <l n="LanguageTexts" t="ArrayList" />
+            </o>
+            <o>
+              <v n="TextID">"1712"</v>
+              <v n="TextDefault">"Button stop"</v>
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>
@@ -595,6 +605,11 @@ of metal"</v>
             <o>
               <v n="TextID">"2636"</v>
               <v n="TextDefault">"DOOR CLOSED"</v>
+              <l n="LanguageTexts" t="ArrayList" />
+            </o>
+            <o>
+              <v n="TextID">"2225"</v>
+              <v n="TextDefault">"Door Closed"</v>
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>
@@ -1172,6 +1187,11 @@ work position"</v>
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>
+              <v n="TextID">"2929"</v>
+              <v n="TextDefault">"sensor_lift_atDownPos"</v>
+              <l n="LanguageTexts" t="ArrayList" />
+            </o>
+            <o>
               <v n="TextID">"681"</v>
               <v n="TextDefault">"sensor_start[0]"</v>
               <l n="LanguageTexts" t="ArrayList" />
@@ -1179,6 +1199,16 @@ work position"</v>
             <o>
               <v n="TextID">"1006"</v>
               <v n="TextDefault">"sensor_start[1]"</v>
+              <l n="LanguageTexts" t="ArrayList" />
+            </o>
+            <o>
+              <v n="TextID">"2179"</v>
+              <v n="TextDefault">"sensor_transfer_atFeedingPos"</v>
+              <l n="LanguageTexts" t="ArrayList" />
+            </o>
+            <o>
+              <v n="TextID">"3056"</v>
+              <v n="TextDefault">"sensor_transfer_atWorkingPos"</v>
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>
